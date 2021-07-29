@@ -1,4 +1,4 @@
-package comp3320.javateam.fireolympics;
+package comp3230.javateam.fireolympics;
 
 public class FireOlympics implements Runnable{
 
