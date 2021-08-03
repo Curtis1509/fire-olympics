@@ -3,12 +3,10 @@
 
 # Ignore Gradle build output directory
 build
-
 bin
-
-.classpath
 
 .DS_Store
 
-/.project
+.classpath
+.project
 /.settings/
