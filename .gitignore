@@ -5,6 +5,9 @@
 build
 bin
 
+# Ignore IntelliJ Local Settings Folder
+/.idea/
+
 .DS_Store
 
 .classpath
