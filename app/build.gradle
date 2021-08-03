@@ -86,6 +86,6 @@ dependencies {
 	runtimeOnly "org.lwjgl:lwjgl-opengl::$lwjglNatives"
 	runtimeOnly "org.lwjgl:lwjgl-par::$lwjglNatives"
 	runtimeOnly "org.lwjgl:lwjgl-stb::$lwjglNatives"
-	runtimeOnly "org.lwjgl:lwjgl-vulkan::$lwjglNatives"
+	if (lwjglNatives == "natives-macos") runtimeOnly "org.lwjgl:lwjgl-vulkan::$lwjglNatives"
 	implementation "org.joml:joml:${jomlVersion}"
 }
