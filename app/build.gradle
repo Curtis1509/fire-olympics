@@ -29,7 +29,7 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClass = 'fire.olympics.App'
+    mainClass.set('fire.olympics.App')
 }
 
 tasks.named('test') {
