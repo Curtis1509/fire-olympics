@@ -5,8 +5,9 @@
 build
 bin
 
-# Ignore IntelliJ Local Settings Folder
+# Ignore IntelliJ Local Settings
 /.idea/
+Fire Olympics.iml
 
 .DS_Store
 
