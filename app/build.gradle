@@ -6,9 +6,6 @@
  * User Manual available at https://docs.gradle.org/7.1.1/userguide/building_java_projects.html
  */
 
-
-import org.gradle.internal.os.OperatingSystem
-
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
@@ -39,24 +36,7 @@ tasks.named('test') {
 
 project.ext.lwjglVersion = "3.2.3"
 project.ext.jomlVersion = "1.10.1"
-
-switch (OperatingSystem.current()) {
-	case OperatingSystem.LINUX:
-		def osArch = System.getProperty("os.arch")
-		project.ext.lwjglNatives = osArch.startsWith("arm") || osArch.startsWith("aarch64")
-			? "natives-linux-${osArch.contains("64") || osArch.startsWith("armv8") ? "arm64" : "arm32"}"
-			: "natives-linux"
-		break
-	case OperatingSystem.MAC_OS:
-		project.ext.lwjglNatives = "natives-macos"
-		break
-	case OperatingSystem.WINDOWS:
-		def osArch = System.getProperty("os.arch")
-		project.ext.lwjglNatives = osArch.contains("64")
-			? "natives-windows${osArch.startsWith("aarch64") ? "-arm64" : ""}"
-			: "natives-windows-x86"
-		break
-}
+project.ext.lwjglNatives = "natives-macos"
 
 repositories {
 	mavenCentral()
@@ -86,6 +66,6 @@ dependencies {
 	runtimeOnly "org.lwjgl:lwjgl-opengl::$lwjglNatives"
 	runtimeOnly "org.lwjgl:lwjgl-par::$lwjglNatives"
 	runtimeOnly "org.lwjgl:lwjgl-stb::$lwjglNatives"
-	if (lwjglNatives == "natives-macos") runtimeOnly "org.lwjgl:lwjgl-vulkan::$lwjglNatives"
+	runtimeOnly "org.lwjgl:lwjgl-vulkan::$lwjglNatives"
 	implementation "org.joml:joml:${jomlVersion}"
 }
