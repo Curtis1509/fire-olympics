@@ -13,6 +13,8 @@ import java.nio.*;
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL30C.GL_MAJOR_VERSION;
+import static org.lwjgl.opengl.GL30C.GL_MINOR_VERSION;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
@@ -58,7 +60,10 @@ public class App {
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
         // Create the window
-        window = glfwCreateWindow(300, 300, "Hello World!", NULL, NULL);
+
+
+
+        window = glfwCreateWindow(800, 600, getVersion(), NULL, NULL);
         if ( window == NULL )
             throw new RuntimeException("Failed to create the GLFW window");
 
@@ -94,6 +99,16 @@ public class App {
 
         // Make the window visible
         glfwShowWindow(window);
+    }
+
+    private String getVersion(){
+        int maj = GL_MAJOR_VERSION;
+        int min = GL_MINOR_VERSION;
+        while (maj >= 10)
+            maj /= 10;
+        while (min >= 10)
+            min /= 10;
+        return "OpenGL Version: " + maj + "." + min;
     }
 
     private void loop() {
