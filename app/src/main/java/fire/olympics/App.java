@@ -3,6 +3,7 @@
  */
 package fire.olympics;
 
+import fire.olympics.display.Render;
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
@@ -18,19 +19,26 @@ import static org.lwjgl.opengl.GL30C.GL_MINOR_VERSION;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
-public class App {
+public class App{
     // The window handle
-    private long window;
+    private static long window;
+    private Render render;
 
     public String getGreeting() {
         return "Hello World!";
     }
-    
-    public void run() {
+
+    public static long getWindow(){
+        return window;
+    }
+
+
+    public void start() {
         System.out.println("Hello LWJGL " + Version.getVersion() + "!");
 
         init();
-        loop();
+        render = new Render();
+        render.run();
 
         // Free the window callbacks and destroy the window
         glfwFreeCallbacks(window);
@@ -96,7 +104,7 @@ public class App {
         glfwMakeContextCurrent(window);
         // Enable v-sync
         glfwSwapInterval(1);
-
+        GL.createCapabilities();
         // Make the window visible
         glfwShowWindow(window);
     }
@@ -111,35 +119,12 @@ public class App {
         return "OpenGL Version: " + maj + "." + min;
     }
 
-    private void loop() {
-        // This line is critical for LWJGL's interoperation with GLFW's
-        // OpenGL context, or any context that is managed externally.
-        // LWJGL detects the context that is current in the current thread,
-        // creates the GLCapabilities instance and makes the OpenGL
-        // bindings available for use.
-        GL.createCapabilities();
-
-        // Set the clear color
-        glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
-
-        // Run the rendering loop until the user has attempted to close
-        // the window or has pressed the ESCAPE key.
-        while ( !glfwWindowShouldClose(window) ) {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
-
-            glfwSwapBuffers(window); // swap the color buffers
-
-            // Poll for window events. The key callback above will only be
-            // invoked during this call.
-            glfwPollEvents();
-        }
-    }
 
     public static void main(String[] args) {
         Thread t = Thread.currentThread();
         if (!t.getName().equals("main")) {
             System.out.println("warning: not running on main thread!");
         }
-        new App().run();
+        new App().start();
     }
 }
