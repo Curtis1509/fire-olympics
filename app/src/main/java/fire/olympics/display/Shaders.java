@@ -14,6 +14,8 @@ import static org.lwjgl.opengl.GL20.glValidateProgram;
 
 public class Shaders {
 
+    private static int program;
+
     public static int loadProgram(String vertexPath, String fragmentPath) {
         String vertex = convertToString(vertexPath);
         String fragment = convertToString(fragmentPath);
@@ -21,7 +23,7 @@ public class Shaders {
     }
 
     public static int createProgram(String vert, String frag) {
-        int program = glCreateProgram();
+        program = glCreateProgram();
         int vertID = glCreateShader(GL_VERTEX_SHADER);
         int fragID = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(vertID, vert);
@@ -41,7 +43,6 @@ public class Shaders {
         glAttachShader(program, fragID);
         glLinkProgram(program);
         glValidateProgram(program);
-
         return program;
     }
 
@@ -60,7 +61,26 @@ public class Shaders {
         }
         return result.toString();
     }
+    public void bind() {
+        glUseProgram(program);
+    }
 
+    public void unbind() {
+        glUseProgram(0);
+    }
+
+    public void link() throws Exception {
+        glLinkProgram(program);
+        if (glGetProgrami(program, GL_LINK_STATUS) == 0) {
+            throw new Exception("Error linking Shader code: " + glGetProgramInfoLog(program, 1024));
+        }
+
+        glValidateProgram(program);
+        if (glGetProgrami(program, GL_VALIDATE_STATUS) == 0) {
+            System.err.println("Warning validating Shader code: " + glGetProgramInfoLog(program, 1024));
+        }
+
+    }
 }
 
 
