@@ -1,65 +1,53 @@
 package fire.olympics.display;
 
-import static fire.olympics.App.getWindow;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
 
-import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL33.*;
 import static org.lwjgl.system.MemoryUtil.memAllocFloat;
 
-public class Render implements Runnable{
+public class Render {
 
-    Shaders shaderProgram;
+    long window;
     int vbo;
     int vao;
+    ShaderProgram pipeline;
 
-    @Override
-    public void run() {
-        while ( !glfwWindowShouldClose(getWindow()) ) {
+    public Render(long window, ShaderProgram pipeline) {
+        this.window = window;
+        this.pipeline = pipeline;
+    }
+
+    public void run() throws Exception {
+        while (!glfwWindowShouldClose(window)) {
             createVertexBuffer();
 
-            try {
-                renderTriangle();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            renderTriangle();
 
             clearColor(0.0f, 0.0f, 0.0f);
+            clear();
 
-            while (!glfwWindowShouldClose(getWindow())) {
-                clear();
+            pipeline.bind();
 
-                shaderProgram.bind();
+            glBindVertexArray(vao);
+            glDrawArrays(GL_TRIANGLES, 0, 3);
+            glBindVertexArray(0);
 
-                glBindVertexArray(vao);
+            pipeline.unbind();
 
-                glDrawArrays(GL_TRIANGLES, 0, 3);
+            glfwSwapBuffers(window);
 
-                glBindVertexArray(0);
-
-                shaderProgram.unbind();
-
-                glfwSwapBuffers(getWindow());
-
-                // Poll for window events. The key callback above will only be
-                // invoked during this call.
-                glfwPollEvents();
-            }
-
-
+            // Poll for window events. The key callback above will only be
+            // invoked during this call.
+            glfwPollEvents();
         }
     }
 
-
     private void renderTriangle() throws Exception {
-        getShaders();
-
         float[] vertices = new float[]{
                 0.0f, 0.5f, 0.0f,
                 -0.5f, -0.5f, 0.0f,
@@ -68,33 +56,28 @@ public class Render implements Runnable{
 
         FloatBuffer vertBuffer = null;
 
-        try {
-            vertBuffer = memAllocFloat(vertices.length);
-            vertBuffer.put(vertices).flip();
-
-            vao = glGenVertexArrays();
-            glBindVertexArray(vao);
-
-            vbo = glGenBuffers();
-            glBindBuffer(GL_ARRAY_BUFFER, vbo);
-            glBufferData(GL_ARRAY_BUFFER, vertBuffer, GL_STATIC_DRAW);
-
-            glEnableVertexAttribArray(0);
-
-            glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-            glBindVertexArray(0);
-        } finally {
-            if(vertBuffer != null) {
-                MemoryUtil.memFree(vertBuffer);
-            }
+        vertBuffer = memAllocFloat(vertices.length);
+        if (vertBuffer == null) {
+            throw new Exception("Could not allocate memory.");
         }
-    }
 
-    private void getShaders() throws Exception {
-        shaderProgram = new Shaders();
-        shaderProgram.loadProgram("shader.vert","shader.frag");
+        vertBuffer.put(vertices).flip();
+
+        vao = glGenVertexArrays();
+        glBindVertexArray(vao);
+
+        vbo = glGenBuffers();
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, vertBuffer, GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(0);
+
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+
+        MemoryUtil.memFree(vertBuffer);
     }
 
     private void clear() {
