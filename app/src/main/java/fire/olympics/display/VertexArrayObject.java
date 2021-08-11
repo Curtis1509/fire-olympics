@@ -12,7 +12,9 @@ public class VertexArrayObject {
         name = glGenVertexArrays();
     }
 
-    public void bindFloats(FloatBuffer buffer, int index, int usage, int componentCount, int componentType) {
+    public int bindFloats(FloatBuffer buffer, int index, int usage, int componentCount, int componentType) {
+        // todo: keep a reference to gpuId instead of returning it.
+        // This will clean up memory management in the renderer, for example.
         int gpuId = glGenBuffers();
         use();
         glBindBuffer(GL_ARRAY_BUFFER, gpuId);
@@ -21,6 +23,7 @@ public class VertexArrayObject {
         glVertexAttribPointer(index, componentCount, componentType, false, 0, 0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         done();
+        return gpuId;
     }
 
     public void use() {
@@ -30,5 +33,9 @@ public class VertexArrayObject {
     public void done() {
         // 0 is like a vertex array that does not exist.
         glBindVertexArray(0);
+    }
+
+    public void delete() {
+        glDeleteVertexArrays(name);
     }
 }

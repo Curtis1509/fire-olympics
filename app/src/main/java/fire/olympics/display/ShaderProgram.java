@@ -56,15 +56,13 @@ public class ShaderProgram {
         if (glGetProgrami(program, GL_LINK_STATUS) == 0) {
             throw new Exception("Error linking Shader code: " + glGetProgramInfoLog(program, 1024));
         }
-
-        validate();
     }
 
     public void validate() throws Exception {
         glValidateProgram(program);
         if (glGetProgrami(program, GL_VALIDATE_STATUS) == 0) {
             String msg = "warning: validating shader code: " + glGetProgramInfoLog(program, 1024);
-            System.err.println(msg);
+            throw new Exception(msg);
         }
     }
 
