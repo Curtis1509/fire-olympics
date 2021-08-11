@@ -3,7 +3,7 @@
  */
 package fire.olympics;
 
-import fire.olympics.display.Render;
+import fire.olympics.display.Renderer;
 import fire.olympics.display.ShaderProgram;
 
 import org.lwjgl.*;
@@ -41,8 +41,9 @@ public class App {
             ShaderProgram pipeline = new ShaderProgram(Path.of("shader.vert"), Path.of("shader.frag"));
             pipeline.readCompileAndLink();
 
-            Render render = new Render(window, pipeline);
-            render.run();
+            try (Renderer render = new Renderer(window, pipeline)) {
+                render.run();
+            }
         } catch (Exception e) {
             System.out.println(String.format("error: %s", e.toString()));
         } finally {
