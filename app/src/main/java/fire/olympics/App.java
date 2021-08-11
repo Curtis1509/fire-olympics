@@ -3,8 +3,7 @@
  */
 package fire.olympics;
 
-import fire.olympics.display.Renderer;
-import fire.olympics.display.ShaderProgram;
+import fire.olympics.display.*;
 
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
@@ -41,7 +40,26 @@ public class App {
             ShaderProgram pipeline = new ShaderProgram(Path.of("shader.vert"), Path.of("shader.frag"));
             pipeline.readCompileAndLink();
 
+            float[] positions = new float[] {
+                -1.0f,  0.5f, 0.0f,
+                -0.5f, -0.5f, 0.0f,
+                 0.5f, -0.5f, 0.0f,
+                 0.5f,  0.5f, 0.0f
+            };
+
+            int[] indices = new int[] {
+                0, 1, 3, 3, 1, 2
+            };
+
+            float[] colors = new float[]{
+                0.5f, 0.0f, 0.0f,
+                0.0f, 0.5f, 0.0f,
+                0.0f, 0.0f, 0.5f,
+                0.0f, 0.5f, 0.5f,
+            };
+
             try (Renderer render = new Renderer(window, pipeline)) {
+                render.add(new Mesh(positions, indices, colors));
                 render.run();
             }
         } catch (Exception e) {

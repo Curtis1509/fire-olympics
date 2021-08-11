@@ -1,6 +1,8 @@
 package fire.olympics.display;
 
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
+
 import org.lwjgl.system.MemoryUtil;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -8,11 +10,12 @@ import static org.lwjgl.opengl.GL33.*;
 
 public class Renderer implements AutoCloseable {
 
-    long window;
-    ShaderProgram program;
-    VertexArrayObject vao;
-    int verticiesGpuBufferId = -1;
-    final int vertexAttributeIndex = 0;
+    private long window;
+    private ShaderProgram program;
+    private VertexArrayObject vao;
+    private final int vertexAttributeIndex = 0;
+
+    ArrayList<Renderable> objects = new ArrayList<Renderable>();
 
     public Renderer(long window, ShaderProgram program) throws Exception {
         this.window = window;
@@ -33,13 +36,17 @@ public class Renderer implements AutoCloseable {
             verticies.put(vertices).flip();
         }
 
-        verticiesGpuBufferId = vao.bindFloats(verticies, vertexAttributeIndex, GL_STATIC_DRAW, 3, GL_FLOAT);
+        vao.bindFloats(verticies, vertexAttributeIndex, GL_STATIC_DRAW, 3, GL_FLOAT);
         MemoryUtil.memFree(verticies);
 
         // An exception will be thrown if your shader program is invalid.
         vao.use();
         program.validate();
         vao.done();
+    }
+
+    public void add(Renderable m) {
+        objects.add(m);
     }
 
     public void run() {
@@ -60,6 +67,10 @@ public class Renderer implements AutoCloseable {
             // Unbind the vertex array object so it's not accidentally used somewhere else.
             vao.done();
 
+            for (Renderable r : objects) {
+                r.render();
+            }
+
             program.unbind();
 
             glfwSwapBuffers(window);
@@ -71,14 +82,7 @@ public class Renderer implements AutoCloseable {
     }
 
     @Override
-    public void close() {
-        if (verticiesGpuBufferId != -1) {
-            vao.use();
-            glDisableVertexAttribArray(vertexAttributeIndex);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-            glDeleteBuffers(verticiesGpuBufferId);
-            vao.done();
-            vao.delete();
-        }
+    public void close() throws Exception {
+        vao.close();
     }
 }
