@@ -33,8 +33,13 @@ public class App {
         try {
             window = init();
 
+            // todo: improve resource loading
+            // At the moment this assumes the current working directory is the project directory,
+            // is not necessarily true. Typically, the shaders would be included as resource files 
+            // some how during the build. We could also watch for changes to the files and recompile
+            // the shaders to make experimenting easier.
             ShaderProgram pipeline = new ShaderProgram(Path.of("shader.vert"), Path.of("shader.frag"));
-            pipeline.load();
+            pipeline.readCompileAndLink();
 
             Render render = new Render(window, pipeline);
             render.run();

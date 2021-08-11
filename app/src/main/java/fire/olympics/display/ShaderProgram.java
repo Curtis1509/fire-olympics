@@ -23,13 +23,13 @@ public class ShaderProgram {
         this.fragmentPath = fragmentPath;
     }
 
-    public void load() throws Exception {
+    public void readCompileAndLink() throws Exception {
         String vertex = Files.readString(vertexPath);
         String fragment = Files.readString(fragmentPath);
-        compile(vertex, fragment);
+        compileAndLink(vertex, fragment);
     }
 
-    private void compile(String vert, String frag) throws Exception {
+    private void compileAndLink(String vert, String frag) throws Exception {
         program = glCreateProgram();
         int vertID = glCreateShader(GL_VERTEX_SHADER);
         int fragID = glCreateShader(GL_FRAGMENT_SHADER);
@@ -42,13 +42,30 @@ public class ShaderProgram {
 
         glCompileShader(fragID);
         if (glGetShaderi(fragID, GL_COMPILE_STATUS) == GL_FALSE) {
+            // fixme: resource leak - can you spot it?
             throw new Exception("Failed to compile fragment shader");
         }
 
         glAttachShader(program, vertID);
         glAttachShader(program, fragID);
         glLinkProgram(program);
+
+        if (vertID != 0) glDetachShader(program, vertID);
+        if (fragID != 0) glDetachShader(program, fragID);
+        
+        if (glGetProgrami(program, GL_LINK_STATUS) == 0) {
+            throw new Exception("Error linking Shader code: " + glGetProgramInfoLog(program, 1024));
+        }
+
+        validate();
+    }
+
+    public void validate() throws Exception {
         glValidateProgram(program);
+        if (glGetProgrami(program, GL_VALIDATE_STATUS) == 0) {
+            String msg = "warning: validating shader code: " + glGetProgramInfoLog(program, 1024);
+            System.err.println(msg);
+        }
     }
 
     public void bind() {
@@ -57,18 +74,6 @@ public class ShaderProgram {
 
     public void unbind() {
         glUseProgram(0);
-    }
-
-    public void link() throws Exception {
-        glLinkProgram(program);
-        if (glGetProgrami(program, GL_LINK_STATUS) == 0) {
-            throw new Exception("Error linking Shader code: " + glGetProgramInfoLog(program, 1024));
-        }
-
-        glValidateProgram(program);
-        if (glGetProgrami(program, GL_VALIDATE_STATUS) == 0) {
-            throw new Exception("Warning validating Shader code: " + glGetProgramInfoLog(program, 1024));
-        }
     }
 }
 
