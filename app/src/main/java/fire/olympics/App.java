@@ -40,26 +40,16 @@ public class App {
             ShaderProgram pipeline = new ShaderProgram(Path.of("shader.vert"), Path.of("shader.frag"));
             pipeline.readCompileAndLink();
 
-            float[] positions = new float[] {
-                -1.0f,  0.5f, 0.0f,
-                -0.5f, -0.5f, 0.0f,
-                 0.5f, -0.5f, 0.0f,
-                 0.5f,  0.5f, 0.0f
-            };
-
-            int[] indices = new int[] {
-                0, 1, 3, 3, 1, 2
-            };
-
-            float[] colors = new float[]{
-                0.5f, 0.0f, 0.0f,
-                0.0f, 0.5f, 0.0f,
-                0.0f, 0.0f, 0.5f,
-                0.0f, 0.5f, 0.5f,
-            };
+            //float x, float y, float z, float length, float height, float width
+            //Sample inputs. Follow the variables above to modify constraints
+            float[] positions = GenerateModel.createPositions(0f,0f,0f,0.5f,0.3f,0.4f);
+            float[] positions2 = GenerateModel.createPositions(0.7f,0.3f,0f,0.4f,0.6f,0.4f);
+            int[] indices = GenerateModel.createIndicies();
+            float[] colors = GenerateModel.createColours();
 
             try (Renderer render = new Renderer(window, pipeline)) {
                 render.add(new Mesh(positions, indices, colors));
+                render.add(new Mesh(positions2, indices, colors));
                 render.run();
             }
         } catch (Exception e) {

@@ -3,6 +3,7 @@ package fire.olympics.display;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
+import org.joml.Vector3f;
 import org.lwjgl.system.MemoryUtil;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -48,7 +49,7 @@ public class Renderer implements AutoCloseable {
     public void add(Renderable m) {
         objects.add(m);
     }
-
+    public void update(Renderable m){objects.get(0).equals(m);}
     public void run() {
         while (!glfwWindowShouldClose(window)) {
 
@@ -66,8 +67,8 @@ public class Renderer implements AutoCloseable {
             glDrawArrays(GL_TRIANGLES, 0, 3);
             // Unbind the vertex array object so it's not accidentally used somewhere else.
             vao.done();
-
             for (Renderable r : objects) {
+
                 r.render();
             }
 
