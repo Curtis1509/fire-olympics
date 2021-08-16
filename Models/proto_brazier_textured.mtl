@@ -1,0 +1,24 @@
+# Blender MTL File: 'Brazier v1 Textured.blend'
+# Material Count: 2
+
+newmtl Metal
+Ns 298.215164
+Ka 0.882353 0.882353 0.882353
+Kd 0.800000 0.800000 0.800000
+Ks 0.714286 0.714286 0.714286
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd /home/andy/Uni-Work/COMP3320/Textures/metal_test.png
+
+newmtl Wood
+Ns 29.378209
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.214286 0.214286 0.214286
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd /home/andy/Uni-Work/COMP3320/Textures/wood_test_2.png
