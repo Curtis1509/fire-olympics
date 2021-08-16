@@ -3,51 +3,77 @@
  */
 package fire.olympics;
 
+import fire.olympics.display.*;
+
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
 
 import java.nio.*;
+import java.nio.file.Path;
 
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL30C.GL_MAJOR_VERSION;
 import static org.lwjgl.opengl.GL30C.GL_MINOR_VERSION;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
 public class App {
-    // The window handle
-    private long window;
 
-    public String getGreeting() {
-        return "Hello World!";
-    }
-    
+    public App() { }
+
     public void run() {
-        System.out.println("Hello LWJGL " + Version.getVersion() + "!");
+        System.out.println("LWJGL version: " + Version.getVersion());
 
-        init();
-        loop();
+        long window = -1;
 
-        // Free the window callbacks and destroy the window
-        glfwFreeCallbacks(window);
-        glfwDestroyWindow(window);
+        try {
+            window = init();
 
-        // Terminate GLFW and free the error callback
-        glfwTerminate();
-        glfwSetErrorCallback(null).free();
+            // todo: improve resource loading
+            // At the moment this assumes the current working directory is the project directory,
+            // is not necessarily true. Typically, the shaders would be included as resource files 
+            // some how during the build. We could also watch for changes to the files and recompile
+            // the shaders to make experimenting easier.
+            ShaderProgram pipeline = new ShaderProgram(Path.of("shader.vert"), Path.of("shader.frag"));
+            pipeline.readCompileAndLink();
+
+            //float x, float y, float z, float length, float height, float width
+            //Sample inputs. Follow the variables above to modify constraints
+            float[] positions = GenerateModel.createPositions(0f,0f,0f,0.5f,0.3f,0.4f);
+            float[] positions2 = GenerateModel.createPositions(0.7f,0.3f,0f,0.4f,0.6f,0.4f);
+            int[] indices = GenerateModel.createIndicies();
+            float[] colors = GenerateModel.createColours();
+
+            try (Renderer render = new Renderer(window, pipeline)) {
+                render.add(new Mesh(positions, indices, colors));
+                render.add(new Mesh(positions2, indices, colors));
+                render.run();
+            }
+        } catch (Exception e) {
+            System.out.println(String.format("error: %s", e.toString()));
+        } finally {
+            if (window != -1) {
+                // Free the window callbacks and destroy the window
+                glfwFreeCallbacks(window);
+                glfwDestroyWindow(window);
+
+                // Terminate GLFW and free the error callback
+                glfwTerminate();
+                glfwSetErrorCallback(null).free();
+            }
+        }
     }
 
-    private void init() {
+    private long init() throws Exception {
         // Setup an error callback. The default implementation
         // will print the error message in System.err.
         GLFWErrorCallback.createPrint(System.err).set();
 
         // Initialize GLFW. Most GLFW functions will not work before doing this.
-        if ( !glfwInit() )
+        if (!glfwInit())
             throw new IllegalStateException("Unable to initialize GLFW");
 
         // Configure GLFW
@@ -61,20 +87,20 @@ public class App {
 
         // Create the window
 
+        long window = glfwCreateWindow(800, 600, getVersion(), NULL, NULL);
+        if (window == NULL) {
+            throw new Exception("Failed to create the GLFW window");
+        }
 
-
-        window = glfwCreateWindow(800, 600, getVersion(), NULL, NULL);
-        if ( window == NULL )
-            throw new RuntimeException("Failed to create the GLFW window");
-
-        // Setup a key callback. It will be called every time a key is pressed, repeated or released.
-        glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
-            if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
-                glfwSetWindowShouldClose(window, true); // We will detect this in the rendering loop
+        // Setup a key callback. It will be called every time a key is pressed, repeated
+        // or released.
+        glfwSetKeyCallback(window, (w, key, scancode, action, mods) -> {
+            if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
+                glfwSetWindowShouldClose(w, true); // We will detect this in the rendering loop
         });
 
         // Get the thread stack and push a new frame
-        try ( MemoryStack stack = stackPush() ) {
+        try (MemoryStack stack = stackPush()) {
             IntBuffer pWidth = stack.mallocInt(1); // int*
             IntBuffer pHeight = stack.mallocInt(1); // int*
 
@@ -85,23 +111,20 @@ public class App {
             GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
             // Center the window
-            glfwSetWindowPos(
-                window,
-                (vidmode.width() - pWidth.get(0)) / 2,
-                (vidmode.height() - pHeight.get(0)) / 2
-            );
+            glfwSetWindowPos(window, (vidmode.width() - pWidth.get(0)) / 2, (vidmode.height() - pHeight.get(0)) / 2);
         } // the stack frame is popped automatically
 
         // Make the OpenGL context current
         glfwMakeContextCurrent(window);
         // Enable v-sync
         glfwSwapInterval(1);
-
+        GL.createCapabilities();
         // Make the window visible
         glfwShowWindow(window);
+        return window;
     }
 
-    private String getVersion(){
+    private String getVersion() {
         int maj = GL_MAJOR_VERSION;
         int min = GL_MINOR_VERSION;
         while (maj >= 10)
@@ -111,35 +134,13 @@ public class App {
         return "OpenGL Version: " + maj + "." + min;
     }
 
-    private void loop() {
-        // This line is critical for LWJGL's interoperation with GLFW's
-        // OpenGL context, or any context that is managed externally.
-        // LWJGL detects the context that is current in the current thread,
-        // creates the GLCapabilities instance and makes the OpenGL
-        // bindings available for use.
-        GL.createCapabilities();
-
-        // Set the clear color
-        glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
-
-        // Run the rendering loop until the user has attempted to close
-        // the window or has pressed the ESCAPE key.
-        while ( !glfwWindowShouldClose(window) ) {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
-
-            glfwSwapBuffers(window); // swap the color buffers
-
-            // Poll for window events. The key callback above will only be
-            // invoked during this call.
-            glfwPollEvents();
-        }
-    }
-
     public static void main(String[] args) {
         Thread t = Thread.currentThread();
         if (!t.getName().equals("main")) {
             System.out.println("warning: not running on main thread!");
         }
-        new App().run();
+
+        App app = new App();
+        app.run();
     }
 }
