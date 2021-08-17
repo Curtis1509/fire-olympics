@@ -16,7 +16,7 @@ public class Renderer implements AutoCloseable {
     private VertexArrayObject vao;
     private final int vertexAttributeIndex = 0;
 
-    ArrayList<Renderable> objects = new ArrayList<Renderable>();
+    ArrayList<Renderable> objects = new ArrayList<>();
 
     public Renderer(long window, ShaderProgram program) throws Exception {
         this.window = window;
@@ -49,7 +49,9 @@ public class Renderer implements AutoCloseable {
     public void add(Renderable m) {
         objects.add(m);
     }
+
     public void update(Renderable m){objects.get(0).equals(m);}
+
     public void run() {
         while (!glfwWindowShouldClose(window)) {
 
