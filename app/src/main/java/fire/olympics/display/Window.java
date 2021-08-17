@@ -78,6 +78,9 @@ public class Window implements AutoCloseable {
         // Enable v-sync
         glfwSwapInterval(1);
 
+        // Enable backface culling
+        glEnable(GL_CULL_FACE);
+
         // Make the window visible
         glfwShowWindow(window);
         return window;
