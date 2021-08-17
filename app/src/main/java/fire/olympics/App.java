@@ -52,7 +52,7 @@ public class App {
                 render.run();
             }
         } catch (Exception e) {
-            System.out.println(String.format("error: %s", e.toString()));
+            System.out.printf("error: %s%n", e);
         } finally {
             if (window != -1) {
                 // Free the window callbacks and destroy the window
