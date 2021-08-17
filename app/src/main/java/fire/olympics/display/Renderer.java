@@ -6,6 +6,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.opengl.GL33C.*;
 
 public class Renderer {
@@ -28,7 +29,7 @@ public class Renderer {
     public void update() {
         // Update rotation angle
         for (GameItem gameItem:gameItems) {
-            float rotation = gameItem.getRotation().y() + 0.01f;
+            float rotation = gameItem.getRotation().y() + 0.5f;
             if ( rotation > 360 ) {
                 rotation = 0;
             }
@@ -41,6 +42,10 @@ public class Renderer {
         final Matrix4f worldMatrix = new Matrix4f();
 
         while (!glfwWindowShouldClose(window.getWindow())) {
+            if (window.isResized()) {
+                glViewport(0, 0, window.getWidth(), window.getHeight());
+                window.setResized(false);
+            }
 
             // Set the color.
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -51,7 +56,8 @@ public class Renderer {
             program.bind();
 
             // Update projection Matrix
-            projectionMatrix.setPerspective(FOV, window.getWidth() / window.getHeight(), Z_NEAR, Z_FAR);
+            float aspectRatio = (float) window.getWidth() / window.getHeight();
+            projectionMatrix.setPerspective(FOV, aspectRatio , Z_NEAR, Z_FAR);
             program.setUniform("projectionMatrix", projectionMatrix);
 
             // Render each gameItem
@@ -60,7 +66,10 @@ public class Renderer {
                 Vector3f rotation = object.getRotation();
                 worldMatrix
                     .translation(object.getPosition())
-                    .rotateAffineXYZ(rotation.x, rotation.y, rotation.z)
+                    .rotateAffineXYZ(
+                            (float) Math.toRadians(rotation.x),
+                            (float) Math.toRadians(rotation.y),
+                            (float) Math.toRadians(rotation.z))
                     .scale(object.getScale());
 
                 program.setUniform("worldMatrix", worldMatrix);
