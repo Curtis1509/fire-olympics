@@ -12,9 +12,6 @@ import org.lwjgl.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.lwjgl.glfw.GLFW.glfwGetTime;
-
-
 public class App {
     private Path resourcePath = Path.of("app", "src", "main", "resources");
 
