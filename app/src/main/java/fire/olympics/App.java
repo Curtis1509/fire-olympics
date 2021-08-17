@@ -24,9 +24,10 @@ public class App {
 
     public App() { }
 
+    public static GameItem[] gameItem = new GameItem[1];
+
     public void run() {
         System.out.println("LWJGL version: " + Version.getVersion());
-
         long window = -1;
 
         try {
@@ -43,13 +44,11 @@ public class App {
             //float x, float y, float z, float length, float height, float width
             //Sample inputs. Follow the variables above to modify constraints
             float[] positions = GenerateModel.createPositions(0f,0f,0f,0.5f,0.3f,0.4f);
-            float[] positions2 = GenerateModel.createPositions(0.7f,0.3f,0f,0.4f,0.6f,0.4f);
             int[] indices = GenerateModel.createIndicies();
             float[] colors = GenerateModel.createColours();
-
+            gameItem[0] = new GameItem(new Mesh(positions,indices,colors));
             try (Renderer render = new Renderer(window, pipeline)) {
-                render.add(new Mesh(positions, indices, colors));
-                render.add(new Mesh(positions2, indices, colors));
+                render.add(gameItem[0].getMesh());
                 render.run();
             }
         } catch (Exception e) {

@@ -1,7 +1,12 @@
 package fire.olympics.display;
 
+import org.joml.Matrix4f;
+import org.lwjgl.system.MemoryStack;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.opengl.GL20.*;
@@ -17,10 +22,23 @@ public class ShaderProgram {
     private int program;
     private Path vertexPath;
     private Path fragmentPath;
+    private final Map<String, Integer> uniforms;
 
     public ShaderProgram(Path vertexPath, Path fragmentPath) {
+        uniforms = new HashMap<>();
         this.vertexPath = vertexPath;
         this.fragmentPath = fragmentPath;
+
+    }
+    public void setUniform(String uniformName, int value) {
+        glUniform1i(uniforms.get(uniformName), value);
+    }
+    public void setUniform(String uniformName, Matrix4f value) {
+        // Dump the matrix into a float buffer
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            glUniformMatrix4fv(uniforms.get(uniformName), false,
+                    value.get(stack.mallocFloat(16)));
+        }
     }
 
     public void readCompileAndLink() throws Exception {
@@ -28,6 +46,14 @@ public class ShaderProgram {
         String fragment = Files.readString(fragmentPath);
         compileAndLink(vertex, fragment);
     }
+    public void createUniform(String uniformName) throws Exception {
+        int uniformLocation = glGetUniformLocation(program, uniformName);
+        if (uniformLocation < 0) {
+            throw new Exception("Could not find uniform:" + uniformName);
+        }
+        uniforms.put(uniformName, uniformLocation);
+    }
+
 
     private void compileAndLink(String vert, String frag) throws Exception {
         program = glCreateProgram();
@@ -49,6 +75,10 @@ public class ShaderProgram {
         glAttachShader(program, vertID);
         glAttachShader(program, fragID);
         glLinkProgram(program);
+
+        createUniform("projectionMatrix");
+        //createUniform("worldMatrix");
+        //createUniform("texture_sampler");
 
         if (vertID != 0) glDetachShader(program, vertID);
         if (fragID != 0) glDetachShader(program, fragID);
@@ -73,6 +103,8 @@ public class ShaderProgram {
     public void unbind() {
         glUseProgram(0);
     }
+
+
 }
 
 
