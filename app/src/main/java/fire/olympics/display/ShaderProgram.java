@@ -19,8 +19,8 @@ public class ShaderProgram {
     private Path fragmentPath;
 
     public ShaderProgram(Path vertexPath, Path fragmentPath) {
-        this.vertexPath = vertexPath;
-        this.fragmentPath = fragmentPath;
+        this.vertexPath = vertexPath.toAbsolutePath();
+        this.fragmentPath = fragmentPath.toAbsolutePath();
     }
 
     public void readCompileAndLink() throws Exception {

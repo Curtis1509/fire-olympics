@@ -11,6 +11,7 @@ import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
 
 import java.nio.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.lwjgl.glfw.Callbacks.*;
@@ -36,7 +37,16 @@ public class App {
             // is not necessarily true. Typically, the shaders would be included as resource files 
             // some how during the build. We could also watch for changes to the files and recompile
             // the shaders to make experimenting easier.
-            ShaderProgram pipeline = new ShaderProgram(Path.of("shader.vert"), Path.of("shader.frag"));
+
+            Path vertPath = Path.of("app", "src", "main", "resources", "shader.vert");
+            Path fragPath = Path.of("app", "src", "main", "resources", "shader.frag");
+
+            if(!Files.exists(vertPath)) {
+                vertPath = Path.of("app").relativize(vertPath);
+                fragPath = Path.of("app").relativize(fragPath);
+            }
+
+            ShaderProgram pipeline = new ShaderProgram(vertPath, fragPath);
             pipeline.readCompileAndLink();
 
             //float x, float y, float z, float length, float height, float width
