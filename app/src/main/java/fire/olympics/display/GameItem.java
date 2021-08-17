@@ -4,24 +4,35 @@ import fire.olympics.display.Mesh;
 import org.joml.Vector3f;
 
 public class GameItem {
-
     private final Mesh mesh;
-
-    private final Vector3f position;
-
+    private Vector3f position;
+    private Vector3f rotation;
     private float scale;
-
-    private final Vector3f rotation;
 
     public GameItem(Mesh mesh) {
         this.mesh = mesh;
-        position = new Vector3f();
+        position = new Vector3f(0, 0, 0);
+        rotation = new Vector3f(0, 0, 0);
         scale = 1;
-        rotation = new Vector3f();
+    }
+
+    public GameItem(Mesh mesh, Vector3f pos, Vector3f rotate) {
+        this.mesh = mesh;
+        position = pos;
+        rotation = rotate;
+        scale = 1;
+    }
+
+    public Mesh getMesh() {
+        return mesh;
     }
 
     public Vector3f getPosition() {
         return position;
+    }
+
+    public void setPosition(Vector3f position) {
+        this.position = position;
     }
 
     public void setPosition(float x, float y, float z) {
@@ -30,16 +41,12 @@ public class GameItem {
         this.position.z = z;
     }
 
-    public float getScale() {
-        return scale;
-    }
-
-    public void setScale(float scale) {
-        this.scale = scale;
-    }
-
     public Vector3f getRotation() {
         return rotation;
+    }
+
+    public void setRotation(Vector3f rotation) {
+        this.rotation = rotation;
     }
 
     public void setRotation(float x, float y, float z) {
@@ -48,7 +55,11 @@ public class GameItem {
         this.rotation.z = z;
     }
 
-    public Mesh getMesh() {
-        return mesh;
+    public float getScale() {
+        return scale;
+    }
+
+    public void setScale(float scale) {
+        this.scale = scale;
     }
 }

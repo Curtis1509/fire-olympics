@@ -1,5 +1,7 @@
 package fire.olympics.display;
 
+import java.util.Arrays;
+
 public class GenerateModel {
 
     //Generates a 3D object using the dimensions supplied and coordinates supplied.
@@ -54,6 +56,9 @@ public class GenerateModel {
                 // V19: V2 repeated
                 x+width/2, y-height/2, z,
         };
+
+        System.out.println(Arrays.toString(positions));
+
         return positions;
     }
     public static float[] createColours() {
@@ -84,4 +89,6 @@ public class GenerateModel {
                 7, 6, 4, 7, 4, 5,
         };
     }
+
+
 }

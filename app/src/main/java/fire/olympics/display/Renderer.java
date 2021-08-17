@@ -78,6 +78,7 @@ public class Renderer implements AutoCloseable {
             program.bind();
 
             // Update projection Matrix
+            // TODO set width and height to dynamic window width and height
             Matrix4f projectionMatrix = transformation.getProjectionMatrix(FOV, 800,600, Z_NEAR, Z_FAR);
             program.setUniform("projectionMatrix", projectionMatrix);
 
@@ -96,6 +97,8 @@ public class Renderer implements AutoCloseable {
             }
 
             program.unbind();
+
+
 
 
             glfwSwapBuffers(window);

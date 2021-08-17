@@ -15,6 +15,7 @@ import java.nio.file.Path;
 
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11C.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL30C.GL_MAJOR_VERSION;
 import static org.lwjgl.opengl.GL30C.GL_MINOR_VERSION;
 import static org.lwjgl.system.MemoryStack.*;
@@ -43,16 +44,20 @@ public class App {
 
             //float x, float y, float z, float length, float height, float width
             //Sample inputs. Follow the variables above to modify constraints
-            float[] positions = GenerateModel.createPositions(0f,0f,0f,0.5f,0.3f,0.4f);
+            float[] positions = GenerateModel.createPositions(0f,0f,0f,1f,1f,1f);
             int[] indices = GenerateModel.createIndicies();
-            float[] colors = GenerateModel.createColours();
-            gameItem[0] = new GameItem(new Mesh(positions,indices,colors));
+            float[] colours = GenerateModel.createColours();
+
+            // Create a gameItem
+            gameItem[0] = new GameItem(new Mesh(positions,indices,colours));
+            // This set the object to be behind the camera
+            gameItem[0].setPosition(0,0, -2);
             try (Renderer render = new Renderer(window, pipeline)) {
                 render.add(gameItem[0].getMesh());
                 render.run();
             }
         } catch (Exception e) {
-            System.out.println(String.format("error: %s", e.toString()));
+            System.out.printf("error: %s%n", e.toString());
         } finally {
             if (window != -1) {
                 // Free the window callbacks and destroy the window
@@ -120,6 +125,8 @@ public class App {
         GL.createCapabilities();
         // Make the window visible
         glfwShowWindow(window);
+
+        GL33.glEnable(GL_DEPTH_TEST);
         return window;
     }
 
