@@ -21,7 +21,12 @@ import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
 public class App {
-    public App() { }
+    private Path resourcePath = Path.of("app", "src", "main", "resources");
+
+    public App() {
+        if(!Files.exists(resourcePath))
+            resourcePath = Path.of("app").relativize(resourcePath);
+    }
 
     Window window;
 
@@ -37,13 +42,8 @@ public class App {
             // some how during the build. We could also watch for changes to the files and recompile
             // the shaders to make experimenting easier.
 
-            Path vertPath = Path.of("app", "src", "main", "resources", "shader.vert");
-            Path fragPath = Path.of("app", "src", "main", "resources", "shader.frag");
-
-            if(!Files.exists(vertPath)) {
-                vertPath = Path.of("app").relativize(vertPath);
-                fragPath = Path.of("app").relativize(fragPath);
-            }
+            Path vertPath = resourcePath.resolve(Path.of("shaders", "shader.vert"));
+            Path fragPath = resourcePath.resolve(Path.of("shaders", "shader.frag"));
 
             ShaderProgram pipeline = new ShaderProgram(vertPath, fragPath);
             pipeline.readCompileAndLink();
