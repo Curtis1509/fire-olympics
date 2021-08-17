@@ -1,4 +1,4 @@
-package fire.olympics.display;
+package fire.olympics.graphics;
 
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;

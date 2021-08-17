@@ -1,5 +1,6 @@
 package fire.olympics.display;
 
+import fire.olympics.graphics.Mesh;
 import org.joml.Vector3f;
 
 public class GameItem implements Renderable {
@@ -27,7 +28,6 @@ public class GameItem implements Renderable {
         mesh.render();
     }
 
-    @Override
     public Vector3f getPosition() {
         return position;
     }
@@ -42,7 +42,6 @@ public class GameItem implements Renderable {
         this.position.z = z;
     }
 
-    @Override
     public Vector3f getRotation() {
         return rotation;
     }
@@ -57,9 +56,8 @@ public class GameItem implements Renderable {
         this.rotation.z = z;
     }
 
-    @Override
-    public Vector3f getScale() {
-        return new Vector3f(scale, scale, scale);
+    public float getScale() {
+        return scale;
     }
 
     public void setScale(float scale) {

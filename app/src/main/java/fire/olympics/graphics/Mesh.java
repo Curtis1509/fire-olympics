@@ -1,4 +1,4 @@
-package fire.olympics.display;
+package fire.olympics.graphics;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
