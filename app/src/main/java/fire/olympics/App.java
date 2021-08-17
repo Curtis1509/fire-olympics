@@ -15,8 +15,7 @@ import java.nio.file.Path;
 
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL30C.GL_MAJOR_VERSION;
-import static org.lwjgl.opengl.GL30C.GL_MINOR_VERSION;
+import static org.lwjgl.opengl.GL33C.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
@@ -87,7 +86,7 @@ public class App {
 
         // Create the window
 
-        long window = glfwCreateWindow(800, 600, getVersion(), NULL, NULL);
+        long window = glfwCreateWindow(800, 600, "", NULL, NULL);
         if (window == NULL) {
             throw new Exception("Failed to create the GLFW window");
         }
@@ -116,22 +115,25 @@ public class App {
 
         // Make the OpenGL context current
         glfwMakeContextCurrent(window);
+
+        GL.createCapabilities();
+
+        glfwSetWindowTitle(window, getVersion());
+
         // Enable v-sync
         glfwSwapInterval(1);
-        GL.createCapabilities();
+
         // Make the window visible
         glfwShowWindow(window);
         return window;
     }
 
     private String getVersion() {
-        int maj = GL_MAJOR_VERSION;
-        int min = GL_MINOR_VERSION;
-        while (maj >= 10)
-            maj /= 10;
-        while (min >= 10)
-            min /= 10;
-        return "OpenGL Version: " + maj + "." + min;
+        int[] maj = new int[1];
+        int[] min = new int[1];
+        glGetIntegerv(GL_MAJOR_VERSION, maj);
+        glGetIntegerv(GL_MINOR_VERSION, min);
+        return "OpenGL Version: " + maj[0] + "." + min[0];
     }
 
     public static void main(String[] args) {
