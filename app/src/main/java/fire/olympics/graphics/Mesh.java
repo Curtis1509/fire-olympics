@@ -1,4 +1,4 @@
-package fire.olympics.display;
+package fire.olympics.graphics;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -6,7 +6,7 @@ import java.nio.IntBuffer;
 import org.lwjgl.system.MemoryUtil;
 import static org.lwjgl.opengl.GL33C.*;
 
-public class Mesh implements Renderable {
+public class Mesh {
     private VertexArrayObject vao;
     private int vertexCount;
 
@@ -37,8 +37,7 @@ public class Mesh implements Renderable {
         vao.done();
     }
 
-    @Override
-    public void close() throws Exception {
+    public void close() {
         vao.close();    
     }
 }

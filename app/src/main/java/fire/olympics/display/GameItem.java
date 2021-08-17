@@ -1,6 +1,6 @@
 package fire.olympics.display;
 
-import fire.olympics.display.Mesh;
+import fire.olympics.graphics.Mesh;
 import org.joml.Vector3f;
 
 public class GameItem {

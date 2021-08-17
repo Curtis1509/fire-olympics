@@ -1,4 +1,4 @@
-package fire.olympics.display;
+package fire.olympics.graphics;
 
 import static org.lwjgl.opengl.GL33C.*;
 
@@ -15,7 +15,7 @@ class BoundBuffer {
 public class VertexArrayObject implements AutoCloseable {
     private int name;
 
-    private ArrayList<BoundBuffer> boundBuffers = new ArrayList<BoundBuffer>();
+    private ArrayList<BoundBuffer> boundBuffers = new ArrayList<>();
 
     public VertexArrayObject() {
         name = glGenVertexArrays();
@@ -60,7 +60,7 @@ public class VertexArrayObject implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         use();
         for (BoundBuffer b : boundBuffers) {
             if (b.vertexAttributeIndex != -1) glDisableVertexAttribArray(b.vertexAttributeIndex);

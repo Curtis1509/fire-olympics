@@ -1,28 +1,26 @@
 package fire.olympics.display;
 
-import java.util.Arrays;
-
 public class GenerateModel {
 
     //Generates a 3D object using the dimensions supplied and coordinates supplied.
     public static float[] createPositions(float x, float y, float z, float length, float height, float width){
-        float[] positions = new float[] {
+        return new float[] {
                 // V0
-                x+-width/2, y+height/2, z,
+                x+-width/2, y+height/2, z-length/2,
                 // V1
-                x+-width/2, y-height/2, z,
+                x+-width/2, y-height/2, z-length/2,
                 // V2
-                x+width/2, y-height/2, z,
+                x+width/2, y-height/2, z-length/2,
                 // V3
-                x+width/2, y+height/2, z,
+                x+width/2, y+height/2, z-length/2,
                 // V4
-                x-width/2, y+height/2, z+length,
+                x-width/2, y+height/2, z+length/2,
                 // V5
-                x+width/2, y+height/2, z+length,
+                x+width/2, y+height/2, z+length/2,
                 // V6
-                x-width/2, y-width/2, z+length,
+                x-width/2, y-width/2, z+length/2,
                 // V7
-                x+width/2, y-width/2, z+length,
+                x+width/2, y-width/2, z+length/2,
 
                 // For text coords in top face
                 // V8: V4 repeated
@@ -56,10 +54,6 @@ public class GenerateModel {
                 // V19: V2 repeated
                 x+width/2, y-height/2, z,
         };
-
-        System.out.println(Arrays.toString(positions));
-
-        return positions;
     }
     public static float[] createColours() {
         return new float[]{

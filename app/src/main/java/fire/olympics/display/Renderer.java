@@ -1,7 +1,9 @@
 package fire.olympics.display;
 
-import java.util.ArrayList;
-
+import fire.olympics.App;
+import fire.olympics.graphics.ShaderProgram;
+import fire.olympics.graphics.Transformation;
+import fire.olympics.graphics.VertexArrayObject;
 import org.joml.Matrix4f;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -9,33 +11,38 @@ import static org.lwjgl.opengl.GL33C.*;
 
 public class Renderer implements AutoCloseable {
 
-    private long window;
+    private Window window;
     private ShaderProgram program;
     private VertexArrayObject vao;
     private final int vertexAttributeIndex = 0;
-    Transformation transformation;
     private static final float FOV = (float) Math.toRadians(60.0f);
     private static final float Z_NEAR = 0.01f;
     private static final float Z_FAR = 1000.f;
     private Matrix4f projectionMatrix;
+    private Transformation transformation;
+    private GameItem[] gameItems;
 
-    public Renderer(long window, ShaderProgram program) throws Exception {
+    public Renderer(Window window, ShaderProgram program, GameItem[] gameItems) {
         transformation = new Transformation();
+        this.gameItems = gameItems;
         this.program = program;
         this.window = window;
         this.vao = new VertexArrayObject();
-
-        float aspectRatio = (float) 800/600;
-        projectionMatrix = new Matrix4f().setPerspective(FOV, aspectRatio,
-                Z_NEAR, Z_FAR);
-        // An exception will be thrown if your shader program is invalid.
-        vao.use();
-        program.validate();
-        vao.done();
     }
 
-    public void run(GameItem[] gameItems) {
-        while (!glfwWindowShouldClose(window)) {
+    public void update() {
+        // Update rotation angle
+        for (GameItem gameItem:gameItems) {
+            float rotation = gameItem.getRotation().y() + 1.5f;
+            if ( rotation > 360 ) {
+                rotation = 0;
+            }
+            gameItem.setRotation(rotation, rotation, rotation);
+        }
+    }
+
+    public void run() {
+        while (!glfwWindowShouldClose(window.getWindow())) {
 
             // Set the color.
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -66,16 +73,14 @@ public class Renderer implements AutoCloseable {
 
             program.unbind();
 
-            glfwSwapBuffers(window);
+            update();
 
-            // Poll for window events. The key callback above will only be
-            // invoked during this call.
-            glfwPollEvents();
+            window.update();
         }
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         vao.close();
     }
 }

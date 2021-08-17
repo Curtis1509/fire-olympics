@@ -5,10 +5,14 @@ package fire.olympics;
 
 import fire.olympics.display.*;
 
+import fire.olympics.graphics.Mesh;
+import fire.olympics.graphics.ShaderProgram;
 import org.lwjgl.*;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import static org.lwjgl.glfw.GLFW.glfwGetTime;
 
 
 public class App {
@@ -27,7 +31,8 @@ public class App {
         System.out.println("LWJGL version: " + Version.getVersion());
 
         try {
-            window = new Window();
+            window = new Window("Fire Olympics", 800, 600);
+            window.init();
 
             // todo: improve resource loading
             // At the moment this assumes the current working directory is the project directory,
@@ -49,15 +54,16 @@ public class App {
 
             // Create a gameItem
             gameItem[0] = new GameItem(new Mesh(positions,indices,colours));
-            // This set the object to be behind the camera
-            gameItem[0].setPosition(0,0, -2);
+            // This set the object to be in front the camera
+            gameItem[0].setPosition(0,0, -3);
 
-            Renderer render = new Renderer(window.getWindow(), pipeline);
-            render.run(gameItem);
+            Renderer render = new Renderer(window, pipeline, gameItem);
+            render.run();
         } catch (Exception e) {
             System.out.printf("error: %s%n", e.toString());
         } finally {
             window.close();
+
         }
     }
 
