@@ -6,74 +6,89 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
+import java.util.Objects;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
+import static org.lwjgl.opengl.GL11.GL_FALSE;
+import static org.lwjgl.opengl.GL11.GL_TRUE;
+import static org.lwjgl.opengl.GL11.glClearColor;
+import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL33C.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
 public class Window implements AutoCloseable {
-    long window;
+    private final String title;
 
-    public Window() throws Exception {
-        window = init();
+    private int width;
+    private int height;
 
+    private long window;
+
+    private boolean resized;
+    private boolean vSync;
+
+    public Window(String title, int width, int height) {
+        this.title = title;
+        this.width = width;
+        this.height = height;
+        this.resized = false;
     }
 
-    private long init() throws Exception {
+    public long init() {
         // Setup an error callback. The default implementation
         // will print the error message in System.err.
         GLFWErrorCallback.createPrint(System.err).set();
 
         // Initialize GLFW. Most GLFW functions will not work before doing this.
-        if (!glfwInit())
+        if (!glfwInit()) {
             throw new IllegalStateException("Unable to initialize GLFW");
+        }
 
-        // Configure GLFW
         glfwDefaultWindowHints(); // optional, the current window hints are already the default
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
+        glfwWindowHint(GLFW_VISIBLE, GL_FALSE); // the window will stay hidden after creation
+        glfwWindowHint(GLFW_RESIZABLE, GL_TRUE); // the window will be resizable
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
         // Create the window
-
-        long window = glfwCreateWindow(800, 600, "", NULL, NULL);
+        window = glfwCreateWindow(width, height, title, NULL, NULL);
         if (window == NULL) {
-            throw new Exception("Failed to create the GLFW window");
+            throw new RuntimeException("Failed to create the GLFW window");
         }
 
-        // Setup a key callback. It will be called every time a key is pressed, repeated
-        // or released.
-        glfwSetKeyCallback(window, (w, key, scancode, action, mods) -> {
-            if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
-                glfwSetWindowShouldClose(w, true); // We will detect this in the rendering loop
+        // Setup resize callback
+        glfwSetFramebufferSizeCallback(window, (window, width, height) -> {
+            this.width = width;
+            this.height = height;
+            this.setResized(true);
         });
 
-        // Get the thread stack and push a new frame
-        try (MemoryStack stack = stackPush()) {
-            IntBuffer pWidth = stack.mallocInt(1); // int*
-            IntBuffer pHeight = stack.mallocInt(1); // int*
+        // Setup a key callback. It will be called every time a key is pressed, repeated or released.
+        glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
+            if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
+                glfwSetWindowShouldClose(window, true); // We will detect this in the rendering loop
+            }
+        });
 
-            // Get the window size passed to glfwCreateWindow
-            glfwGetWindowSize(window, pWidth, pHeight);
+        // Get the resolution of the primary monitor
+        GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
-            // Get the resolution of the primary monitor
-            GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-
-            // Center the window
-            glfwSetWindowPos(window, (vidmode.width() - pWidth.get(0)) / 2, (vidmode.height() - pHeight.get(0)) / 2);
-        } // the stack frame is popped automatically
+        if (vidmode != null) {
+            // Center our window
+            glfwSetWindowPos(
+                    window,
+                    (vidmode.width() - width) / 2,
+                    (vidmode.height() - height) / 2
+            );
+        }
 
         // Make the OpenGL context current
         glfwMakeContextCurrent(window);
-
-        GL.createCapabilities();
-
-        glfwSetWindowTitle(window, getVersion());
 
         // Enable v-sync
         glfwSwapInterval(1);
@@ -83,6 +98,15 @@ public class Window implements AutoCloseable {
 
         // Make the window visible
         glfwShowWindow(window);
+
+        GL.createCapabilities();
+
+        // Set the clear color
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+        // Enables ordered rendering of triangles
+        glEnable(GL_DEPTH_TEST);
+
         return window;
     }
 
@@ -94,8 +118,17 @@ public class Window implements AutoCloseable {
         return "OpenGL Version: " + maj[0] + "." + min[0];
     }
 
-    @Override
-    public void close() throws Exception {
+    public void changeTitle(String title) {
+        glfwSetWindowTitle(window, title);
+    }
+
+    public void update() {
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+        changeTitle(title + frameCounter(false));
+    }
+
+    public void close() {
         if (window != -1) {
             // Free the window callbacks and destroy the window
             glfwFreeCallbacks(window);
@@ -103,11 +136,44 @@ public class Window implements AutoCloseable {
 
             // Terminate GLFW and free the error callback
             glfwTerminate();
-            glfwSetErrorCallback(null).free();
+            Objects.requireNonNull(glfwSetErrorCallback(null)).free();
         }
+    }
+
+    static double lastTime, nbFrames, frameTime, fps = 0;
+    public static String frameCounter(boolean debug) {
+        double currentTime = glfwGetTime();
+        double delta = currentTime - lastTime;
+        nbFrames++;
+
+        if (delta >= 1) {
+            frameTime = 1000/nbFrames;
+            fps = nbFrames/delta;
+
+            if (debug) {
+                System.out.println("Frametime: " + frameTime);
+                System.out.println("Fps: " + fps);
+            }
+
+            nbFrames = 0;
+            lastTime = currentTime;
+        }
+        return String.format(" | Frametime: %.2f | FPS: %.2f",  frameTime, fps);
+    }
+
+    public void setResized(boolean resized) {
+        this.resized = resized;
     }
 
     public long getWindow() {
         return window;
+    }
+
+    public float getWidth() {
+        return width;
+    }
+
+    public float getHeight() {
+        return height;
     }
 }

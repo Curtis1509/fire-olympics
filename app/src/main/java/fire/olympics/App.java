@@ -5,11 +5,12 @@ package fire.olympics;
 
 import fire.olympics.display.*;
 
+import fire.olympics.graphics.Mesh;
+import fire.olympics.graphics.ShaderProgram;
 import org.lwjgl.*;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 
 public class App {
     private Path resourcePath = Path.of("app", "src", "main", "resources");
@@ -19,10 +20,17 @@ public class App {
             resourcePath = Path.of("app").relativize(resourcePath);
     }
 
+    Window window;
+    GameItem[] gameItem = new GameItem[1];
+
+
     public void run() {
         System.out.println("LWJGL version: " + Version.getVersion());
 
-        try (Window window = new Window()) {
+        try {
+            window = new Window("Fire Olympics", 800, 600);
+            window.init();
+
             // todo: improve resource loading
             // At the moment this assumes the current working directory is the project directory,
             // is not necessarily true. Typically, the shaders would be included as resource files 
@@ -44,14 +52,16 @@ public class App {
             float[] colours = GenerateModel.createColours();
 
             // Create a gameItem
-            GameItem g = new GameItem(new Mesh(positions,indices,colours));
+            gameItem[0] = new GameItem(new Mesh(positions,indices,colours));
             // This set the object to be behind the camera
-            g.setPosition(0,0, -2);
+            gameItem[0].setPosition(0,0, -2);
 
-            Renderer render = new Renderer(window.getWindow(), pipeline);
-            render.run(new GameItem[] { g });
+            Renderer render = new Renderer(window, pipeline, gameItem);
+            render.run();
         } catch (Exception e) {
             System.out.printf("error: %s%n", e.toString());
+        } finally {
+            window.close();
         }
     }
 

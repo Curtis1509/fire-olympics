@@ -6,5 +6,5 @@ interface Renderable {
     void render();
     Vector3f getPosition();
     Vector3f getRotation();
-    Vector3f getScale();
+    float getScale();
 }
