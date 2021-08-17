@@ -77,7 +77,7 @@ public class ShaderProgram {
         glLinkProgram(program);
 
         createUniform("projectionMatrix");
-        //createUniform("worldMatrix");
+        createUniform("worldMatrix");
         //createUniform("texture_sampler");
 
         if (vertID != 0) glDetachShader(program, vertID);

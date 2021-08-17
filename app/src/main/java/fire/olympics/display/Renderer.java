@@ -85,12 +85,13 @@ public class Renderer implements AutoCloseable {
             // Render each gameItem
             for (GameItem gameItem : gameItem) {
                 // Set world matrix for this item
-                Matrix4f worldMatrix = transformation.getWorldMatrix(
-                        gameItem.getPosition(),
-                        gameItem.getRotation(),
-                        gameItem.getScale());
-                //program.setUniform("worldMatrix", worldMatrix);
-                // Render the mes for this game item
+                Matrix4f worldMatrix =
+                        transformation.getWorldMatrix(
+                                gameItem.getPosition(),
+                                gameItem.getRotation(),
+                                gameItem.getScale());
+                program.setUniform("worldMatrix", worldMatrix);
+                // Render the mesh for this game item
                 gameItem.getMesh().render();
             }
 
