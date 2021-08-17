@@ -11,8 +11,7 @@ import org.lwjgl.system.MemoryUtil;
 
 import static fire.olympics.App.gameItem;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL33.*;
+import static org.lwjgl.opengl.GL33C.*;
 
 public class Renderer implements AutoCloseable {
 
@@ -26,7 +25,7 @@ public class Renderer implements AutoCloseable {
     private static final float Z_FAR = 1000.f;
     private Matrix4f projectionMatrix;
 
-    ArrayList<Renderable> objects = new ArrayList<Renderable>();
+    ArrayList<Renderable> objects = new ArrayList<>();
 
     public Renderer(long window, ShaderProgram program) throws Exception {
         transformation = new Transformation();
@@ -64,7 +63,9 @@ public class Renderer implements AutoCloseable {
     public void add(Renderable m) {
         objects.add(m);
     }
+
     public void update(Renderable m){objects.get(0).equals(m);}
+
     public void run() {
         while (!glfwWindowShouldClose(window)) {
 

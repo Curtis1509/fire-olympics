@@ -11,35 +11,41 @@ import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
 
 import java.nio.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11C.GL_DEPTH_TEST;
-import static org.lwjgl.opengl.GL30C.GL_MAJOR_VERSION;
-import static org.lwjgl.opengl.GL30C.GL_MINOR_VERSION;
-import static org.lwjgl.system.MemoryStack.*;
-import static org.lwjgl.system.MemoryUtil.*;
+import static org.lwjgl.opengl.GL33C.*;
 
 public class App {
+    private Path resourcePath = Path.of("app", "src", "main", "resources");
 
-    public App() { }
+    public App() {
+        if(!Files.exists(resourcePath))
+            resourcePath = Path.of("app").relativize(resourcePath);
+    }
 
-    public static GameItem[] gameItem = new GameItem[1];
+    Window window;
 
     public void run() {
         System.out.println("LWJGL version: " + Version.getVersion());
+
         long window = -1;
 
         try {
-            window = init();
+            window = new Window();
 
             // todo: improve resource loading
             // At the moment this assumes the current working directory is the project directory,
             // is not necessarily true. Typically, the shaders would be included as resource files 
             // some how during the build. We could also watch for changes to the files and recompile
             // the shaders to make experimenting easier.
-            ShaderProgram pipeline = new ShaderProgram(Path.of("shader.vert"), Path.of("shader.frag"));
+
+            Path vertPath = resourcePath.resolve(Path.of("shaders", "shader.vert"));
+            Path fragPath = resourcePath.resolve(Path.of("shaders", "shader.frag"));
+
+            ShaderProgram pipeline = new ShaderProgram(vertPath, fragPath);
             pipeline.readCompileAndLink();
 
             //float x, float y, float z, float length, float height, float width
@@ -59,85 +65,8 @@ public class App {
         } catch (Exception e) {
             System.out.printf("error: %s%n", e.toString());
         } finally {
-            if (window != -1) {
-                // Free the window callbacks and destroy the window
-                glfwFreeCallbacks(window);
-                glfwDestroyWindow(window);
-
-                // Terminate GLFW and free the error callback
-                glfwTerminate();
-                glfwSetErrorCallback(null).free();
-            }
+            window.close();
         }
-    }
-
-    private long init() throws Exception {
-        // Setup an error callback. The default implementation
-        // will print the error message in System.err.
-        GLFWErrorCallback.createPrint(System.err).set();
-
-        // Initialize GLFW. Most GLFW functions will not work before doing this.
-        if (!glfwInit())
-            throw new IllegalStateException("Unable to initialize GLFW");
-
-        // Configure GLFW
-        glfwDefaultWindowHints(); // optional, the current window hints are already the default
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-
-        // Create the window
-
-        long window = glfwCreateWindow(800, 600, getVersion(), NULL, NULL);
-        if (window == NULL) {
-            throw new Exception("Failed to create the GLFW window");
-        }
-
-        // Setup a key callback. It will be called every time a key is pressed, repeated
-        // or released.
-        glfwSetKeyCallback(window, (w, key, scancode, action, mods) -> {
-            if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
-                glfwSetWindowShouldClose(w, true); // We will detect this in the rendering loop
-        });
-
-        // Get the thread stack and push a new frame
-        try (MemoryStack stack = stackPush()) {
-            IntBuffer pWidth = stack.mallocInt(1); // int*
-            IntBuffer pHeight = stack.mallocInt(1); // int*
-
-            // Get the window size passed to glfwCreateWindow
-            glfwGetWindowSize(window, pWidth, pHeight);
-
-            // Get the resolution of the primary monitor
-            GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-
-            // Center the window
-            glfwSetWindowPos(window, (vidmode.width() - pWidth.get(0)) / 2, (vidmode.height() - pHeight.get(0)) / 2);
-        } // the stack frame is popped automatically
-
-        // Make the OpenGL context current
-        glfwMakeContextCurrent(window);
-        // Enable v-sync
-        glfwSwapInterval(1);
-        GL.createCapabilities();
-        // Make the window visible
-        glfwShowWindow(window);
-
-        GL33.glEnable(GL_DEPTH_TEST);
-        return window;
-    }
-
-    private String getVersion() {
-        int maj = GL_MAJOR_VERSION;
-        int min = GL_MINOR_VERSION;
-        while (maj >= 10)
-            maj /= 10;
-        while (min >= 10)
-            min /= 10;
-        return "OpenGL Version: " + maj + "." + min;
     }
 
     public static void main(String[] args) {
