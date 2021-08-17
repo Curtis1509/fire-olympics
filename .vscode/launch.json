@@ -9,6 +9,7 @@
             "name": "Launch App (macOS)",
             "request": "launch",
             "mainClass": "fire.olympics.App",
+            "cwd": "${workspaceFolder}/app",
             "vmArgs": "-XstartOnFirstThread",
             "projectName": "app"
         }
