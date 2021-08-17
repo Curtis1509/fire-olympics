@@ -1,15 +1,9 @@
 package fire.olympics.display;
 
-import java.awt.*;
-import java.nio.FloatBuffer;
-import java.nio.file.Path;
 import java.util.ArrayList;
 
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
-import org.lwjgl.system.MemoryUtil;
 
-import static fire.olympics.App.gameItem;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL33C.*;
 
@@ -25,31 +19,11 @@ public class Renderer implements AutoCloseable {
     private static final float Z_FAR = 1000.f;
     private Matrix4f projectionMatrix;
 
-    ArrayList<Renderable> objects = new ArrayList<>();
-
     public Renderer(long window, ShaderProgram program) throws Exception {
         transformation = new Transformation();
         this.program = program;
         this.window = window;
         this.vao = new VertexArrayObject();
-
-
-        float[] vertices = new float[]{
-                0.0f, 0.5f, 0.0f,
-                -0.5f, -0.5f, 0.0f,
-                0.5f, -0.5f, 0.0f
-        };
-
-        FloatBuffer verticies = MemoryUtil.memAllocFloat(vertices.length);
-        
-        if (verticies == null) {
-            throw new Exception("Could not allocate memory.");
-        } else {
-            verticies.put(vertices).flip();
-        }
-
-        vao.bindFloats(verticies, vertexAttributeIndex, GL_STATIC_DRAW, 3, GL_FLOAT);
-        MemoryUtil.memFree(verticies);
 
         float aspectRatio = (float) 800/600;
         projectionMatrix = new Matrix4f().setPerspective(FOV, aspectRatio,
@@ -60,20 +34,13 @@ public class Renderer implements AutoCloseable {
         vao.done();
     }
 
-    public void add(Renderable m) {
-        objects.add(m);
-    }
-
-    public void update(Renderable m){objects.get(0).equals(m);}
-
-    public void run() {
+    public void run(GameItem[] gameItems) {
         while (!glfwWindowShouldClose(window)) {
 
             // Set the color.
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             // Apply the color.
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-// Update projection Matrix
 
             // Use this program.
             program.bind();
@@ -85,7 +52,7 @@ public class Renderer implements AutoCloseable {
 
             //program.setUniform("texture_sampler", 0);
             // Render each gameItem
-            for (GameItem gameItem : gameItem) {
+            for (GameItem gameItem : gameItems) {
                 // Set world matrix for this item
                 Matrix4f worldMatrix =
                         transformation.getWorldMatrix(
@@ -98,9 +65,6 @@ public class Renderer implements AutoCloseable {
             }
 
             program.unbind();
-
-
-
 
             glfwSwapBuffers(window);
 

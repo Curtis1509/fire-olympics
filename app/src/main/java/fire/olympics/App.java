@@ -6,17 +6,10 @@ package fire.olympics;
 import fire.olympics.display.*;
 
 import org.lwjgl.*;
-import org.lwjgl.glfw.*;
-import org.lwjgl.opengl.*;
-import org.lwjgl.system.*;
 
-import java.nio.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.lwjgl.glfw.Callbacks.*;
-import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL33C.*;
 
 public class App {
     private Path resourcePath = Path.of("app", "src", "main", "resources");
@@ -27,11 +20,11 @@ public class App {
     }
 
     Window window;
+    GameItem[] gameItem = new GameItem[1];
+
 
     public void run() {
         System.out.println("LWJGL version: " + Version.getVersion());
-
-        long window = -1;
 
         try {
             window = new Window();
@@ -58,10 +51,9 @@ public class App {
             gameItem[0] = new GameItem(new Mesh(positions,indices,colours));
             // This set the object to be behind the camera
             gameItem[0].setPosition(0,0, -2);
-            try (Renderer render = new Renderer(window, pipeline)) {
-                render.add(gameItem[0].getMesh());
-                render.run();
-            }
+
+            Renderer render = new Renderer(window.getWindow(), pipeline);
+            render.run(gameItem);
         } catch (Exception e) {
             System.out.printf("error: %s%n", e.toString());
         } finally {
