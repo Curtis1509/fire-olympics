@@ -1,8 +1,6 @@
 package fire.olympics.display;
 
-import fire.olympics.App;
 import fire.olympics.graphics.ShaderProgram;
-import fire.olympics.graphics.Transformation;
 import fire.olympics.graphics.VertexArrayObject;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -15,24 +13,22 @@ public class Renderer {
     private Window window;
     private ShaderProgram program;
     private VertexArrayObject vao;
-    private final int vertexAttributeIndex = 0;
     private static final float FOV = (float) Math.toRadians(60.0f);
     private static final float Z_NEAR = 0.01f;
     private static final float Z_FAR = 1000.f;
-    private Matrix4f projectionMatrix;
-    private Transformation transformation;
     private GameItem[] gameItems;
 
-    public Renderer(long window, ShaderProgram program) throws Exception {
+    public Renderer(Window window, ShaderProgram program, GameItem[] gameItems){
         this.program = program;
         this.window = window;
+        this.gameItems = gameItems;
         this.vao = new VertexArrayObject();
     }
 
     public void update() {
         // Update rotation angle
         for (GameItem gameItem:gameItems) {
-            float rotation = gameItem.getRotation().y() + 1.5f;
+            float rotation = gameItem.getRotation().y() + 0.01f;
             if ( rotation > 360 ) {
                 rotation = 0;
             }
@@ -55,7 +51,7 @@ public class Renderer {
             program.bind();
 
             // Update projection Matrix
-            projectionMatrix.setPerspective(FOV, width / height, Z_NEAR, Z_FAR);
+            projectionMatrix.setPerspective(FOV, window.getWidth() / window.getHeight(), Z_NEAR, Z_FAR);
             program.setUniform("projectionMatrix", projectionMatrix);
 
             // Render each gameItem
@@ -77,10 +73,5 @@ public class Renderer {
 
             window.update();
         }
-    }
-
-    @Override
-    public void close() {
-        vao.close();
     }
 }

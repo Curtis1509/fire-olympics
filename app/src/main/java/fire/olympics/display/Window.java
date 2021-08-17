@@ -165,4 +165,12 @@ public class Window implements AutoCloseable {
     public long getWindow() {
         return window;
     }
+
+    public float getWidth() {
+        return width;
+    }
+
+    public float getHeight() {
+        return height;
+    }
 }
