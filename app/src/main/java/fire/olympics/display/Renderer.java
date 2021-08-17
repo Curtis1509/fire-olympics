@@ -1,42 +1,31 @@
 package fire.olympics.display;
 
-import java.util.ArrayList;
-
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL33C.*;
 
-public class Renderer implements AutoCloseable {
+public class Renderer {
 
     private long window;
     private ShaderProgram program;
-    private VertexArrayObject vao;
-    private final int vertexAttributeIndex = 0;
-    Transformation transformation;
+    private float width = 800;
+    private float height = 600;
     private static final float FOV = (float) Math.toRadians(60.0f);
     private static final float Z_NEAR = 0.01f;
     private static final float Z_FAR = 1000.f;
-    private Matrix4f projectionMatrix;
 
     public Renderer(long window, ShaderProgram program) throws Exception {
-        transformation = new Transformation();
         this.program = program;
         this.window = window;
-        this.vao = new VertexArrayObject();
-
-        float aspectRatio = (float) 800/600;
-        projectionMatrix = new Matrix4f().setPerspective(FOV, aspectRatio,
-                Z_NEAR, Z_FAR);
-        // An exception will be thrown if your shader program is invalid.
-        vao.use();
-        program.validate();
-        vao.done();
     }
 
     public void run(GameItem[] gameItems) {
-        while (!glfwWindowShouldClose(window)) {
+        final Matrix4f projectionMatrix = new Matrix4f();
+        final Matrix4f worldMatrix = new Matrix4f();
 
+        while (!glfwWindowShouldClose(window)) {
             // Set the color.
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             // Apply the color.
@@ -46,22 +35,20 @@ public class Renderer implements AutoCloseable {
             program.bind();
 
             // Update projection Matrix
-            // TODO set width and height to dynamic window width and height
-            Matrix4f projectionMatrix = transformation.getProjectionMatrix(FOV, 800,600, Z_NEAR, Z_FAR);
+            projectionMatrix.setPerspective(FOV, width / height, Z_NEAR, Z_FAR);
             program.setUniform("projectionMatrix", projectionMatrix);
 
-            //program.setUniform("texture_sampler", 0);
             // Render each gameItem
-            for (GameItem gameItem : gameItems) {
+            for (Renderable object : gameItems) {
                 // Set world matrix for this item
-                Matrix4f worldMatrix =
-                        transformation.getWorldMatrix(
-                                gameItem.getPosition(),
-                                gameItem.getRotation(),
-                                gameItem.getScale());
+                Vector3f rotation = object.getRotation();
+                worldMatrix
+                    .translation(object.getPosition())
+                    .rotateAffineXYZ(rotation.x, rotation.y, rotation.z)
+                    .scale(object.getScale());
+            
                 program.setUniform("worldMatrix", worldMatrix);
-                // Render the mesh for this game item
-                gameItem.getMesh().render();
+                object.render();
             }
 
             program.unbind();
@@ -72,10 +59,5 @@ public class Renderer implements AutoCloseable {
             // invoked during this call.
             glfwPollEvents();
         }
-    }
-
-    @Override
-    public void close() throws Exception {
-        vao.close();
     }
 }

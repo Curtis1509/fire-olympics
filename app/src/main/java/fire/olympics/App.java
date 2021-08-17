@@ -19,16 +19,10 @@ public class App {
             resourcePath = Path.of("app").relativize(resourcePath);
     }
 
-    Window window;
-    GameItem[] gameItem = new GameItem[1];
-
-
     public void run() {
         System.out.println("LWJGL version: " + Version.getVersion());
 
-        try {
-            window = new Window();
-
+        try (Window window = new Window()) {
             // todo: improve resource loading
             // At the moment this assumes the current working directory is the project directory,
             // is not necessarily true. Typically, the shaders would be included as resource files 
@@ -40,6 +34,8 @@ public class App {
 
             ShaderProgram pipeline = new ShaderProgram(vertPath, fragPath);
             pipeline.readCompileAndLink();
+            // An exception will be thrown if your shader program is invalid.
+            pipeline.validate();
 
             //float x, float y, float z, float length, float height, float width
             //Sample inputs. Follow the variables above to modify constraints
@@ -48,16 +44,14 @@ public class App {
             float[] colours = GenerateModel.createColours();
 
             // Create a gameItem
-            gameItem[0] = new GameItem(new Mesh(positions,indices,colours));
+            GameItem g = new GameItem(new Mesh(positions,indices,colours));
             // This set the object to be behind the camera
-            gameItem[0].setPosition(0,0, -2);
+            g.setPosition(0,0, -2);
 
             Renderer render = new Renderer(window.getWindow(), pipeline);
-            render.run(gameItem);
+            render.run(new GameItem[] { g });
         } catch (Exception e) {
             System.out.printf("error: %s%n", e.toString());
-        } finally {
-            window.close();
         }
     }
 

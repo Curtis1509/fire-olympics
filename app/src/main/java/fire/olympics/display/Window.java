@@ -13,7 +13,7 @@ import static org.lwjgl.opengl.GL33C.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
-public class Window {
+public class Window implements AutoCloseable {
     long window;
 
     public Window() throws Exception {
@@ -91,7 +91,8 @@ public class Window {
         return "OpenGL Version: " + maj[0] + "." + min[0];
     }
 
-    public void close() {
+    @Override
+    public void close() throws Exception {
         if (window != -1) {
             // Free the window callbacks and destroy the window
             glfwFreeCallbacks(window);

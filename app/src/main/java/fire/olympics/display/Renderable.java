@@ -1,5 +1,10 @@
 package fire.olympics.display;
 
-interface Renderable extends AutoCloseable {
+import org.joml.Vector3f;
+
+interface Renderable {
     void render();
+    Vector3f getPosition();
+    Vector3f getRotation();
+    Vector3f getScale();
 }

@@ -79,21 +79,26 @@ public class ShaderProgram {
         glAttachShader(program, fragID);
         glLinkProgram(program);
 
+        if (glGetProgrami(program, GL_LINK_STATUS) == 0) {
+            throw new Exception("Error linking Shader code: " + glGetProgramInfoLog(program, 1024));
+        }
+
         createUniform("projectionMatrix");
         createUniform("worldMatrix");
         //createUniform("texture_sampler");
 
         if (vertID != 0) glDetachShader(program, vertID);
         if (fragID != 0) glDetachShader(program, fragID);
-        
-        if (glGetProgrami(program, GL_LINK_STATUS) == 0) {
-            throw new Exception("Error linking Shader code: " + glGetProgramInfoLog(program, 1024));
-        }
     }
 
     public void validate() throws Exception {
+        VertexArrayObject vao = new VertexArrayObject();
+        vao.use();
         glValidateProgram(program);
-        if (glGetProgrami(program, GL_VALIDATE_STATUS) == 0) {
+        int result = glGetProgrami(program, GL_VALIDATE_STATUS);
+        vao.done();
+        vao.close();
+        if (result == 0) {
             String msg = "warning: validating shader code: " + glGetProgramInfoLog(program, 1024);
             throw new Exception(msg);
         }
