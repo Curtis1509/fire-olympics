@@ -1,9 +1,9 @@
 package fire.olympics.display;
 
-import fire.olympics.graphics.Mesh;
+import fire.olympics.display.Mesh;
 import org.joml.Vector3f;
 
-public class GameItem {
+public class GameItem implements Renderable {
     private final Mesh mesh;
     private Vector3f position;
     private Vector3f rotation;
@@ -23,8 +23,9 @@ public class GameItem {
         scale = 1;
     }
 
-    public Mesh getMesh() {
-        return mesh;
+    @Override
+    public void render() {
+        mesh.render();
     }
 
     public Vector3f getPosition() {

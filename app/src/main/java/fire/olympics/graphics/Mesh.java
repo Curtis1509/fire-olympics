@@ -37,7 +37,7 @@ public class Mesh {
         vao.done();
     }
 
-    public void close() {
+    public void close() throws Exception {
         vao.close();    
     }
 }

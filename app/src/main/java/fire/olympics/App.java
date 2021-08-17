@@ -45,6 +45,8 @@ public class App {
 
             ShaderProgram pipeline = new ShaderProgram(vertPath, fragPath);
             pipeline.readCompileAndLink();
+            // An exception will be thrown if your shader program is invalid.
+            pipeline.validate();
 
             //float x, float y, float z, float length, float height, float width
             //Sample inputs. Follow the variables above to modify constraints
@@ -54,8 +56,8 @@ public class App {
 
             // Create a gameItem
             gameItem[0] = new GameItem(new Mesh(positions,indices,colours));
-            // This set the object to be in front the camera
-            gameItem[0].setPosition(0,0, -3);
+            // This set the object to be behind the camera
+            gameItem[0].setPosition(0,0, -2);
 
             Renderer render = new Renderer(window, pipeline, gameItem);
             render.run();
@@ -63,7 +65,6 @@ public class App {
             System.out.printf("error: %s%n", e.toString());
         } finally {
             window.close();
-
         }
     }
 

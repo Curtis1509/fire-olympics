@@ -5,11 +5,12 @@ import fire.olympics.graphics.ShaderProgram;
 import fire.olympics.graphics.Transformation;
 import fire.olympics.graphics.VertexArrayObject;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL33C.*;
 
-public class Renderer implements AutoCloseable {
+public class Renderer {
 
     private Window window;
     private ShaderProgram program;
@@ -22,9 +23,7 @@ public class Renderer implements AutoCloseable {
     private Transformation transformation;
     private GameItem[] gameItems;
 
-    public Renderer(Window window, ShaderProgram program, GameItem[] gameItems) {
-        transformation = new Transformation();
-        this.gameItems = gameItems;
+    public Renderer(long window, ShaderProgram program) throws Exception {
         this.program = program;
         this.window = window;
         this.vao = new VertexArrayObject();
@@ -42,6 +41,9 @@ public class Renderer implements AutoCloseable {
     }
 
     public void run() {
+        final Matrix4f projectionMatrix = new Matrix4f();
+        final Matrix4f worldMatrix = new Matrix4f();
+
         while (!glfwWindowShouldClose(window.getWindow())) {
 
             // Set the color.
@@ -53,22 +55,20 @@ public class Renderer implements AutoCloseable {
             program.bind();
 
             // Update projection Matrix
-            // TODO set width and height to dynamic window width and height
-            Matrix4f projectionMatrix = transformation.getProjectionMatrix(FOV, 800,600, Z_NEAR, Z_FAR);
+            projectionMatrix.setPerspective(FOV, width / height, Z_NEAR, Z_FAR);
             program.setUniform("projectionMatrix", projectionMatrix);
 
-            //program.setUniform("texture_sampler", 0);
             // Render each gameItem
-            for (GameItem gameItem : gameItems) {
+            for (Renderable object : gameItems) {
                 // Set world matrix for this item
-                Matrix4f worldMatrix =
-                        transformation.getWorldMatrix(
-                                gameItem.getPosition(),
-                                gameItem.getRotation(),
-                                gameItem.getScale());
+                Vector3f rotation = object.getRotation();
+                worldMatrix
+                    .translation(object.getPosition())
+                    .rotateAffineXYZ(rotation.x, rotation.y, rotation.z)
+                    .scale(object.getScale());
+
                 program.setUniform("worldMatrix", worldMatrix);
-                // Render the mesh for this game item
-                gameItem.getMesh().render();
+                object.render();
             }
 
             program.unbind();
