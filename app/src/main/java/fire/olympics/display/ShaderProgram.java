@@ -3,9 +3,7 @@ package fire.olympics.display;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.lwjgl.opengl.GL11.GL_FALSE;
-import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL20.glValidateProgram;
+import static org.lwjgl.opengl.GL33C.*;
 
 /*
 * Based on the source code retrieved from the following video by Tutorial Edge

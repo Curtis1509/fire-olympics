@@ -17,8 +17,6 @@ import java.nio.file.Path;
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL33C.*;
-import static org.lwjgl.system.MemoryStack.*;
-import static org.lwjgl.system.MemoryUtil.*;
 
 public class App {
     private Path resourcePath = Path.of("app", "src", "main", "resources");

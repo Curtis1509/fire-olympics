@@ -6,8 +6,7 @@ import java.util.ArrayList;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryUtil;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL33.*;
+import static org.lwjgl.opengl.GL33C.*;
 
 public class Renderer implements AutoCloseable {
 

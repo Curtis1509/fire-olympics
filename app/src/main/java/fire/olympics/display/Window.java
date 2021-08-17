@@ -9,11 +9,9 @@ import java.nio.IntBuffer;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11C.glGetIntegerv;
-import static org.lwjgl.opengl.GL30C.GL_MAJOR_VERSION;
-import static org.lwjgl.opengl.GL30C.GL_MINOR_VERSION;
-import static org.lwjgl.system.MemoryStack.stackPush;
-import static org.lwjgl.system.MemoryUtil.NULL;
+import static org.lwjgl.opengl.GL33C.*;
+import static org.lwjgl.system.MemoryStack.*;
+import static org.lwjgl.system.MemoryUtil.*;
 
 public class Window {
     long window;
