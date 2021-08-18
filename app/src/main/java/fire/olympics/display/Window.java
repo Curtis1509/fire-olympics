@@ -10,11 +10,6 @@ import java.util.Objects;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
-import static org.lwjgl.opengl.GL11.GL_FALSE;
-import static org.lwjgl.opengl.GL11.GL_TRUE;
-import static org.lwjgl.opengl.GL11.glClearColor;
-import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL33C.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
@@ -97,6 +92,8 @@ public class Window implements AutoCloseable {
         glfwShowWindow(window);
 
         GL.createCapabilities();
+
+        glEnable(GL_CULL_FACE);
 
         // Set the clear color
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);

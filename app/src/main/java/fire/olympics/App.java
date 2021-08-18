@@ -6,6 +6,7 @@ package fire.olympics;
 import fire.olympics.display.*;
 
 import fire.olympics.graphics.Mesh;
+import fire.olympics.graphics.ModelLoader;
 import fire.olympics.graphics.ShaderProgram;
 import org.lwjgl.*;
 
@@ -51,16 +52,22 @@ public class App {
             int[] indices = GenerateModel.createIndicies();
             float[] colours = GenerateModel.createColours();
 
-            // Create a gameItem
-            gameItem[0] = new GameItem(new Mesh(positions,indices,colours));
-            // This set the object to be behind the camera
-            gameItem[0].setPosition(0,0, -2);
+            Mesh mesh = new Mesh(positions,indices, new float[]{});
+            mesh.attachMaterial(colours);
+            mesh.setProgram(pipeline);
 
-            Renderer render = new Renderer(window, pipeline, gameItem);
+            // Create a gameItem
+            //gameItem[0] = new GameItem(new Mesh[]{mesh});
+            gameItem[0] = ModelLoader.loadModel(resourcePath.resolve(Path.of("models", "proto_arrow_textured.obj")));
+            // This set the object to be behind the camera
+            gameItem[0].setPosition(0,0, -10);
+
+            Renderer render = new Renderer(window, gameItem);
             render.run();
         } catch (Exception e) {
-            System.out.printf("error: %s%n", e.toString());
+            System.out.printf("error: %s%n", e);
         } finally {
+            ModelLoader.unloadTextures();
             window.close();
         }
     }
