@@ -17,7 +17,7 @@ public class Window implements AutoCloseable {
     private int width;
     private int height;
 
-    private long window;
+    private long window = NULL;
 
     private boolean resized;
 
@@ -119,7 +119,7 @@ public class Window implements AutoCloseable {
     }
 
     public void close() {
-        if (window != -1) {
+        if (window != NULL) {
             // Free the window callbacks and destroy the window
             glfwFreeCallbacks(window);
             glfwDestroyWindow(window);
