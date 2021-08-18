@@ -3,15 +3,12 @@ package fire.olympics.display;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.system.MemoryStack;
 
-import java.nio.IntBuffer;
 import java.util.Objects;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL33C.*;
-import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
 public class Window implements AutoCloseable {
@@ -23,7 +20,6 @@ public class Window implements AutoCloseable {
     private long window;
 
     private boolean resized;
-    private boolean vSync;
 
     public Window(String title, int width, int height) {
         this.title = title;

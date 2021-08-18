@@ -1,7 +1,5 @@
 package fire.olympics.display;
 
-import fire.olympics.graphics.ShaderProgram;
-import fire.olympics.graphics.VertexArrayObject;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -12,7 +10,6 @@ import static org.lwjgl.opengl.GL33C.*;
 public class Renderer {
 
     private Window window;
-    private VertexArrayObject vao;
     private static final float FOV = (float) Math.toRadians(60.0f);
     private static final float Z_NEAR = 0.01f;
     private static final float Z_FAR = 1000.f;
@@ -21,7 +18,6 @@ public class Renderer {
     public Renderer(Window window, GameItem[] gameItems){
         this.window = window;
         this.gameItems = gameItems;
-        this.vao = new VertexArrayObject();
     }
 
     public void update() {
