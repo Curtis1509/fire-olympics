@@ -57,7 +57,7 @@ public class Renderer {
             projectionMatrix.setPerspective(FOV, aspectRatio , Z_NEAR, Z_FAR);
 
             // Render each gameItem
-            for (Renderable object : gameItems) {
+            for (GameItem object : gameItems) {
                 // Set world matrix for this item
                 Vector3f rotation = object.getRotation();
                 worldMatrix

@@ -5,7 +5,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 
-public class GameItem implements Renderable {
+public class GameItem {
     private final Mesh[] meshes;
     private Vector3f position;
     private Vector3f rotation;
@@ -25,7 +25,6 @@ public class GameItem implements Renderable {
         scale = 1;
     }
 
-    @Override
     public void render(Matrix4f projection, Matrix4f world) {
         for(Mesh mesh : meshes) mesh.render(projection, world);
     }
