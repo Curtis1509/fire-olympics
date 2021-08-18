@@ -31,6 +31,7 @@ public class App {
         try {
             window = new Window("Fire Olympics", 800, 600);
             window.init();
+            System.out.println(window.openGlVersion());
 
             // todo: improve resource loading
             // At the moment this assumes the current working directory is the project directory,

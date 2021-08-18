@@ -104,7 +104,7 @@ public class Window implements AutoCloseable {
         return window;
     }
 
-    private String getVersion() {
+    public String openGlVersion() {
         int[] maj = new int[1];
         int[] min = new int[1];
         glGetIntegerv(GL_MAJOR_VERSION, maj);
