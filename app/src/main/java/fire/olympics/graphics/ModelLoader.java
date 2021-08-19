@@ -110,7 +110,6 @@ public class ModelLoader {
 
             newMesh.setProgram(p);
 
-            texPath.close();
             meshes[i] = newMesh;
         }
 
