@@ -10,9 +10,7 @@ import static org.lwjgl.opengl.GL33C.*;
 public class Mesh {
     private VertexArrayObject vao;
     private int vertexCount;
-    private ShaderProgram program;
-    private Texture tex;
-    private boolean hasTexture = false;
+    private Texture texture = null;
 
     public Mesh(float[] positions, int[] indices, float[] normals) {
         FloatBuffer buffer = MemoryUtil.memAllocFloat(positions.length);
@@ -41,8 +39,7 @@ public class Mesh {
         vao.bindFloats(uvBuffer, 1, GL_STATIC_DRAW, 2, GL_FLOAT);
         MemoryUtil.memFree(uvBuffer);
 
-        tex = t;
-        hasTexture = true;
+        texture = t;
     }
 
     public void attachMaterial(float[] vertColours) {
@@ -50,26 +47,17 @@ public class Mesh {
         colourBuffer.put(vertColours).flip();
         vao.bindFloats(colourBuffer, 1, GL_STATIC_DRAW, 3, GL_FLOAT);
         MemoryUtil.memFree(colourBuffer);
-        hasTexture = false;
-    }
-
-    public void setProgram(ShaderProgram program) {
-        this.program = program;
     }
 
     public boolean hasTexture() {
-        return hasTexture;
+        return texture != null;
     }
 
     public void render(Matrix4f projection, Matrix4f world) {
         vao.use();
-        if(hasTexture) tex.bind();
-        program.bind();
-        program.setUniform("projectionMatrix", projection);
-        program.setUniform("worldMatrix", world);
+        if (hasTexture()) texture.bind();
         glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0);
-        program.unbind();
-        if(hasTexture) tex.unbind();
+        if (hasTexture()) texture.unbind();
         vao.done();
     }
 

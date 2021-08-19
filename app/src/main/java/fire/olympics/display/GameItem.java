@@ -1,32 +1,33 @@
 package fire.olympics.display;
 
 import fire.olympics.graphics.Mesh;
-import org.joml.Matrix4f;
+
 import org.joml.Vector3f;
+import org.joml.Matrix4f;
 
 
 public class GameItem {
-    private final Mesh[] meshes;
     private Vector3f position;
     private Vector3f rotation;
     private float scale;
+    public Mesh mesh;
 
-    public GameItem(Mesh[] mesh) {
-        this.meshes = mesh;
+    public GameItem(Mesh mesh) {
         position = new Vector3f(0, 0, 0);
         rotation = new Vector3f(0, 0, 0);
         scale = 1;
+        this.mesh = mesh;
     }
 
-    public GameItem(Mesh[] mesh, Vector3f pos, Vector3f rotate) {
-        this.meshes = mesh;
+    public GameItem(Mesh mesh, Vector3f pos, Vector3f rotate) {
         position = pos;
         rotation = rotate;
         scale = 1;
+        this.mesh = mesh;
     }
 
     public void render(Matrix4f projection, Matrix4f world) {
-        for(Mesh mesh : meshes) mesh.render(projection, world);
+        mesh.render(projection, world);
     }
 
     public Vector3f getPosition() {

@@ -83,10 +83,6 @@ public class ShaderProgram {
             throw new Exception("Error linking Shader code: " + glGetProgramInfoLog(program, 1024));
         }
 
-        createUniform("projectionMatrix");
-        createUniform("worldMatrix");
-        //createUniform("texture_sampler");
-
         if (vertID != 0) glDetachShader(program, vertID);
         if (fragID != 0) glDetachShader(program, fragID);
     }

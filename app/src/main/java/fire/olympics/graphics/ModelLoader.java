@@ -7,34 +7,40 @@ import org.lwjgl.assimp.*;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.file.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ModelLoader {
-    private final static Map<String, Texture> loadedTextures = new HashMap<>();
+public class ModelLoader implements AutoCloseable {
+    private final Map<String, Texture> loadedTextures = new HashMap<>();
 
-    public static void unloadTextures() {
+    public ModelLoader() { }
+
+    @Override
+    public void close() {
         loadedTextures.forEach((s, t) -> t.close());
     }
 
-    public static GameItem loadModel(Path path) {
-        AIScene scene = Assimp.aiImportFile(path.toAbsolutePath().toString(), 0);
+    public void loadTexture(Path path) {
+        assert !loadedTextures.containsKey(path.toString());
+        Texture t = new Texture(path.normalize());
+        String name = path.toAbsolutePath().toString();
+        loadedTextures.put(name, t);
+    }
 
-        if(scene == null) {
-            errorLog(String.format("File %s could not be loaded.", path.getFileName()));
-            return null;
+    public ArrayList<GameItem> loadModel(Path path) throws Exception {
+        AIScene scene = Assimp.aiImportFile(path.toAbsolutePath().toString(), 0);
+        if (scene == null) {
+            error(String.format("File %s could not be loaded.", path.getFileName()));
+        }
+
+        PointerBuffer importMeshes = scene.mMeshes();
+        if (importMeshes == null) {
+            error(String.format("PointerBuffer was null for %s.", path.getFileName()));
         }
 
         int numMeshes = scene.mNumMeshes();
-
-        Mesh[] meshes = new Mesh[numMeshes];
-        PointerBuffer importMeshes = scene.mMeshes();
-
-        if(importMeshes == null) {
-            errorLog(String.format("PointerBuffer was null for %s.", path.getFileName()));
-            return null;
-        }
-
+        ArrayList<GameItem> objects = new ArrayList<>(numMeshes);
         System.out.printf("%d mesh(es) in %s%n", numMeshes, path.getFileName());
 
         for(int i = 0; i < numMeshes; i++) {
@@ -50,12 +56,7 @@ public class ModelLoader {
             AIString texPath = AIString.create();
             Assimp.aiGetMaterialTexture(mat, Assimp.aiTextureType_DIFFUSE, 0, texPath, (int[]) null, null, null, null, null, null);
 
-            Path vertShader;
-            Path fragShader;
-
             if(texPath.dataString().isEmpty()) {
-                vertShader = path.resolve(Path.of("..", "..", "shaders", "shader.vert")).normalize();
-                fragShader = path.resolve(Path.of("..", "..", "shaders", "shader.frag")).normalize();
                 int len = mesh.mNumVertices() * 3;
                 float[] colours = new float[len];
 
@@ -69,52 +70,31 @@ public class ModelLoader {
 
                 newMesh.attachMaterial(colours);
             } else {
-                Texture t;
-
-                if(loadedTextures.containsKey(texPath.dataString())) {
-                    t = loadedTextures.get(texPath.dataString());
-                } else {
-                    t = new Texture(path.resolve(Path.of("..", texPath.dataString())).normalize());
-                    loadedTextures.put(texPath.dataString(), t);
+                Path p = Path.of(texPath.dataString());
+                Path key = path.getParent().resolve(p).normalize().toAbsolutePath();
+                Texture t = loadedTextures.get(key.toString());
+                if (t == null || !t.imageLoaded()) {
+                    System.out.println("warning: could not find texture " + key.toString());
+                    System.out.println("note: is it loaded?");
                 }
 
-                vertShader = path.resolve(Path.of("..", "..", "shaders", "shader_with_texture.vert")).normalize();
-                fragShader = path.resolve(Path.of("..", "..", "shaders", "shader_with_texture.frag")).normalize();
+                int len = mesh.mNumVertices();
+                float[] newUv = new float[len*2];
+                AIVector3D.Buffer b = mesh.mTextureCoords(0);
 
-                if(t.imageLoaded()) {
-                    int len = mesh.mNumVertices();
-                    float[] newUv = new float[len*2];
-                    AIVector3D.Buffer b = mesh.mTextureCoords(0);
-
-                    for(int x = 0; x < len; x++) {
-                        AIVector3D vec = b.get();
-                        newUv[x*2] = vec.x();
-                        newUv[(x*2)+1] = vec.y();
-                    }
-
-                    newMesh.attachMaterial(t, newUv);
+                for (int x = 0; x < len; x++) {
+                    AIVector3D vec = b.get();
+                    newUv[x*2] = vec.x();
+                    newUv[(x*2)+1] = vec.y();
                 }
+
+                newMesh.attachMaterial(t, newUv);
             }
-
-            //System.out.printf("%s%n%s%n", vertShader.toAbsolutePath(), fragShader.toAbsolutePath());
-            ShaderProgram p = new ShaderProgram(vertShader, fragShader);
-            try {
-                p.readCompileAndLink();
-
-                if(newMesh.hasTexture()) p.createUniform("texture_sampler");
-
-                p.validate();
-            } catch(Exception e) {
-                System.out.printf("ModelLoader: Error compiling shaders for mesh %d in file %s: %s%n", i, path.getFileName(), e);
-            }
-
-            newMesh.setProgram(p);
-
-            meshes[i] = newMesh;
+            objects.add(new GameItem(newMesh));
         }
 
         Assimp.aiReleaseImport(scene);
-        return new GameItem(meshes);
+        return objects;
     }
 
     private static float[] convertPositions(AIMesh mesh) {
@@ -171,7 +151,8 @@ public class ModelLoader {
         return norm;
     }
 
-    private static void errorLog(String error) {
-        System.out.println("ModelLoader: " + error);
+    private static void error(String error) throws Exception {
+        String msg = "ModelLoader: " + error;
+        throw new Exception(msg);
     }
 }

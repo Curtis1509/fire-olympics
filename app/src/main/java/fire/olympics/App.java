@@ -5,13 +5,13 @@ package fire.olympics;
 
 import fire.olympics.display.*;
 
-import fire.olympics.graphics.Mesh;
 import fire.olympics.graphics.ModelLoader;
 import fire.olympics.graphics.ShaderProgram;
 import org.lwjgl.*;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 
 public class App {
     private Path resourcePath = Path.of("app", "src", "main", "resources");
@@ -21,56 +21,52 @@ public class App {
             resourcePath = Path.of("app").relativize(resourcePath);
     }
 
-    Window window;
-    GameItem[] gameItem = new GameItem[1];
-
-
     public void run() {
         System.out.println("LWJGL version: " + Version.getVersion());
 
+        Window window = new Window("Fire Olympics", 800, 600);
+
         try {
-            window = new Window("Fire Olympics", 800, 600);
             window.init();
             System.out.println(window.openGlVersion());
 
-            // todo: improve resource loading
-            // At the moment this assumes the current working directory is the project directory,
-            // is not necessarily true. Typically, the shaders would be included as resource files 
-            // some how during the build. We could also watch for changes to the files and recompile
-            // the shaders to make experimenting easier.
+            Path vertPath = shader("shader.vert");
+            Path fragPath = shader("shader.frag");
 
-            Path vertPath = resourcePath.resolve(Path.of("shaders", "shader.vert"));
-            Path fragPath = resourcePath.resolve(Path.of("shaders", "shader.frag"));
+            ShaderProgram program = new ShaderProgram(vertPath, fragPath);
+            program.readCompileAndLink();
+            program.createUniform("projectionMatrix");
+            program.createUniform("worldMatrix");
+            program.validate();
 
-            ShaderProgram pipeline = new ShaderProgram(vertPath, fragPath);
-            pipeline.readCompileAndLink();
-            // An exception will be thrown if your shader program is invalid.
-            pipeline.validate();
+            ShaderProgram programWithTexture = new ShaderProgram(shader("shader_with_texture.vert"), shader("shader_with_texture.frag"));
+            programWithTexture.readCompileAndLink();
+            programWithTexture.createUniform("projectionMatrix");
+            programWithTexture.createUniform("worldMatrix");
+            programWithTexture.createUniform("texture_sampler");
+            programWithTexture.validate();
 
-            //float x, float y, float z, float length, float height, float width
-            //Sample inputs. Follow the variables above to modify constraints
-            float[] positions = GenerateModel.createPositions(0f,0f,0f,1f,1f,1f);
-            int[] indices = GenerateModel.createIndicies();
-            float[] colours = GenerateModel.createColours();
+            try (ModelLoader loader = new ModelLoader()) {
+                loader.loadTexture(resourcePath.resolve(Path.of("textures", "metal_test.png")));
+                loader.loadTexture(resourcePath.resolve(Path.of("textures", "wood_test_2.png")));
+                ArrayList<GameItem> objects = loader.loadModel(resourcePath.resolve(Path.of("models", "proto_arrow_textured.obj")));
 
-            Mesh mesh = new Mesh(positions,indices, new float[]{});
-            mesh.attachMaterial(colours);
-            mesh.setProgram(pipeline);
-
-            // Create a gameItem
-            //gameItem[0] = new GameItem(new Mesh[]{mesh});
-            gameItem[0] = ModelLoader.loadModel(resourcePath.resolve(Path.of("models", "proto_arrow_textured.obj")));
-            // This set the object to be behind the camera
-            gameItem[0].setPosition(0,0, -10);
-
-            Renderer render = new Renderer(window, gameItem);
-            render.run();
+                Renderer render = new Renderer(window, program, programWithTexture);
+                for (GameItem object : objects) {
+                    object.setPosition(0,0, -10);
+                    render.add(object);
+                }
+                render.run();
+            }
         } catch (Exception e) {
             System.out.printf("error: %s%n", e);
         } finally {
-            ModelLoader.unloadTextures();
             window.close();
         }
+    }
+
+    private Path shader(String name) {
+        return resourcePath.resolve(Path.of("shaders", name));
     }
 
     public static void main(String[] args) {
