@@ -74,7 +74,7 @@ public class ModelLoader implements AutoCloseable {
                 Path key = path.getParent().resolve(p).normalize().toAbsolutePath();
                 Texture t = loadedTextures.get(key.toString());
                 if (t == null || !t.imageLoaded()) {
-                    System.out.println("warning: could not find texture " + key.toString());
+                    System.out.println("warning: could not find texture " + key);
                     System.out.println("note: is it loaded?");
                 }
 
