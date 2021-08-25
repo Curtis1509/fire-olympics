@@ -23,7 +23,7 @@ public class ModelLoader implements AutoCloseable {
 
     public void loadTexture(Path path) {
         assert !loadedTextures.containsKey(path.toString());
-        Texture t = new Texture(path.normalize());
+        Texture t = new Texture(path);
         String name = path.toAbsolutePath().toString();
         loadedTextures.put(name, t);
     }
@@ -122,6 +122,7 @@ public class ModelLoader implements AutoCloseable {
         int i = 0;
         while(b.hasRemaining()) {
             AIFace face = b.get();
+            if(face.mNumIndices() != 3) continue; // face is not a triangle, skip it
             IntBuffer intB = face.mIndices();
 
             for(int x = 0; x < 3; x++)
