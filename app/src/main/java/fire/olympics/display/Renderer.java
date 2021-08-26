@@ -5,7 +5,6 @@ import org.joml.Vector3f;
 
 import fire.olympics.graphics.ShaderProgram;
 
-import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.opengl.GL33C.*;
 
@@ -55,7 +54,7 @@ public class Renderer {
         final Matrix4f projectionMatrix = new Matrix4f();
         final Matrix4f worldMatrix = new Matrix4f();
 
-        while (!glfwWindowShouldClose(window.getWindow())) {
+        while (!window.shouldClose()) {
             update();
 
             if (window.isResized()) {

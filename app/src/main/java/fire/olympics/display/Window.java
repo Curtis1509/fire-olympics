@@ -11,15 +11,17 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL33C.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
+import java.nio.DoubleBuffer;
+import org.lwjgl.BufferUtils;
+
 public class Window implements AutoCloseable {
     private final String title;
-
     private int width;
     private int height;
-
     private long window = NULL;
-
     private boolean resized;
+    private Controller controller = new Controller();
+    private MouseState previousMouseEvent = new MouseState();
 
     public Window(String title, int width, int height) {
         this.title = title;
@@ -62,9 +64,7 @@ public class Window implements AutoCloseable {
         // Setup a key callback. It will be called every time a key is pressed, repeated
         // or released.
         glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
-            if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
-                glfwSetWindowShouldClose(window, true); // We will detect this in the rendering loop
-            }
+            this.processKeyboardEvent(window, key, scancode, action, mods);
         });
 
         // Get the resolution of the primary monitor
@@ -111,8 +111,66 @@ public class Window implements AutoCloseable {
 
     public void update() {
         glfwSwapBuffers(window);
-        glfwPollEvents();
+        glfwPollEvents(); // i.e. processKeyboardEvents();
+        processMouseEvents();
         changeTitle(title + frameCounter(false));
+    }
+
+    private void processKeyboardEvent(long window, int key, int scancode, int action, int mods) {
+        if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
+            setShouldClose(true);
+        }
+
+        if (controller != null) {
+            if (action == GLFW_PRESS) {
+                controller.keyDown(key);        
+            } else if (action == GLFW_RELEASE) {
+                controller.keyDown(key);        
+            }
+        }
+    }
+
+    private void processMouseEvents() {
+        MouseState currentEvent = new MouseState();
+        currentEvent.lastPosition = previousMouseEvent.position;
+        currentEvent.position = cursorPosition();
+        currentEvent.leftButtonDown = GLFW_PRESS == glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+        currentEvent.rightButtonDown = GLFW_PRESS == glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
+
+        if (controller != null) {
+            if (!currentEvent.position.equals(currentEvent.lastPosition)) {
+                controller.mouseMoved(currentEvent.clone());
+            }
+
+            if (currentEvent.leftButtonDown != previousMouseEvent.leftButtonDown) {
+                if (currentEvent.leftButtonDown) {
+                    controller.mouseDown(currentEvent.clone());
+                } else {
+                    // fixme: cannot determine whether the left or right button was lifted.
+                    controller.mouseUp(currentEvent.clone());
+                }
+            }
+
+            if (currentEvent.rightButtonDown != previousMouseEvent.rightButtonDown) {
+                if (currentEvent.rightButtonDown) {
+                    controller.mouseDown(currentEvent.clone());
+                } else {
+                    // fixme: cannot determine whether the left or right button was lifted.
+                    controller.mouseUp(currentEvent.clone());
+                }
+            }
+        }
+
+        previousMouseEvent = currentEvent;
+    }
+
+    private Point2D cursorPosition() {
+        DoubleBuffer x = BufferUtils.createDoubleBuffer(1);
+        DoubleBuffer y = BufferUtils.createDoubleBuffer(1);
+        glfwGetCursorPos(window, x, y);
+        x.rewind();
+        y.rewind();
+        return new Point2D(x.get(), y.get());
     }
 
     public void close() {
@@ -167,5 +225,27 @@ public class Window implements AutoCloseable {
 
     public boolean isResized() {
         return resized;
+    }
+
+    public void setShouldClose(boolean value) {
+        // Note: GLFW may set this, for example, when the user clicks on the window's close button.
+        // To query the value use glfwWindowShouldClose().
+        glfwSetWindowShouldClose(window, value); 
+    }
+    
+    public boolean shouldClose() {
+        return glfwWindowShouldClose(window);
+    }
+
+    public void disableCursor() {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
+
+    public void hideCursor() {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    }
+
+    public void restoreCursor() {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
 }
