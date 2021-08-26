@@ -25,7 +25,7 @@ public class Renderer {
     private ShaderProgram programWithTexture;
     private static final Vector3f sunDirection = new Vector3f(0, 1, 1); // sun is behind and above camera
 
-    public Renderer(Window window, ShaderProgram program, ShaderProgram programWithTexture){
+    public Renderer(Window window, ShaderProgram program, ShaderProgram programWithTexture) {
         this.window = window;
         this.program = program;
         this.programWithTexture = programWithTexture;
@@ -44,7 +44,7 @@ public class Renderer {
         // Update rotation angle
         for (GameItem gameItem : gameItems) {
             float rotation = gameItem.getRotation().y() + 0.5f;
-            if ( rotation > 360 ) {
+            if (rotation > 360) {
                 rotation = 0;
             }
             gameItem.setRotation(rotation, rotation, rotation);
@@ -70,7 +70,7 @@ public class Renderer {
 
             // Update projection Matrix
             float aspectRatio = (float) window.getWidth() / window.getHeight();
-            projectionMatrix.setPerspective(FOV, aspectRatio , Z_NEAR, Z_FAR);
+            projectionMatrix.setPerspective(FOV, aspectRatio, Z_NEAR, Z_FAR);
 
             // Start issueing render commands.
 
@@ -86,18 +86,16 @@ public class Renderer {
         }
     }
 
-    private static void render(ArrayList<GameItem> objects, Matrix4f projectionMatrix, Matrix4f worldMatrix, ShaderProgram program) {
+    private static void render(ArrayList<GameItem> objects, Matrix4f projectionMatrix, Matrix4f worldMatrix,
+            ShaderProgram program) {
         // Render each gameItem
         for (GameItem object : objects) {
             // Set world matrix for this item
             Vector3f rotation = object.getRotation();
             worldMatrix
-                .translation(object.getPosition())
-                .rotateAffineXYZ(
-                        (float) Math.toRadians(rotation.x),
-                        (float) Math.toRadians(rotation.y),
-                        (float) Math.toRadians(rotation.z))
-                .scale(object.getScale());
+                    .translation(object.getPosition()).rotateAffineXYZ((float) Math.toRadians(rotation.x),
+                            (float) Math.toRadians(rotation.y), (float) Math.toRadians(rotation.z))
+                    .scale(object.getScale());
 
             program.setUniform("projectionMatrix", projectionMatrix);
             program.setUniform("worldMatrix", worldMatrix);

@@ -63,7 +63,8 @@ public class VertexArrayObject implements AutoCloseable {
     public void close() {
         use();
         for (BoundBuffer b : boundBuffers) {
-            if (b.vertexAttributeIndex != -1) glDisableVertexAttribArray(b.vertexAttributeIndex);
+            if (b.vertexAttributeIndex != -1)
+                glDisableVertexAttribArray(b.vertexAttributeIndex);
             // fixme: should be moved to outside of loop
             glBindBuffer(b.type, 0);
             glDeleteBuffers(b.gpuId);

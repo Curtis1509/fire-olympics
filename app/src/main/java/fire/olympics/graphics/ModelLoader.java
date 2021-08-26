@@ -14,7 +14,8 @@ import java.util.Map;
 public class ModelLoader implements AutoCloseable {
     private final Map<String, Texture> loadedTextures = new HashMap<>();
 
-    public ModelLoader() { }
+    public ModelLoader() {
+    }
 
     @Override
     public void close() {
@@ -43,36 +44,33 @@ public class ModelLoader implements AutoCloseable {
         ArrayList<GameItem> objects = new ArrayList<>(numMeshes);
         System.out.printf("%d mesh(es) in %s%n", numMeshes, path.getFileName());
 
-        for(int i = 0; i < numMeshes; i++) {
+        for (int i = 0; i < numMeshes; i++) {
             AIMesh mesh = AIMesh.create(importMeshes.get(i));
 
-            Mesh newMesh = new Mesh(
-                convertPositions(mesh),
-                convertIndexes(mesh),
-                convertNormals(mesh)
-            );
+            Mesh newMesh = new Mesh(convertPositions(mesh), convertIndexes(mesh), convertNormals(mesh));
 
             AIMaterial mat = AIMaterial.create(scene.mMaterials().get(mesh.mMaterialIndex()));
             AIString texPath = AIString.create();
-            Assimp.aiGetMaterialTexture(mat, Assimp.aiTextureType_DIFFUSE, 0, texPath, (int[]) null, null, null, null, null, null);
+            Assimp.aiGetMaterialTexture(mat, Assimp.aiTextureType_DIFFUSE, 0, texPath, (int[]) null, null, null, null,
+                    null, null);
 
             int len = mesh.mNumVertices() * 3;
 
-            for(int x = 0; x < mat.mNumProperties(); x++) {
+            for (int x = 0; x < mat.mNumProperties(); x++) {
                 AIMaterialProperty prop = AIMaterialProperty.create(mat.mProperties().get(x));
                 System.out.printf("Property %s has index of %d%n", prop.mKey().dataString(), x);
             }
 
-            if(texPath.dataString().isEmpty()) {
+            if (texPath.dataString().isEmpty()) {
                 float[] diffuse = new float[len];
 
                 AIMaterialProperty diffData = AIMaterialProperty.create(mat.mProperties().get(3));
                 FloatBuffer diffBuffer = diffData.mData().asFloatBuffer();
                 System.out.printf("Material had diffuse data with length of %d%n", diffBuffer.capacity());
-                float[] col = {diffBuffer.get(),diffBuffer.get(),diffBuffer.get()};
+                float[] col = { diffBuffer.get(), diffBuffer.get(), diffBuffer.get() };
 
-                for(int x = 0; x < len; x++) {
-                    diffuse[x] = col[x%3];
+                for (int x = 0; x < len; x++) {
+                    diffuse[x] = col[x % 3];
                 }
 
                 newMesh.attachMaterial(diffuse);
@@ -86,13 +84,13 @@ public class ModelLoader implements AutoCloseable {
                 }
 
                 int lenUv = mesh.mNumVertices();
-                float[] newUv = new float[lenUv*2];
+                float[] newUv = new float[lenUv * 2];
                 AIVector3D.Buffer b = mesh.mTextureCoords(0);
 
                 for (int x = 0; x < lenUv; x++) {
                     AIVector3D vec = b.get();
-                    newUv[x*2] = vec.x();
-                    newUv[(x*2)+1] = vec.y();
+                    newUv[x * 2] = vec.x();
+                    newUv[(x * 2) + 1] = vec.y();
                 }
 
                 newMesh.attachMaterial(t, newUv);
@@ -119,8 +117,8 @@ public class ModelLoader implements AutoCloseable {
             float shinyAmount = shinyBuffer.get();
 
             for (int x = 0; x < len; x++) {
-                ambient[x] = ambColour[x%3];
-                specular[x] = specColour[x%3];
+                ambient[x] = ambColour[x % 3];
+                specular[x] = specColour[x % 3];
             }
 
             for (int x = 0; x < mesh.mNumVertices(); x++) {
@@ -141,12 +139,12 @@ public class ModelLoader implements AutoCloseable {
         float[] pos = new float[mesh.mNumVertices() * 3];
 
         int i = 0;
-        while(b.hasRemaining()) {
+        while (b.hasRemaining()) {
             AIVector3D vec = b.get();
 
-            pos[i*3] = vec.x();
-            pos[(i*3)+1] = vec.y();
-            pos[(i*3)+2] = vec.z();
+            pos[i * 3] = vec.x();
+            pos[(i * 3) + 1] = vec.y();
+            pos[(i * 3) + 2] = vec.z();
 
             i++;
         }
@@ -156,15 +154,16 @@ public class ModelLoader implements AutoCloseable {
 
     private static int[] convertIndexes(AIMesh mesh) {
         AIFace.Buffer b = mesh.mFaces();
-        int[] ind = new int[mesh.mNumFaces() * 3]; //triangle faces
+        int[] ind = new int[mesh.mNumFaces() * 3]; // triangle faces
 
         int i = 0;
-        while(b.hasRemaining()) {
+        while (b.hasRemaining()) {
             AIFace face = b.get();
-            if(face.mNumIndices() != 3) continue; // face is not a triangle, skip it
+            if (face.mNumIndices() != 3)
+                continue; // face is not a triangle, skip it
             IntBuffer intB = face.mIndices();
 
-            for(int x = 0; x < 3; x++)
+            for (int x = 0; x < 3; x++)
                 ind[(i * 3) + x] = intB.get(x);
 
             i++;
@@ -178,12 +177,12 @@ public class ModelLoader implements AutoCloseable {
         float[] norm = new float[mesh.mNumVertices() * 3];
 
         int i = 0;
-        while(b.hasRemaining()) {
+        while (b.hasRemaining()) {
             AIVector3D vec = b.get();
 
-            norm[i*3] = vec.x();
-            norm[(i*3)+1] = vec.y();
-            norm[(i*3)+2] = vec.z();
+            norm[i * 3] = vec.x();
+            norm[(i * 3) + 1] = vec.y();
+            norm[(i * 3) + 2] = vec.z();
 
             i++;
         }

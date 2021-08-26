@@ -59,7 +59,8 @@ public class Window implements AutoCloseable {
             this.setResized(true);
         });
 
-        // Setup a key callback. It will be called every time a key is pressed, repeated or released.
+        // Setup a key callback. It will be called every time a key is pressed, repeated
+        // or released.
         glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
             if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
                 glfwSetWindowShouldClose(window, true); // We will detect this in the rendering loop
@@ -71,11 +72,7 @@ public class Window implements AutoCloseable {
 
         if (vidmode != null) {
             // Center our window
-            glfwSetWindowPos(
-                    window,
-                    (vidmode.width() - width) / 2,
-                    (vidmode.height() - height) / 2
-            );
+            glfwSetWindowPos(window, (vidmode.width() - width) / 2, (vidmode.height() - height) / 2);
         }
 
         // Make the OpenGL context current
@@ -131,14 +128,15 @@ public class Window implements AutoCloseable {
     }
 
     static double lastTime, nbFrames, frameTime, fps = 0;
+
     public static String frameCounter(boolean debug) {
         double currentTime = glfwGetTime();
         double delta = currentTime - lastTime;
         nbFrames++;
 
         if (delta >= 1) {
-            frameTime = 1000/nbFrames;
-            fps = nbFrames/delta;
+            frameTime = 1000 / nbFrames;
+            fps = nbFrames / delta;
 
             if (debug) {
                 System.out.println("Frametime: " + frameTime);
@@ -148,7 +146,7 @@ public class Window implements AutoCloseable {
             nbFrames = 0;
             lastTime = currentTime;
         }
-        return String.format(" | Frametime: %.2f | FPS: %.2f",  frameTime, fps);
+        return String.format(" | Frametime: %.2f | FPS: %.2f", frameTime, fps);
     }
 
     public void setResized(boolean resized) {

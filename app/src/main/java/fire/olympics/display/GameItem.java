@@ -5,7 +5,6 @@ import fire.olympics.graphics.Mesh;
 import org.joml.Vector3f;
 import org.joml.Matrix4f;
 
-
 public class GameItem {
     private Vector3f position;
     private Vector3f rotation;

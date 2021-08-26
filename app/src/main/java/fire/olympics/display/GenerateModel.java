@@ -1,9 +1,8 @@
 package fire.olympics.display;
 
 public class GenerateModel {
-
-    //Generates a 3D object using the dimensions supplied and coordinates supplied.
-    public static float[] createPositions(float x, float y, float z, float length, float height, float width){
+    // Generates a 3D object using the dimensions supplied and coordinates supplied.
+    public static float[] createPositions(float x, float y, float z, float length, float height, float width) {
         return new float[] {
                 // V0
                 x+-width/2, y+height/2, z-length/2,
@@ -55,8 +54,9 @@ public class GenerateModel {
                 x+width/2, y-height/2, z,
         };
     }
+
     public static float[] createColours() {
-        return new float[]{
+        return new float[] {
                 0.5f, 0.0f, 0.0f,
                 0.0f, 0.5f, 0.0f,
                 0.0f, 0.0f, 0.5f,
@@ -67,8 +67,9 @@ public class GenerateModel {
                 0.0f, 0.5f, 0.5f,
         };
     }
+
     public static int[] createIndicies() {
-        return new int[]{
+        return new int[] {
                 // Front face
                 0, 1, 3, 3, 1, 2,
                 // Top Face
@@ -83,6 +84,4 @@ public class GenerateModel {
                 7, 6, 4, 7, 4, 5,
         };
     }
-
-
 }

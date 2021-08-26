@@ -34,8 +34,7 @@ public class ShaderProgram {
 
     public void setUniform(String uniformName, Vector3f value) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            glUniform3fv(uniforms.get(uniformName),
-                    value.get(stack.mallocFloat(3)));
+            glUniform3fv(uniforms.get(uniformName), value.get(stack.mallocFloat(3)));
         }
     }
 
@@ -46,8 +45,7 @@ public class ShaderProgram {
     public void setUniform(String uniformName, Matrix4f value) {
         // Dump the matrix into a float buffer
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            glUniformMatrix4fv(uniforms.get(uniformName), false,
-                    value.get(stack.mallocFloat(16)));
+            glUniformMatrix4fv(uniforms.get(uniformName), false, value.get(stack.mallocFloat(16)));
         }
     }
 
@@ -56,17 +54,18 @@ public class ShaderProgram {
         String fragment = Files.readString(fragmentPath);
         compileAndLink(vertex, fragment);
     }
+
     public void createUniform(String uniformName) throws Exception {
         int uniformLocation = glGetUniformLocation(program, uniformName);
 
         System.out.printf("UniformLocation for %s at %d%n", uniformName, uniformLocation);
 
         if (uniformLocation < 0) {
-            throw new Exception(String.format("Could not find uniform \"%s\" in shader (%s, %s)", uniformName, vertexPath.getFileName(), fragmentPath.getFileName()));
+            throw new Exception(String.format("Could not find uniform \"%s\" in shader (%s, %s)", uniformName,
+                    vertexPath.getFileName(), fragmentPath.getFileName()));
         }
         uniforms.put(uniformName, uniformLocation);
     }
-
 
     private void compileAndLink(String vert, String frag) throws Exception {
         program = glCreateProgram();
@@ -93,8 +92,10 @@ public class ShaderProgram {
             throw new Exception("Error linking Shader code: " + glGetProgramInfoLog(program, 1024));
         }
 
-        if (vertID != 0) glDetachShader(program, vertID);
-        if (fragID != 0) glDetachShader(program, fragID);
+        if (vertID != 0)
+            glDetachShader(program, vertID);
+        if (fragID != 0)
+            glDetachShader(program, fragID);
     }
 
     public void validate() throws Exception {
@@ -118,7 +119,4 @@ public class ShaderProgram {
         glUseProgram(0);
     }
 
-
 }
-
-

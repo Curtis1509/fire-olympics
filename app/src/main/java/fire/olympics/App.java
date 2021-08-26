@@ -17,7 +17,7 @@ public class App {
     private Path resourcePath = Path.of("app", "src", "main", "resources");
 
     public App() {
-        if(!Files.exists(resourcePath))
+        if (!Files.exists(resourcePath))
             resourcePath = Path.of("app").relativize(resourcePath);
     }
 
@@ -40,7 +40,8 @@ public class App {
             program.createUniform("sun");
             program.validate();
 
-            ShaderProgram programWithTexture = new ShaderProgram(shader("shader_with_texture.vert"), shader("shader_with_texture.frag"));
+            ShaderProgram programWithTexture = new ShaderProgram(shader("shader_with_texture.vert"),
+                    shader("shader_with_texture.frag"));
             programWithTexture.readCompileAndLink();
             programWithTexture.createUniform("projectionMatrix");
             programWithTexture.createUniform("worldMatrix");
@@ -51,11 +52,12 @@ public class App {
             try (ModelLoader loader = new ModelLoader()) {
                 loader.loadTexture(resourcePath.resolve(Path.of("textures", "metal_test.png")));
                 loader.loadTexture(resourcePath.resolve(Path.of("textures", "wood_test_2.png")));
-                ArrayList<GameItem> objects = loader.loadModel(resourcePath.resolve(Path.of("models", "proto_arrow_textured.obj")));
+                ArrayList<GameItem> objects = loader
+                        .loadModel(resourcePath.resolve(Path.of("models", "proto_arrow_textured.obj")));
 
                 Renderer render = new Renderer(window, program, programWithTexture);
                 for (GameItem object : objects) {
-                    object.setPosition(0,0, -10);
+                    object.setPosition(0, 0, -10);
                     render.add(object);
                 }
                 render.run();

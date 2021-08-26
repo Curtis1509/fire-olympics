@@ -2,8 +2,6 @@ package fire.olympics.graphics;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.nio.channels.SeekableByteChannel;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.lwjgl.opengl.GL33C.*;
@@ -21,7 +19,7 @@ public class Texture {
         STBImage.stbi_info(path.toAbsolutePath().toString(), w, h, comp);
         ByteBuffer imageData = STBImage.stbi_load(path.toAbsolutePath().toString(), w, h, comp, STBImage.STBI_rgb);
 
-        if(imageData == null) {
+        if (imageData == null) {
             id = 0;
             System.out.printf("Texture: %s%n", STBImage.stbi_failure_reason());
             return;

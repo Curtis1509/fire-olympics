@@ -24,7 +24,7 @@ public class Mesh {
         vertexCount = indices.length;
         assert vertexCount * 3 == positions.length;
         buffer.put(positions).flip();
-        
+
         vao = new VertexArrayObject();
         vao.bindFloats(buffer, POSITIONS, GL_STATIC_DRAW, 3, GL_FLOAT);
         MemoryUtil.memFree(buffer);
@@ -78,13 +78,15 @@ public class Mesh {
 
     public void render(Matrix4f projection, Matrix4f world) {
         vao.use();
-        if (hasTexture()) texture.bind();
+        if (hasTexture())
+            texture.bind();
         glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0);
-        if (hasTexture()) texture.unbind();
+        if (hasTexture())
+            texture.unbind();
         vao.done();
     }
 
     public void close() throws Exception {
-        vao.close();    
+        vao.close();
     }
 }
