@@ -17,6 +17,7 @@ public class Mesh {
     int AMBIENT = 2;
     int DIFFUSE = 3;
     int SPECULAR = 4;
+    int SHININESS = 6;
 
     public Mesh(float[] positions, int[] indices, float[] normals) {
         FloatBuffer buffer = MemoryUtil.memAllocFloat(positions.length);
@@ -53,6 +54,22 @@ public class Mesh {
         colourBuffer.put(vertColours).flip();
         vao.bindFloats(colourBuffer, DIFFUSE, GL_STATIC_DRAW, 3, GL_FLOAT);
         MemoryUtil.memFree(colourBuffer);
+    }
+
+    public void attachLightingData(float[] ambient, float[] specular, float[] shinyness) {
+        FloatBuffer ambientBuffer = MemoryUtil.memAllocFloat(ambient.length);
+        ambientBuffer.put(ambient).flip();
+        vao.bindFloats(ambientBuffer, AMBIENT, GL_STATIC_DRAW, 3, GL_FLOAT);
+        MemoryUtil.memFree(ambientBuffer);
+
+        FloatBuffer specularBuffer = MemoryUtil.memAllocFloat(specular.length);
+        specularBuffer.put(specular).flip();
+        vao.bindFloats(specularBuffer, SPECULAR, GL_STATIC_DRAW, 3, GL_FLOAT);
+        MemoryUtil.memFree(specularBuffer);
+
+        FloatBuffer shininessBuffer = MemoryUtil.memAllocFloat(shinyness.length);
+        shininessBuffer.put(shinyness).flip();
+        vao.bindFloats(shininessBuffer, SHININESS, GL_STATIC_DRAW, 1, GL_FLOAT);
     }
 
     public boolean hasTexture() {

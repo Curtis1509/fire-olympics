@@ -23,6 +23,7 @@ public class Renderer {
 
     private ShaderProgram program;
     private ShaderProgram programWithTexture;
+    private static final Vector3f sunDirection = new Vector3f(0, 1, 1); // sun is behind and above camera
 
     public Renderer(Window window, ShaderProgram program, ShaderProgram programWithTexture){
         this.window = window;
@@ -100,6 +101,7 @@ public class Renderer {
 
             program.setUniform("projectionMatrix", projectionMatrix);
             program.setUniform("worldMatrix", worldMatrix);
+            program.setUniform("sun", sunDirection);
             object.render(projectionMatrix, worldMatrix);
         }
     }

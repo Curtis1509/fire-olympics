@@ -37,12 +37,14 @@ public class App {
             program.readCompileAndLink();
             program.createUniform("projectionMatrix");
             program.createUniform("worldMatrix");
+            program.createUniform("sun");
             program.validate();
 
             ShaderProgram programWithTexture = new ShaderProgram(shader("shader_with_texture.vert"), shader("shader_with_texture.frag"));
             programWithTexture.readCompileAndLink();
             programWithTexture.createUniform("projectionMatrix");
             programWithTexture.createUniform("worldMatrix");
+            programWithTexture.createUniform("sun");
             programWithTexture.createUniform("texture_sampler");
             programWithTexture.validate();
 

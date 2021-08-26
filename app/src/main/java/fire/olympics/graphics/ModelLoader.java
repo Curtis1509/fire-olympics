@@ -56,19 +56,26 @@ public class ModelLoader implements AutoCloseable {
             AIString texPath = AIString.create();
             Assimp.aiGetMaterialTexture(mat, Assimp.aiTextureType_DIFFUSE, 0, texPath, (int[]) null, null, null, null, null, null);
 
-            if(texPath.dataString().isEmpty()) {
-                int len = mesh.mNumVertices() * 3;
-                float[] colours = new float[len];
+            int len = mesh.mNumVertices() * 3;
 
-                AIMaterialProperty prop = AIMaterialProperty.create(mat.mProperties().get(3));
-                FloatBuffer buffer = prop.mData().asFloatBuffer();
-                float[] col = {buffer.get(),buffer.get(),buffer.get()};
+            for(int x = 0; x < mat.mNumProperties(); x++) {
+                AIMaterialProperty prop = AIMaterialProperty.create(mat.mProperties().get(x));
+                System.out.printf("Property %s has index of %d%n", prop.mKey().dataString(), x);
+            }
+
+            if(texPath.dataString().isEmpty()) {
+                float[] diffuse = new float[len];
+
+                AIMaterialProperty diffData = AIMaterialProperty.create(mat.mProperties().get(3));
+                FloatBuffer diffBuffer = diffData.mData().asFloatBuffer();
+                System.out.printf("Material had diffuse data with length of %d%n", diffBuffer.capacity());
+                float[] col = {diffBuffer.get(),diffBuffer.get(),diffBuffer.get()};
 
                 for(int x = 0; x < len; x++) {
-                    colours[x] = col[x%3];
+                    diffuse[x] = col[x%3];
                 }
 
-                newMesh.attachMaterial(colours);
+                newMesh.attachMaterial(diffuse);
             } else {
                 Path p = Path.of(texPath.dataString());
                 Path key = path.getParent().resolve(p).normalize().toAbsolutePath();
@@ -78,11 +85,11 @@ public class ModelLoader implements AutoCloseable {
                     System.out.println("note: is it loaded?");
                 }
 
-                int len = mesh.mNumVertices();
-                float[] newUv = new float[len*2];
+                int lenUv = mesh.mNumVertices();
+                float[] newUv = new float[lenUv*2];
                 AIVector3D.Buffer b = mesh.mTextureCoords(0);
 
-                for (int x = 0; x < len; x++) {
+                for (int x = 0; x < lenUv; x++) {
                     AIVector3D vec = b.get();
                     newUv[x*2] = vec.x();
                     newUv[(x*2)+1] = vec.y();
@@ -90,6 +97,38 @@ public class ModelLoader implements AutoCloseable {
 
                 newMesh.attachMaterial(t, newUv);
             }
+
+            float[] ambient = new float[len];
+            float[] specular = new float[len];
+            float[] shininess = new float[mesh.mNumVertices()];
+
+            AIMaterialProperty ambData = AIMaterialProperty.create(mat.mProperties().get(2));
+            AIMaterialProperty specData = AIMaterialProperty.create(mat.mProperties().get(4));
+            AIMaterialProperty shinyData = AIMaterialProperty.create(mat.mProperties().get(6));
+
+            FloatBuffer ambBuffer = ambData.mData().asFloatBuffer();
+            FloatBuffer specBuffer = specData.mData().asFloatBuffer();
+            FloatBuffer shinyBuffer = shinyData.mData().asFloatBuffer();
+
+            System.out.printf("Material had ambient data with length of %d%n", ambBuffer.capacity());
+            System.out.printf("Material had specular data with length of %d%n", specBuffer.capacity());
+            System.out.printf("Material had shininess data with length of %d%n", shinyBuffer.capacity());
+
+            float[] ambColour = { ambBuffer.get(), ambBuffer.get(), ambBuffer.get() };
+            float[] specColour = { specBuffer.get(), specBuffer.get(), specBuffer.get() };
+            float shinyAmount = shinyBuffer.get();
+
+            for (int x = 0; x < len; x++) {
+                ambient[x] = ambColour[x%3];
+                specular[x] = specColour[x%3];
+            }
+
+            for (int x = 0; x < mesh.mNumVertices(); x++) {
+                shininess[x] = shinyAmount;
+            }
+
+            newMesh.attachLightingData(ambient, specular, shininess);
+
             objects.add(new GameItem(newMesh));
         }
 
