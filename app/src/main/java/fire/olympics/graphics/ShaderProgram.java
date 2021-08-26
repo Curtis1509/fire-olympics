@@ -66,13 +66,13 @@ public class ShaderProgram {
         glShaderSource(fragID, frag);
         glCompileShader(vertID);
         if (glGetShaderi(vertID, GL_COMPILE_STATUS) == GL_FALSE) {
-            throw new Exception("Failed to compile vertex shader");
+            throw new Exception(String.format("Failed to compile vertex shader %s%n", vertexPath.getFileName()));
         }
 
         glCompileShader(fragID);
         if (glGetShaderi(fragID, GL_COMPILE_STATUS) == GL_FALSE) {
             // fixme: resource leak - can you spot it?
-            throw new Exception("Failed to compile fragment shader");
+            throw new Exception(String.format("Failed to compile fragment shader %s%n", fragmentPath.getFileName()));
         }
 
         glAttachShader(program, vertID);
