@@ -6,6 +6,8 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 
+import org.lwjgl.system.MemoryUtil;
+
 class BoundBuffer {
     int gpuId;
     int vertexAttributeIndex;
@@ -21,25 +23,32 @@ public class VertexArrayObject implements AutoCloseable {
         name = glGenVertexArrays();
     }
 
-    public void bindElements(IntBuffer buffer, int usage) {
+    public void bindElements(int[] buffer, int usage) {
         BoundBuffer b = new BoundBuffer();
         b.gpuId = glGenBuffers();
         b.vertexAttributeIndex = -1;
         b.type = GL_ELEMENT_ARRAY_BUFFER;
         boundBuffers.add(b);
 
+        IntBuffer intBuffer = MemoryUtil.memAllocInt(buffer.length);
+        intBuffer.put(buffer).flip();
+
         use();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, b.gpuId);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer, usage);
         done();
+        MemoryUtil.memFree(intBuffer);
     }
 
-    public void bindFloats(FloatBuffer buffer, int index, int usage, int componentCount, int componentType) {
+    public void bindFloats(float[] buffer, int index, int usage, int componentCount, int componentType) {
         BoundBuffer b = new BoundBuffer();
         b.gpuId = glGenBuffers();
         b.vertexAttributeIndex = index;
         b.type = GL_ARRAY_BUFFER;
         boundBuffers.add(b);
+
+        FloatBuffer floatBuffer = MemoryUtil.memAllocFloat(buffer.length);
+        floatBuffer.put(buffer).flip();
 
         use();
         glBindBuffer(b.type, b.gpuId);
@@ -48,6 +57,8 @@ public class VertexArrayObject implements AutoCloseable {
         glVertexAttribPointer(index, componentCount, componentType, false, 0, 0);
         glBindBuffer(b.type, 0);
         done();
+
+        MemoryUtil.memFree(floatBuffer);
     }
 
     public void use() {
