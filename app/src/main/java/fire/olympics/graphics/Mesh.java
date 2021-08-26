@@ -12,6 +12,12 @@ public class Mesh {
     private int vertexCount;
     private Texture texture = null;
 
+    int POSITIONS = 0;
+    int NORMALS = 1;
+    int AMBIENT = 2;
+    int DIFFUSE = 3;
+    int SPECULAR = 4;
+
     public Mesh(float[] positions, int[] indices, float[] normals) {
         FloatBuffer buffer = MemoryUtil.memAllocFloat(positions.length);
         vertexCount = indices.length;
@@ -19,7 +25,7 @@ public class Mesh {
         buffer.put(positions).flip();
         
         vao = new VertexArrayObject();
-        vao.bindFloats(buffer, 0, GL_STATIC_DRAW, 3, GL_FLOAT);
+        vao.bindFloats(buffer, POSITIONS, GL_STATIC_DRAW, 3, GL_FLOAT);
         MemoryUtil.memFree(buffer);
 
         IntBuffer intBuffer = MemoryUtil.memAllocInt(indices.length);
@@ -29,14 +35,14 @@ public class Mesh {
 
         FloatBuffer normalBuffer = MemoryUtil.memAllocFloat(normals.length);
         normalBuffer.put(normals).flip();
-        vao.bindFloats(normalBuffer, 2, GL_STATIC_DRAW, 3, GL_FLOAT);
+        vao.bindFloats(normalBuffer, NORMALS, GL_STATIC_DRAW, 3, GL_FLOAT);
         MemoryUtil.memFree(normalBuffer);
     }
 
     public void attachMaterial(Texture t, float[] uv) {
         FloatBuffer uvBuffer = MemoryUtil.memAllocFloat(uv.length);
         uvBuffer.put(uv).flip();
-        vao.bindFloats(uvBuffer, 1, GL_STATIC_DRAW, 2, GL_FLOAT);
+        vao.bindFloats(uvBuffer, DIFFUSE, GL_STATIC_DRAW, 2, GL_FLOAT);
         MemoryUtil.memFree(uvBuffer);
 
         texture = t;
@@ -45,7 +51,7 @@ public class Mesh {
     public void attachMaterial(float[] vertColours) {
         FloatBuffer colourBuffer = MemoryUtil.memAllocFloat(vertColours.length);
         colourBuffer.put(vertColours).flip();
-        vao.bindFloats(colourBuffer, 1, GL_STATIC_DRAW, 3, GL_FLOAT);
+        vao.bindFloats(colourBuffer, DIFFUSE, GL_STATIC_DRAW, 3, GL_FLOAT);
         MemoryUtil.memFree(colourBuffer);
     }
 
