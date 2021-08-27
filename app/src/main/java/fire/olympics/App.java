@@ -24,7 +24,7 @@ public class App implements AutoCloseable {
         }
         
         try (App app = new App(Path.of("app", "src", "main", "resources"))) {
-            app.createMainWindow();
+            // app.createMainWindow();
             app.createMainWindow();
             app.mainLoop();
         } catch (Exception e) {
@@ -89,7 +89,7 @@ public class App implements AutoCloseable {
         if (!window.isHidden()) {
             window.use();
             renderer.update();
-            renderer.aspectRatio = window.aspectRatio();
+            renderer.setAspectRatio(window.aspectRatio());
             renderer.render();
             window.update();
             window.resizeViewportIfNeeded();

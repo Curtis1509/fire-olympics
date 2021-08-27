@@ -10,19 +10,20 @@ import static org.lwjgl.opengl.GL33C.*;
 import java.util.ArrayList;
 
 public class Renderer {
-    private static final float FOV = (float) Math.toRadians(60.0f);
-    private static final float Z_NEAR = 0.01f;
-    private static final float Z_FAR = 1000.f;
+    private float FOV = (float) Math.toRadians(60.0f);
+    private float z_near = 0.01f;
+    private float z_far = 1000.f;
     private ArrayList<GameItem> gameItems = new ArrayList<>();
     private ArrayList<GameItem> gameItemsWithTextures = new ArrayList<>();
     private ArrayList<GameItem> gameItemsWithOutTextures = new ArrayList<>();
 
-    public float aspectRatio = 1.0f;
+    private float aspectRatio = 1.0f;
     private ShaderProgram program;
     private ShaderProgram programWithTexture;
     private Vector3f sunDirection = new Vector3f(0, 1, 1); // sun is behind and above camera
     private Matrix4f projectionMatrix = new Matrix4f();
     private Matrix4f worldMatrix = new Matrix4f();
+    public Matrix4f camera = new Matrix4f();
 
     public Renderer(ShaderProgram program, ShaderProgram programWithTexture) {
         this.program = program;
@@ -49,14 +50,31 @@ public class Renderer {
         }
     }
 
+    public void setAspectRatio(float ratio) {
+        aspectRatio = ratio;
+        recalculateProjectionMatrix();
+    }
+
+    public void setFieldOfView(float fov) {
+        FOV = (float) Math.toRadians(fov);
+        recalculateProjectionMatrix();
+    }
+    
+    public void setZClipping(float near, float far) {
+        z_near = near;
+        z_far = far;
+        recalculateProjectionMatrix();
+    }
+
+    private void recalculateProjectionMatrix() {
+        projectionMatrix.setPerspective(FOV, aspectRatio, z_near, z_far);
+    }
+
     public void render() {
         // Set the color.
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         // Apply the color.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // Update projection Matrix
-        projectionMatrix.setPerspective(FOV, aspectRatio, Z_NEAR, Z_FAR);
 
         // Start issueing render commands.
         program.bind();
@@ -77,9 +95,13 @@ public class Renderer {
             // Set world matrix for this item
             Vector3f rotation = object.getRotation();
             worldMatrix
-                    .translation(object.getPosition()).rotateAffineXYZ((float) Math.toRadians(rotation.x),
-                            (float) Math.toRadians(rotation.y), (float) Math.toRadians(rotation.z))
+                    .translation(object.getPosition())
+                    .rotateAffineXYZ(
+                        (float) Math.toRadians(rotation.x),
+                        (float) Math.toRadians(rotation.y), 
+                        (float) Math.toRadians(rotation.z))
                     .scale(object.getScale());
+            worldMatrix.mulLocal(camera);
 
             program.setUniform("worldMatrix", worldMatrix);
             object.mesh.render();

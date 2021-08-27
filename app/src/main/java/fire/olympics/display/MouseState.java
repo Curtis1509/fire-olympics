@@ -10,6 +10,14 @@ public class MouseState {
     public boolean rightButtonDown = false;
     public MouseState() { }
 
+    public double dx() {
+        return position.x - lastPosition.x;
+    }
+
+    public double dy() {
+        return position.y - lastPosition.y;
+    }
+
     @Override
     public boolean equals(Object o) {
         // self check
