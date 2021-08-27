@@ -12,6 +12,10 @@ import java.nio.DoubleBuffer;
 import org.lwjgl.BufferUtils;
 
 public class Window implements AutoCloseable {
+
+    private static boolean mouseDisabled = false;
+    private static long mouseDisabledOnWindowId = NULL;
+
     private final String title;
     private int width;
     private int height;
@@ -147,7 +151,7 @@ public class Window implements AutoCloseable {
         currentEvent.leftButtonDown = GLFW_PRESS == glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
         currentEvent.rightButtonDown = GLFW_PRESS == glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
 
-        if (eventDelegate != null && containsPoint(currentEvent.position)) {
+        if (eventDelegate != null && (containsPoint(currentEvent.position) || mouseDisabled && window == mouseDisabledOnWindowId)) {
             if (!currentEvent.position.equals(currentEvent.lastPosition)) {
                 eventDelegate.mouseMoved(currentEvent.clone());
             }
@@ -228,14 +232,26 @@ public class Window implements AutoCloseable {
 
     public void disableCursor() {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        mouseDisabled = true;
+        mouseDisabledOnWindowId = window;
     }
 
     public void hideCursor() {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+        mouseDisabled = false;
+        mouseDisabledOnWindowId = NULL;
     }
 
     public void restoreCursor() {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        mouseDisabled = false;
+        mouseDisabledOnWindowId = NULL;
+    }
+
+    public void restoreCursorIfDisabledOnWindow() {
+        if (mouseDisabled && window == mouseDisabledOnWindowId) {
+            restoreCursor();
+        }
     }
 
     public void use() {

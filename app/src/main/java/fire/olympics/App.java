@@ -25,6 +25,7 @@ public class App implements AutoCloseable {
         
         try (App app = new App(Path.of("app", "src", "main", "resources"))) {
             app.createMainWindow();
+            app.createMainWindow();
             app.mainLoop();
         } catch (Exception e) {
             System.out.printf("error: %s%n", e);
@@ -67,6 +68,7 @@ public class App implements AutoCloseable {
             for (Controller controller : controllers) {
                 boolean shouldClose = updateWindow(controller.window, controller.renderer);
                 if (shouldClose) {
+                    controller.window.restoreCursorIfDisabledOnWindow();
                     closedWindows.add(controller.window);
                 }
             }
