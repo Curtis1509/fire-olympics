@@ -9,6 +9,8 @@ import static org.lwjgl.opengl.GL33C.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
 import java.nio.DoubleBuffer;
+
+import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
 
 public class Window implements AutoCloseable {
@@ -140,7 +142,7 @@ public class Window implements AutoCloseable {
         }
     }
 
-    private boolean containsPoint(Point2D point) {
+    private boolean containsPoint(Vector2f point) {
         return 0 <= point.x && 0 <= point.y && point.x <= width && point.y <= height;
     }
 
@@ -178,13 +180,13 @@ public class Window implements AutoCloseable {
         previousMouseEvent = currentEvent;
     }
 
-    private Point2D cursorPosition() {
+    private Vector2f cursorPosition() {
         DoubleBuffer x = BufferUtils.createDoubleBuffer(1);
         DoubleBuffer y = BufferUtils.createDoubleBuffer(1);
         glfwGetCursorPos(window, x, y);
         x.rewind();
         y.rewind();
-        return new Point2D(x.get(), y.get());
+        return new Vector2f((float)x.get(), (float)y.get());
     }
 
     public void close() {

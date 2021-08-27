@@ -2,19 +2,21 @@ package fire.olympics.display;
 
 import java.util.Objects;
 
+import org.joml.Vector2f;
+
 public class MouseState {
 
-    public Point2D position = new Point2D(0, 0);
-    public Point2D lastPosition = new Point2D(0, 0);
+    public Vector2f position = new Vector2f(0, 0);
+    public Vector2f lastPosition = new Vector2f(0, 0);
     public boolean leftButtonDown = false;
     public boolean rightButtonDown = false;
     public MouseState() { }
 
-    public double dx() {
+    public float dx() {
         return position.x - lastPosition.x;
     }
 
-    public double dy() {
+    public float dy() {
         return position.y - lastPosition.y;
     }
 
@@ -38,8 +40,8 @@ public class MouseState {
 
     public MouseState clone() {
         MouseState copy = new MouseState();
-        copy.position = position.clone();
-        copy.lastPosition = lastPosition.clone();
+        copy.position = new Vector2f(position);
+        copy.lastPosition = new Vector2f(lastPosition);
         copy.leftButtonDown = leftButtonDown;
         copy.rightButtonDown = rightButtonDown;
         return copy;
