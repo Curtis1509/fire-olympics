@@ -136,6 +136,10 @@ public class Window implements AutoCloseable {
         }
     }
 
+    private boolean containsPoint(Point2D point) {
+        return 0 <= point.x && 0 <= point.y && point.x <= width && point.y <= height;
+    }
+
     private void processMouseEvents() {
         MouseState currentEvent = new MouseState();
         currentEvent.lastPosition = previousMouseEvent.position;
@@ -143,7 +147,7 @@ public class Window implements AutoCloseable {
         currentEvent.leftButtonDown = GLFW_PRESS == glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
         currentEvent.rightButtonDown = GLFW_PRESS == glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
 
-        if (eventDelegate != null) {
+        if (eventDelegate != null && containsPoint(currentEvent.position)) {
             if (!currentEvent.position.equals(currentEvent.lastPosition)) {
                 eventDelegate.mouseMoved(currentEvent.clone());
             }

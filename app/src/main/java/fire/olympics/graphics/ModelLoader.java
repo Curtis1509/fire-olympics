@@ -13,8 +13,14 @@ import java.util.Map;
 
 public class ModelLoader implements AutoCloseable {
     private final Map<String, Texture> loadedTextures = new HashMap<>();
+    private final Path resourcePath;
 
-    public ModelLoader() {
+    public ModelLoader(Path resourcePath) {
+        this.resourcePath = resourcePath;
+    }
+
+    private Path resource(String first, String... more) {
+        return resourcePath.resolve(Path.of(first, more));
     }
 
     @Override
@@ -22,14 +28,16 @@ public class ModelLoader implements AutoCloseable {
         loadedTextures.forEach((s, t) -> t.close());
     }
 
-    public void loadTexture(Path path) {
+    public void loadTexture(String first, String... more) {
+        Path path = resource(first, more);
         assert !loadedTextures.containsKey(path.toString());
         Texture t = new Texture(path);
         String name = path.toAbsolutePath().toString();
         loadedTextures.put(name, t);
     }
 
-    public ArrayList<GameItem> loadModel(Path path) throws Exception {
+    public ArrayList<GameItem> loadModel(String first, String... more) throws Exception {
+        Path path = resource(first, more);
         AIScene scene = Assimp.aiImportFile(path.toAbsolutePath().toString(), 0);
         if (scene == null) {
             error(String.format("File %s could not be loaded.", path.getFileName()));

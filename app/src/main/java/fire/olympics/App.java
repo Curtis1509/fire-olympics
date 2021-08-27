@@ -25,7 +25,6 @@ public class App implements AutoCloseable {
         
         try (App app = new App(Path.of("app", "src", "main", "resources"))) {
             app.createMainWindow();
-            app.createMainWindow();
             app.mainLoop();
         } catch (Exception e) {
             System.out.printf("error: %s%n", e);
@@ -35,7 +34,6 @@ public class App implements AutoCloseable {
 
     private final Path resourcePath;
     private final ArrayList<Controller> controllers = new ArrayList<>();
-    private final ModelLoader loader = new ModelLoader();
 
     public App(Path resourcePath) {
         if (!Files.exists(resourcePath)) {
@@ -53,6 +51,17 @@ public class App implements AutoCloseable {
     }
 
     public void mainLoop() {
+        for (Controller c : controllers) {
+            try {
+                c.window.use();
+                c.load();
+                c.window.done();
+                c.window.showWindow();
+            } catch (Exception e) {
+                System.out.println("error loading window: " + e);
+            }
+        }
+
         ArrayList<Window> closedWindows = new ArrayList<>();
         while (controllers.size() > 0) {
             for (Controller controller : controllers) {
@@ -70,7 +79,7 @@ public class App implements AutoCloseable {
                 closedWindows.clear();
             }
 
-            glfwPollEvents(); // i.e. processKeyboardEvents();
+            glfwPollEvents(); // i.e. processKeyboardEvents() for all windows
         }
     }
 
@@ -82,12 +91,9 @@ public class App implements AutoCloseable {
             renderer.render();
             window.update();
             window.resizeViewportIfNeeded();
+            window.done();
         }
-        if (window.shouldClose()) {
-            return true;
-        } else {
-            return false;
-        }
+        return window.shouldClose();
     }
 
     public void createMainWindow() throws Exception {
@@ -117,18 +123,9 @@ public class App implements AutoCloseable {
         programWithTexture.createUniform("texture_sampler");
         programWithTexture.validate();
 
-        loader.loadTexture(resource("textures", "metal_test.png"));
-        loader.loadTexture(resource("textures", "wood_test_2.png"));
-        ArrayList<GameItem> objects = loader.loadModel(resource("models", "proto_arrow_textured.obj"));
-
+        ModelLoader loader = new ModelLoader(this.resourcePath);
         Renderer render = new Renderer(program, programWithTexture);
-        for (GameItem object : objects) {
-            object.setPosition(0, 0, -10);
-            render.add(object);
-        }
-
-        window.showWindow();
-        Controller controller = new Controller(window, render);
+        Controller controller = new Controller(window, render, loader);
         controllers.add(controller);
     }
 
@@ -138,7 +135,6 @@ public class App implements AutoCloseable {
 
     @Override
     public void close() {
-        loader.close();
         // Terminate GLFW and free the error callback
         glfwTerminate();
         Objects.requireNonNull(glfwSetErrorCallback(null)).free();
