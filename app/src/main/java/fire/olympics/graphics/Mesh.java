@@ -1,6 +1,5 @@
 package fire.olympics.graphics;
 
-import org.joml.Matrix4f;
 import static org.lwjgl.opengl.GL33C.*;
 
 public class Mesh {
@@ -44,7 +43,7 @@ public class Mesh {
         return texture != null;
     }
 
-    public void render(Matrix4f projection, Matrix4f world) {
+    public void render() {
         vao.use();
         if (hasTexture())
             texture.bind();

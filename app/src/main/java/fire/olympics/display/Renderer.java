@@ -5,14 +5,11 @@ import org.joml.Vector3f;
 
 import fire.olympics.graphics.ShaderProgram;
 
-import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.opengl.GL33C.*;
 
 import java.util.ArrayList;
 
 public class Renderer {
-
-    private Window window;
     private static final float FOV = (float) Math.toRadians(60.0f);
     private static final float Z_NEAR = 0.01f;
     private static final float Z_FAR = 1000.f;
@@ -20,12 +17,14 @@ public class Renderer {
     private ArrayList<GameItem> gameItemsWithTextures = new ArrayList<>();
     private ArrayList<GameItem> gameItemsWithOutTextures = new ArrayList<>();
 
+    public float aspectRatio = 1.0f;
     private ShaderProgram program;
     private ShaderProgram programWithTexture;
-    private static final Vector3f sunDirection = new Vector3f(0, 1, 1); // sun is behind and above camera
+    private Vector3f sunDirection = new Vector3f(0, 1, 1); // sun is behind and above camera
+    private Matrix4f projectionMatrix = new Matrix4f();
+    private Matrix4f worldMatrix = new Matrix4f();
 
-    public Renderer(Window window, ShaderProgram program, ShaderProgram programWithTexture) {
-        this.window = window;
+    public Renderer(ShaderProgram program, ShaderProgram programWithTexture) {
         this.program = program;
         this.programWithTexture = programWithTexture;
     }
@@ -50,43 +49,29 @@ public class Renderer {
         }
     }
 
-    public void run() {
-        final Matrix4f projectionMatrix = new Matrix4f();
-        final Matrix4f worldMatrix = new Matrix4f();
+    public void render() {
+        // Set the color.
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        // Apply the color.
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        while (!window.shouldClose()) {
-            update();
+        // Update projection Matrix
+        projectionMatrix.setPerspective(FOV, aspectRatio, Z_NEAR, Z_FAR);
 
-            if (window.isResized()) {
-                glViewport(0, 0, window.getWidth(), window.getHeight());
-                window.setResized(false);
-            }
+        // Start issueing render commands.
+        program.bind();
+        render(gameItemsWithOutTextures, worldMatrix, program);
+        program.unbind();
 
-            // Set the color.
-            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-            // Apply the color.
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            // Update projection Matrix
-            float aspectRatio = (float) window.getWidth() / window.getHeight();
-            projectionMatrix.setPerspective(FOV, aspectRatio, Z_NEAR, Z_FAR);
-
-            // Start issueing render commands.
-
-            program.bind();
-            render(gameItemsWithOutTextures, projectionMatrix, worldMatrix, program);
-            program.unbind();
-
-            programWithTexture.bind();
-            render(gameItemsWithTextures, projectionMatrix, worldMatrix, programWithTexture);
-            programWithTexture.unbind();
-
-            window.update();
-        }
+        programWithTexture.bind();
+        render(gameItemsWithTextures, worldMatrix, programWithTexture);
+        programWithTexture.unbind();
     }
 
-    private static void render(ArrayList<GameItem> objects, Matrix4f projectionMatrix, Matrix4f worldMatrix,
-            ShaderProgram program) {
+    private void render(ArrayList<GameItem> objects, Matrix4f worldMatrix, ShaderProgram program) {
+        program.setUniform("projectionMatrix", projectionMatrix);
+        program.setUniform("sun", sunDirection);
+
         // Render each gameItem
         for (GameItem object : objects) {
             // Set world matrix for this item
@@ -96,10 +81,8 @@ public class Renderer {
                             (float) Math.toRadians(rotation.y), (float) Math.toRadians(rotation.z))
                     .scale(object.getScale());
 
-            program.setUniform("projectionMatrix", projectionMatrix);
             program.setUniform("worldMatrix", worldMatrix);
-            program.setUniform("sun", sunDirection);
-            object.render(projectionMatrix, worldMatrix);
+            object.mesh.render();
         }
     }
 }

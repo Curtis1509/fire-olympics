@@ -1,6 +1,15 @@
 package fire.olympics.display;
 
-public class Controller {
+public class Controller implements EventDelegate {
+    public final Renderer renderer;
+    public final Window window;
+
+    public Controller(Window window, Renderer renderer) {
+        this.renderer = renderer;
+        this.window = window;
+        window.eventDelegate = this;
+    }
+
     public void keyDown(int key) {
         System.out.println("key down: " + key);
     }

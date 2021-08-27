@@ -1,10 +1,7 @@
 package fire.olympics.display;
 
-import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
-
-import java.util.Objects;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -19,9 +16,15 @@ public class Window implements AutoCloseable {
     private int width;
     private int height;
     private long window = NULL;
+    private boolean isHidden = false;
     private boolean resized;
-    private Controller controller = new Controller();
+    public EventDelegate eventDelegate;
     private MouseState previousMouseEvent = new MouseState();
+
+    private double lastTime;
+    private double nbFrames;
+    private double frameTime;
+    private double fps = 0;
 
     public Window(String title, int width, int height) {
         this.title = title;
@@ -30,16 +33,7 @@ public class Window implements AutoCloseable {
         this.resized = false;
     }
 
-    public long init() {
-        // Setup an error callback. The default implementation
-        // will print the error message in System.err.
-        GLFWErrorCallback.createPrint(System.err).set();
-
-        // Initialize GLFW. Most GLFW functions will not work before doing this.
-        if (!glfwInit()) {
-            throw new IllegalStateException("Unable to initialize GLFW");
-        }
-
+    public void init() {
         glfwDefaultWindowHints(); // optional, the current window hints are already the default
         glfwWindowHint(GLFW_VISIBLE, GL_FALSE); // the window will stay hidden after creation
         glfwWindowHint(GLFW_RESIZABLE, GL_TRUE); // the window will be resizable
@@ -58,7 +52,7 @@ public class Window implements AutoCloseable {
         glfwSetFramebufferSizeCallback(window, (window, width, height) -> {
             this.width = width;
             this.height = height;
-            this.setResized(true);
+            this.resized = true;
         });
 
         // Setup a key callback. It will be called every time a key is pressed, repeated
@@ -78,23 +72,29 @@ public class Window implements AutoCloseable {
         // Make the OpenGL context current
         glfwMakeContextCurrent(window);
 
-        // Enable v-sync
-        glfwSwapInterval(1);
-
-        // Make the window visible
-        glfwShowWindow(window);
-
         GL.createCapabilities();
-
         glEnable(GL_CULL_FACE);
-
-        // Set the clear color
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-
         // Enables ordered rendering of triangles
         glEnable(GL_DEPTH_TEST);
+        // Enable v-sync
+        glfwSwapInterval(1);
+        // Set the clear color
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    }
 
-        return window;
+    public void showWindow() {
+        // Make the window visible
+        glfwShowWindow(window);
+        isHidden = false;
+    }
+
+    public void hideWindow() {
+        glfwHideWindow(window);
+        isHidden = true;
+    }
+
+    public boolean isHidden() {
+        return isHidden;
     }
 
     public String openGlVersion() {
@@ -111,9 +111,15 @@ public class Window implements AutoCloseable {
 
     public void update() {
         glfwSwapBuffers(window);
-        glfwPollEvents(); // i.e. processKeyboardEvents();
         processMouseEvents();
         changeTitle(title + frameCounter(false));
+    }
+
+    public void resizeViewportIfNeeded() {
+        if (resized) {
+            glViewport(0, 0, width, height);
+            resized = false;
+        }
     }
 
     private void processKeyboardEvent(long window, int key, int scancode, int action, int mods) {
@@ -121,11 +127,11 @@ public class Window implements AutoCloseable {
             setShouldClose(true);
         }
 
-        if (controller != null) {
+        if (eventDelegate != null) {
             if (action == GLFW_PRESS) {
-                controller.keyDown(key);        
+                eventDelegate.keyDown(key);        
             } else if (action == GLFW_RELEASE) {
-                controller.keyDown(key);        
+                eventDelegate.keyDown(key);        
             }
         }
     }
@@ -137,26 +143,26 @@ public class Window implements AutoCloseable {
         currentEvent.leftButtonDown = GLFW_PRESS == glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
         currentEvent.rightButtonDown = GLFW_PRESS == glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
 
-        if (controller != null) {
+        if (eventDelegate != null) {
             if (!currentEvent.position.equals(currentEvent.lastPosition)) {
-                controller.mouseMoved(currentEvent.clone());
+                eventDelegate.mouseMoved(currentEvent.clone());
             }
 
             if (currentEvent.leftButtonDown != previousMouseEvent.leftButtonDown) {
                 if (currentEvent.leftButtonDown) {
-                    controller.mouseDown(currentEvent.clone());
+                    eventDelegate.mouseDown(currentEvent.clone());
                 } else {
                     // fixme: cannot determine whether the left or right button was lifted.
-                    controller.mouseUp(currentEvent.clone());
+                    eventDelegate.mouseUp(currentEvent.clone());
                 }
             }
 
             if (currentEvent.rightButtonDown != previousMouseEvent.rightButtonDown) {
                 if (currentEvent.rightButtonDown) {
-                    controller.mouseDown(currentEvent.clone());
+                    eventDelegate.mouseDown(currentEvent.clone());
                 } else {
                     // fixme: cannot determine whether the left or right button was lifted.
-                    controller.mouseUp(currentEvent.clone());
+                    eventDelegate.mouseUp(currentEvent.clone());
                 }
             }
         }
@@ -179,15 +185,10 @@ public class Window implements AutoCloseable {
             glfwFreeCallbacks(window);
             glfwDestroyWindow(window);
 
-            // Terminate GLFW and free the error callback
-            glfwTerminate();
-            Objects.requireNonNull(glfwSetErrorCallback(null)).free();
         }
     }
 
-    static double lastTime, nbFrames, frameTime, fps = 0;
-
-    public static String frameCounter(boolean debug) {
+    private String frameCounter(boolean debug) {
         double currentTime = glfwGetTime();
         double delta = currentTime - lastTime;
         nbFrames++;
@@ -207,27 +208,11 @@ public class Window implements AutoCloseable {
         return String.format(" | Frametime: %.2f | FPS: %.2f", frameTime, fps);
     }
 
-    public void setResized(boolean resized) {
-        this.resized = resized;
+    public float aspectRatio() {
+        return (float) width / height;
     }
 
-    public long getWindow() {
-        return window;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public boolean isResized() {
-        return resized;
-    }
-
-    public void setShouldClose(boolean value) {
+    private void setShouldClose(boolean value) {
         // Note: GLFW may set this, for example, when the user clicks on the window's close button.
         // To query the value use glfwWindowShouldClose().
         glfwSetWindowShouldClose(window, value); 
@@ -247,5 +232,13 @@ public class Window implements AutoCloseable {
 
     public void restoreCursor() {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+
+    public void use() {
+        glfwMakeContextCurrent(window);
+    }
+
+    public void done() {
+        glfwMakeContextCurrent(0);
     }
 }

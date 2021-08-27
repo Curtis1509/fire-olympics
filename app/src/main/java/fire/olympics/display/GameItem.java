@@ -3,7 +3,6 @@ package fire.olympics.display;
 import fire.olympics.graphics.Mesh;
 
 import org.joml.Vector3f;
-import org.joml.Matrix4f;
 
 public class GameItem {
     private Vector3f position;
@@ -23,10 +22,6 @@ public class GameItem {
         rotation = rotate;
         scale = 1;
         this.mesh = mesh;
-    }
-
-    public void render(Matrix4f projection, Matrix4f world) {
-        mesh.render(projection, world);
     }
 
     public Vector3f getPosition() {

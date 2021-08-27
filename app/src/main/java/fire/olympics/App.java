@@ -8,78 +8,139 @@ import fire.olympics.display.*;
 import fire.olympics.graphics.ModelLoader;
 import fire.olympics.graphics.ShaderProgram;
 import org.lwjgl.*;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import static org.lwjgl.glfw.GLFW.*;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Objects;
 
-public class App {
-    private Path resourcePath = Path.of("app", "src", "main", "resources");
-
-    public App() {
-        if (!Files.exists(resourcePath))
-            resourcePath = Path.of("app").relativize(resourcePath);
-    }
-
-    public void run() {
-        System.out.println("LWJGL version: " + Version.getVersion());
-
-        Window window = new Window("Fire Olympics", 800, 600);
-
-        try {
-            window.init();
-            System.out.println(window.openGlVersion());
-
-            Path vertPath = shader("shader.vert");
-            Path fragPath = shader("shader.frag");
-
-            ShaderProgram program = new ShaderProgram(vertPath, fragPath);
-            program.readCompileAndLink();
-            program.createUniform("projectionMatrix");
-            program.createUniform("worldMatrix");
-            program.createUniform("sun");
-            program.validate();
-
-            ShaderProgram programWithTexture = new ShaderProgram(shader("shader_with_texture.vert"),
-                    shader("shader_with_texture.frag"));
-            programWithTexture.readCompileAndLink();
-            programWithTexture.createUniform("projectionMatrix");
-            programWithTexture.createUniform("worldMatrix");
-            programWithTexture.createUniform("sun");
-            programWithTexture.createUniform("texture_sampler");
-            programWithTexture.validate();
-
-            try (ModelLoader loader = new ModelLoader()) {
-                loader.loadTexture(resourcePath.resolve(Path.of("textures", "metal_test.png")));
-                loader.loadTexture(resourcePath.resolve(Path.of("textures", "wood_test_2.png")));
-                ArrayList<GameItem> objects = loader
-                        .loadModel(resourcePath.resolve(Path.of("models", "proto_arrow_textured.obj")));
-
-                Renderer render = new Renderer(window, program, programWithTexture);
-                for (GameItem object : objects) {
-                    object.setPosition(0, 0, -10);
-                    render.add(object);
-                }
-                render.run();
-            }
-        } catch (Exception e) {
-            System.out.printf("error: %s%n", e);
-        } finally {
-            window.close();
-        }
-    }
-
-    private Path shader(String name) {
-        return resourcePath.resolve(Path.of("shaders", name));
-    }
-
+public class App implements AutoCloseable {
     public static void main(String[] args) {
         Thread t = Thread.currentThread();
         if (!t.getName().equals("main")) {
             System.out.println("warning: not running on main thread!");
         }
+        
+        try (App app = new App(Path.of("app", "src", "main", "resources"))) {
+            app.createMainWindow();
+            app.createMainWindow();
+            app.mainLoop();
+        } catch (Exception e) {
+            System.out.printf("error: %s%n", e);
+            e.printStackTrace();
+        }
+    }
 
-        App app = new App();
-        app.run();
+    private final Path resourcePath;
+    private final ArrayList<Controller> controllers = new ArrayList<>();
+    private final ModelLoader loader = new ModelLoader();
+
+    public App(Path resourcePath) {
+        if (!Files.exists(resourcePath)) {
+            this.resourcePath = Path.of("app").relativize(resourcePath);
+        } else {
+            this.resourcePath = resourcePath;
+        }
+        // Setup an error callback. The default implementation
+        // will print the error message in System.err.
+        GLFWErrorCallback.createPrint(System.err).set();
+        // Initialize GLFW. Most GLFW functions will not work before doing this.
+        if (!glfwInit()) {
+            throw new IllegalStateException("Unable to initialize GLFW");
+        }
+    }
+
+    public void mainLoop() {
+        ArrayList<Window> closedWindows = new ArrayList<>();
+        while (controllers.size() > 0) {
+            for (Controller controller : controllers) {
+                boolean shouldClose = updateWindow(controller.window, controller.renderer);
+                if (shouldClose) {
+                    closedWindows.add(controller.window);
+                }
+            }
+
+            if (closedWindows.size() > 0) {
+                for (Window window : closedWindows) {
+                    window.close();
+                    controllers.removeIf(c -> c.window == window);
+                }
+                closedWindows.clear();
+            }
+
+            glfwPollEvents(); // i.e. processKeyboardEvents();
+        }
+    }
+
+    private boolean updateWindow(Window window, Renderer renderer) {
+        if (!window.isHidden()) {
+            window.use();
+            renderer.update();
+            renderer.aspectRatio = window.aspectRatio();
+            renderer.render();
+            window.update();
+            window.resizeViewportIfNeeded();
+        }
+        if (window.shouldClose()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void createMainWindow() throws Exception {
+        System.out.println("LWJGL version: " + Version.getVersion());
+
+        Window window = new Window("Fire Olympics", 800, 600);
+
+        window.init();
+        System.out.println(window.openGlVersion());
+
+        Path vertPath = resource("shaders", "shader.vert");
+        Path fragPath = resource("shaders", "shader.frag");
+
+        ShaderProgram program = new ShaderProgram(vertPath, fragPath);
+        program.readCompileAndLink();
+        program.createUniform("projectionMatrix");
+        program.createUniform("worldMatrix");
+        program.createUniform("sun");
+        program.validate();
+
+        ShaderProgram programWithTexture = new ShaderProgram(resource("shaders", "shader_with_texture.vert"),
+                resource("shaders", "shader_with_texture.frag"));
+        programWithTexture.readCompileAndLink();
+        programWithTexture.createUniform("projectionMatrix");
+        programWithTexture.createUniform("worldMatrix");
+        programWithTexture.createUniform("sun");
+        programWithTexture.createUniform("texture_sampler");
+        programWithTexture.validate();
+
+        loader.loadTexture(resource("textures", "metal_test.png"));
+        loader.loadTexture(resource("textures", "wood_test_2.png"));
+        ArrayList<GameItem> objects = loader.loadModel(resource("models", "proto_arrow_textured.obj"));
+
+        Renderer render = new Renderer(program, programWithTexture);
+        for (GameItem object : objects) {
+            object.setPosition(0, 0, -10);
+            render.add(object);
+        }
+
+        window.showWindow();
+        Controller controller = new Controller(window, render);
+        controllers.add(controller);
+    }
+
+    private Path resource(String first, String... more) {
+        return resourcePath.resolve(Path.of(first, more));
+    }
+
+    @Override
+    public void close() {
+        loader.close();
+        // Terminate GLFW and free the error callback
+        glfwTerminate();
+        Objects.requireNonNull(glfwSetErrorCallback(null)).free();
     }
 }
