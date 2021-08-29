@@ -25,7 +25,7 @@ public class Window implements AutoCloseable {
     private boolean isHidden = false;
     private boolean resized;
     public EventDelegate eventDelegate;
-    private MouseState previousMouseEvent = new MouseState();
+    private Vector2f previousMousePosition;
 
     private double lastTime;
     private double nbFrames;
@@ -61,11 +61,14 @@ public class Window implements AutoCloseable {
             this.resized = true;
         });
 
+        // Initialize mouse position
+        previousMousePosition = cursorPosition();
+
         // Setup a key callback. It will be called every time a key is pressed, repeated
         // or released.
-        glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
-            this.processKeyboardEvent(window, key, scancode, action, mods);
-        });
+        glfwSetKeyCallback(window, this::processKeyboardEvent);
+        glfwSetMouseButtonCallback(window, this::processMouseButtonEvents);
+        glfwSetCursorPosCallback(window, this::processMouseMovementEvents);
 
         // Get the resolution of the primary monitor
         GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
@@ -117,7 +120,6 @@ public class Window implements AutoCloseable {
 
     public void update() {
         glfwSwapBuffers(window);
-        processMouseEvents();
         changeTitle(title + frameCounter(false));
     }
 
@@ -146,38 +148,25 @@ public class Window implements AutoCloseable {
         return 0 <= point.x && 0 <= point.y && point.x <= width && point.y <= height;
     }
 
-    private void processMouseEvents() {
-        MouseState currentEvent = new MouseState();
-        currentEvent.lastPosition = previousMouseEvent.position;
-        currentEvent.position = cursorPosition();
-        currentEvent.leftButtonDown = GLFW_PRESS == glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-        currentEvent.rightButtonDown = GLFW_PRESS == glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
-
-        if (eventDelegate != null && (containsPoint(currentEvent.position) || mouseDisabled && window == mouseDisabledOnWindowId)) {
-            if (!currentEvent.position.equals(currentEvent.lastPosition)) {
-                eventDelegate.mouseMoved(currentEvent.clone());
-            }
-
-            if (currentEvent.leftButtonDown != previousMouseEvent.leftButtonDown) {
-                if (currentEvent.leftButtonDown) {
-                    eventDelegate.mouseDown(currentEvent.clone());
-                } else {
-                    // fixme: cannot determine whether the left or right button was lifted.
-                    eventDelegate.mouseUp(currentEvent.clone());
-                }
-            }
-
-            if (currentEvent.rightButtonDown != previousMouseEvent.rightButtonDown) {
-                if (currentEvent.rightButtonDown) {
-                    eventDelegate.mouseDown(currentEvent.clone());
-                } else {
-                    // fixme: cannot determine whether the left or right button was lifted.
-                    eventDelegate.mouseUp(currentEvent.clone());
-                }
+    private void processMouseButtonEvents(long window, int button, int action, int mods) {
+        if(eventDelegate != null) {
+            if(action == GLFW_PRESS) {
+                eventDelegate.mouseDown(cursorPosition(), button);
+            } else if(action == GLFW_RELEASE) {
+                eventDelegate.mouseUp(cursorPosition(), button);
             }
         }
+    }
 
-        previousMouseEvent = currentEvent;
+    private void processMouseMovementEvents(long window, double x, double y) {
+        Vector2f position = new Vector2f((float)x, (float)y);
+
+        if(eventDelegate != null) {
+            position.sub(previousMousePosition, previousMousePosition);
+            eventDelegate.mouseMoved(previousMousePosition);
+        }
+
+        previousMousePosition = position;
     }
 
     private Vector2f cursorPosition() {

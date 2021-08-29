@@ -4,6 +4,7 @@ import fire.olympics.graphics.ModelLoader;
 import java.util.ArrayList;
 
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -64,24 +65,28 @@ public class Controller implements EventDelegate {
         System.out.println("key up: " + key);
     }
 
-    public void mouseDown(MouseState event) {
-        System.out.println(String.format("mouse down: %b, %b", event.leftButtonDown, event.rightButtonDown));
+    public void mouseDown(Vector2f position, int button) {
+        System.out.printf("mouse down: %s; position: %4.2f, %4.2f%n", button == GLFW_MOUSE_BUTTON_LEFT ? "left" : (button == GLFW_MOUSE_BUTTON_RIGHT ? "right" : "middle"), position.x, position.y);
     }
 
-    public void mouseUp(MouseState event) {
-        System.out.println(String.format("mouse up: %b, %b", event.leftButtonDown, event.rightButtonDown));
-        if (mouseEnabled) {
-            window.disableCursor();
-        } else {
-            window.restoreCursor();
+    public void mouseUp(Vector2f position, int button) {
+        System.out.printf("mouse up: %s; position: %4.2f, %4.2f%n", button == GLFW_MOUSE_BUTTON_LEFT ? "left" : (button == GLFW_MOUSE_BUTTON_RIGHT ? "right" : "middle"), position.x, position.y);
+
+        if(button == GLFW_MOUSE_BUTTON_LEFT) {
+            if (mouseEnabled) {
+                window.disableCursor();
+            } else {
+                window.restoreCursor();
+            }
+
+            mouseEnabled = !mouseEnabled;
         }
-        mouseEnabled = !mouseEnabled;
     }
 
-    public void mouseMoved(MouseState event) {
+    public void mouseMoved(Vector2f delta) {
         if (!mouseEnabled) {
-            angle.y += event.dx() / 1000;
-            angle.x += event.dy() / 1000;
+            angle.y += delta.x / 1000;
+            angle.x += delta.y / 1000;
         }
 
         updateCamera();
