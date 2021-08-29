@@ -137,7 +137,7 @@ public class Window implements AutoCloseable {
             if (action == GLFW_PRESS) {
                 eventDelegate.keyDown(key);        
             } else if (action == GLFW_RELEASE) {
-                eventDelegate.keyDown(key);        
+                eventDelegate.keyUp(key);
             }
         }
     }
