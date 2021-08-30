@@ -30,6 +30,8 @@ public class Window implements AutoCloseable {
     private double lastTime;
     private double nbFrames;
     private double frameTime;
+    private double frameDelta = 0;
+    private double timeLog = 0;
     private double fps = 0;
 
     public Window(String title, int width, int height) {
@@ -37,6 +39,10 @@ public class Window implements AutoCloseable {
         this.width = width;
         this.height = height;
         this.resized = false;
+    }
+
+    public long getWindowId() {
+        return window;
     }
 
     public void init() {
@@ -120,6 +126,9 @@ public class Window implements AutoCloseable {
 
     public void update() {
         glfwSwapBuffers(window);
+        computeFrameDelta();
+        if(eventDelegate != null)
+            eventDelegate.updatePlayerMovement(frameDelta);
         changeTitle(title + frameCounter(false));
     }
 
@@ -131,13 +140,9 @@ public class Window implements AutoCloseable {
     }
 
     private void processKeyboardEvent(long window, int key, int scancode, int action, int mods) {
-        if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
-            setShouldClose(true);
-        }
-
         if (eventDelegate != null) {
             if (action == GLFW_PRESS) {
-                eventDelegate.keyDown(key);        
+                eventDelegate.keyDown(key);
             } else if (action == GLFW_RELEASE) {
                 eventDelegate.keyUp(key);
             }
@@ -187,14 +192,19 @@ public class Window implements AutoCloseable {
         }
     }
 
-    private String frameCounter(boolean debug) {
+    private void computeFrameDelta() {
         double currentTime = glfwGetTime();
-        double delta = currentTime - lastTime;
+        frameDelta = currentTime - lastTime;
+        lastTime = currentTime;
+    }
+
+    private String frameCounter(boolean debug) {
+        timeLog += frameDelta;
         nbFrames++;
 
-        if (delta >= 1) {
+        if (timeLog >= 1) {
             frameTime = 1000 / nbFrames;
-            fps = nbFrames / delta;
+            fps = nbFrames / timeLog;
 
             if (debug) {
                 System.out.println("Frametime: " + frameTime);
@@ -202,7 +212,7 @@ public class Window implements AutoCloseable {
             }
 
             nbFrames = 0;
-            lastTime = currentTime;
+            timeLog = 0;
         }
         return String.format(" | Frametime: %.2f | FPS: %.2f", frameTime, fps);
     }
@@ -211,7 +221,7 @@ public class Window implements AutoCloseable {
         return (float) width / height;
     }
 
-    private void setShouldClose(boolean value) {
+    public void setShouldClose(boolean value) {
         // Note: GLFW may set this, for example, when the user clicks on the window's close button.
         // To query the value use glfwWindowShouldClose().
         glfwSetWindowShouldClose(window, value); 
