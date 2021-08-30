@@ -19,8 +19,8 @@ public class Window implements AutoCloseable {
     private static long mouseDisabledOnWindowId = NULL;
 
     private final String title;
-    private int width;
-    private int height;
+    private static int width;
+    private static int height;
     private long window = NULL;
     private boolean isHidden = false;
     private boolean resized;
@@ -253,6 +253,14 @@ public class Window implements AutoCloseable {
         if (mouseDisabled && window == mouseDisabledOnWindowId) {
             restoreCursor();
         }
+    }
+
+    public static int getWidth(){
+        return width;
+    }
+
+    public static int getHeight(){
+        return height;
     }
 
     public void use() {

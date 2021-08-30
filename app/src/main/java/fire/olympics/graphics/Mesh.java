@@ -45,8 +45,9 @@ public class Mesh {
 
     public void render() {
         vao.use();
-        if (hasTexture())
+        if (hasTexture()) {
             texture.bind();
+        }
         glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0);
         if (hasTexture())
             texture.unbind();

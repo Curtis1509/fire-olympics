@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ModelLoader implements AutoCloseable {
-    private final Map<String, Texture> loadedTextures = new HashMap<>();
+    public final Map<String, Texture> loadedTextures = new HashMap<>();
     private final Path resourcePath;
 
     public ModelLoader(Path resourcePath) {

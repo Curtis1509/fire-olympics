@@ -131,7 +131,7 @@ public class App implements AutoCloseable {
         controllers.add(controller);
     }
 
-    private Path resource(String first, String... more) {
+    public Path resource(String first, String... more) {
         return resourcePath.resolve(Path.of(first, more));
     }
 

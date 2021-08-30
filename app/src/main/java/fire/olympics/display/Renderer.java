@@ -1,12 +1,18 @@
 package fire.olympics.display;
 
+import fire.olympics.fontMeshCreator.FontType;
+import fire.olympics.fontMeshCreator.GUIText;
+import fire.olympics.fontRendering.TextMaster;
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import fire.olympics.graphics.ShaderProgram;
 
 import static org.lwjgl.opengl.GL33C.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Renderer {
@@ -17,17 +23,26 @@ public class Renderer {
     private ArrayList<GameItem> gameItemsWithTextures = new ArrayList<>();
     private ArrayList<GameItem> gameItemsWithOutTextures = new ArrayList<>();
 
+    private TextMaster textMaster = new TextMaster();
+
+    FontType font = new FontType(TextMaster.loadTexture("app/src/main/resources/fonts/fontfile.png"),new File("app/src/main/resources/fonts/fontfile.fnt"));
+    GUIText text = new GUIText("FIRE OLYMPICS",5,font,new Vector2f(0,0),1f,true);
+
     private float aspectRatio = 1.0f;
     private ShaderProgram program;
     private ShaderProgram programWithTexture;
+    private ShaderProgram programForText;
     private Vector3f sunDirection = new Vector3f(0, 1, 1); // sun is behind and above camera
     private Matrix4f projectionMatrix = new Matrix4f();
     private Matrix4f worldMatrix = new Matrix4f();
     public Matrix4f camera = new Matrix4f();
 
-    public Renderer(ShaderProgram program, ShaderProgram programWithTexture) {
+    public Renderer(ShaderProgram program, ShaderProgram programWithTexture) throws IOException {
+        textMaster.init();
+        textMaster.loadText(text);
         this.program = program;
         this.programWithTexture = programWithTexture;
+        this.programForText = programForText;
     }
 
     public void add(GameItem tree) {
@@ -79,7 +94,7 @@ public class Renderer {
 
     public void render() {
         // Set the color.
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(0f, 0f, 0f, 1.0f);
         // Apply the color.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -91,6 +106,8 @@ public class Renderer {
         programWithTexture.bind();
         render(gameItemsWithTextures, worldMatrix, programWithTexture);
         programWithTexture.unbind();
+
+        textMaster.render();
     }
 
     private void render(ArrayList<GameItem> objects, Matrix4f worldMatrix, ShaderProgram program) {
