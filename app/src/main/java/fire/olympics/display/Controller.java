@@ -3,10 +3,8 @@ package fire.olympics.display;
 import fire.olympics.graphics.ModelLoader;
 import java.util.ArrayList;
 
-import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.lwjgl.glfw.GLFW;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -18,12 +16,28 @@ public class Controller implements EventDelegate {
     private float movementSpeed = 5f;
     private Vector3f angle = new Vector3f();
     private Vector3f position = new Vector3f();
+    private Vector3f forward = new Vector3f();
+    private Vector3f right = new Vector3f();
+
+    private static final double PI_2 = Math.pow(Math.PI, 2);
 
     public Controller(Window window, Renderer renderer, ModelLoader loader) {
         this.renderer = renderer;
         this.window = window;
         this.loader = loader;
         window.eventDelegate = this;
+
+        forward.set(
+                Math.cos(angle.x) * Math.sin(angle.y),
+                Math.sin(angle.x),
+                Math.sin(angle.x) * Math.cos(angle.y)
+        );
+
+        right.set(
+                Math.sin(angle.y - PI_2),
+                0,
+                Math.cos(angle.y - PI_2)
+        );
     }
 
     public void load() throws Exception {
@@ -39,16 +53,16 @@ public class Controller implements EventDelegate {
 
     public void updatePlayerMovement(double timeDelta) {
         if(glfwGetKey(window.getWindowId(), GLFW_KEY_A) == GLFW_PRESS)
-            position.x += movementSpeed * timeDelta;
+            position.add(forward.mul((float) (movementSpeed * timeDelta)));
 
         if(glfwGetKey(window.getWindowId(), GLFW_KEY_D) == GLFW_PRESS)
-            position.x -= movementSpeed * timeDelta;
+            position.sub(forward.mul((float) (movementSpeed * timeDelta)));
 
         if(glfwGetKey(window.getWindowId(), GLFW_KEY_W) == GLFW_PRESS)
-            position.z += movementSpeed * timeDelta;
+            position.add(right.mul((float) (movementSpeed * timeDelta)));
 
         if(glfwGetKey(window.getWindowId(), GLFW_KEY_S) == GLFW_PRESS)
-            position.z -= movementSpeed * timeDelta;
+            position.sub(right.mul((float) (movementSpeed * timeDelta)));
 
         renderer.updateCamera(position, angle);
     }
@@ -98,6 +112,18 @@ public class Controller implements EventDelegate {
             angle.y += delta.x / 1000;
             angle.x += delta.y / 1000;
         }
+
+        forward.set(
+                Math.cos(angle.x) * Math.sin(angle.y),
+                Math.sin(angle.x),
+                Math.sin(angle.x) * Math.cos(angle.y)
+        );
+
+        right.set(
+                Math.sin(angle.y - PI_2),
+                0,
+                Math.cos(angle.y - PI_2)
+        );
 
         renderer.updateCamera(position, angle);
     }
