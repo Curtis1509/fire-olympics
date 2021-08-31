@@ -33,7 +33,7 @@ public class App implements AutoCloseable {
         }
     }
 
-    private final Path resourcePath;
+    private static Path resourcePath;
     private final ArrayList<Controller> controllers = new ArrayList<>();
 
     public App(Path resourcePath) {
@@ -131,7 +131,7 @@ public class App implements AutoCloseable {
         controllers.add(controller);
     }
 
-    public Path resource(String first, String... more) {
+    public static Path resource(String first, String... more) {
         return resourcePath.resolve(Path.of(first, more));
     }
 

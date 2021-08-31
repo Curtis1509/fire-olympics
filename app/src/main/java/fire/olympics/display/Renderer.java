@@ -1,5 +1,6 @@
 package fire.olympics.display;
 
+import fire.olympics.App;
 import fire.olympics.fontMeshCreator.FontType;
 import fire.olympics.fontMeshCreator.GUIText;
 import fire.olympics.fontRendering.TextMaster;
@@ -13,6 +14,7 @@ import static org.lwjgl.opengl.GL33C.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 
 public class Renderer {
@@ -25,8 +27,10 @@ public class Renderer {
 
     private TextMaster textMaster = new TextMaster();
 
-    FontType font = new FontType(TextMaster.loadTexture("app/src/main/resources/fonts/fontfile.png"),new File("app/src/main/resources/fonts/fontfile.fnt"));
-    GUIText text = new GUIText("FIRE OLYMPICS",5,font,new Vector2f(0,0),1f,true);
+    Path fontimage = App.resource("fonts", "fontfile.png");
+    Path fontfnt = App.resource("fonts", "fontfile.fnt");
+    FontType font = new FontType(TextMaster.loadTexture(fontimage.toString()),new File(fontfnt.toString()));
+    GUIText text = new GUIText("FIRE OLYMPICS",5,font,new Vector2f(0,0f),1f,true);
 
     private float aspectRatio = 1.0f;
     private ShaderProgram program;
