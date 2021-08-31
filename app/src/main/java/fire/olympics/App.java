@@ -38,9 +38,9 @@ public class App implements AutoCloseable {
 
     public App(Path resourcePath) {
         if (!Files.exists(resourcePath)) {
-            this.resourcePath = Path.of("app").relativize(resourcePath);
+            App.resourcePath = Path.of("app").relativize(resourcePath);
         } else {
-            this.resourcePath = resourcePath;
+            App.resourcePath = resourcePath;
         }
         // Setup an error callback. The default implementation
         // will print the error message in System.err.
@@ -125,7 +125,7 @@ public class App implements AutoCloseable {
         programWithTexture.createUniform("texture_sampler");
         programWithTexture.validate();
 
-        ModelLoader loader = new ModelLoader(this.resourcePath);
+        ModelLoader loader = new ModelLoader(resourcePath);
         Renderer render = new Renderer(program, programWithTexture);
         Controller controller = new Controller(window, render, loader);
         controllers.add(controller);

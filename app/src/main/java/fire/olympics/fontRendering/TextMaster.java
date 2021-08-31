@@ -20,11 +20,11 @@ import org.lwjgl.opengl.*;
 
 public class TextMaster {
 
-	private List<Integer> vaos = new ArrayList<Integer>();
-	private static List<Integer> vbos = new ArrayList<Integer>();
-	private static Map<FontType, List<GUIText>> texts = new HashMap<FontType, List<GUIText>>();
+	private final List<Integer> vaos = new ArrayList<>();
+	private static final List<Integer> vbos = new ArrayList<>();
+	private static final Map<FontType, List<GUIText>> texts = new HashMap<>();
 	private static FontRenderer renderer;
-	private static List<Integer> textures = new ArrayList<Integer>();
+	private static final List<Integer> textures = new ArrayList<>();
 	
 	public static void init(){
 		renderer = new FontRenderer();
@@ -66,7 +66,6 @@ public class TextMaster {
 	
 	public static void render(){
 		renderer.render(texts);
-		System.out.println("Rendering : " + texts.get(0));
 	}
 
 	public static Texture texture;
@@ -93,11 +92,7 @@ public class TextMaster {
 		TextMeshData data = font.loadText(text);
 		int vao = loadToVAO(data.getVertexPositions(), data.getTextureCoords());
 		text.setMeshInfo(vao, data.getVertexCount());
-		List<GUIText> textBatch = texts.get(font);
-		if(textBatch == null){
-			textBatch = new ArrayList<GUIText>();
-			texts.put(font, textBatch);
-		}
+		List<GUIText> textBatch = texts.computeIfAbsent(font, k -> new ArrayList<>());
 		textBatch.add(text);
 	}
 	

@@ -44,7 +44,6 @@ public class FontRenderer {
 	}
 
 	private void renderText(GUIText text){
-		System.out.println(text.getMesh());
 		GL30.glBindVertexArray(text.getMesh());
 		GL20.glEnableVertexAttribArray(0);
 		GL20.glEnableVertexAttribArray(1);

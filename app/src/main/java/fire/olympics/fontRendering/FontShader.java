@@ -1,18 +1,19 @@
 package fire.olympics.fontRendering;
 
+import fire.olympics.App;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-public class FontShader extends ShaderProgram{
+import java.nio.file.Path;
 
-	private static final String VERTEX_FILE = "app/src/main/resources/shaders/shader_for_text.vert";
-	private static final String FRAGMENT_FILE = "app/src/main/resources/shaders/shader_for_text.frag";
+public class FontShader extends ShaderProgram{
 	
 	private int location_colour;
 	private int location_translation;
 	
 	public FontShader() {
-		super(VERTEX_FILE, FRAGMENT_FILE);
+		super(App.resource("shaders", "shader_for_text.vert").toString(),
+				App.resource("shaders", "shader_for_text.frag").toString());
 	}
 
 	@Override

@@ -20,6 +20,7 @@ public abstract class ShaderProgram {
 	private static FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
 	
 	public ShaderProgram(String vertexFile,String fragmentFile){
+		System.out.println("Vertex file" + vertexFile);
 		vertexShaderID = loadShader(vertexFile,GL20.GL_VERTEX_SHADER);
 		fragmentShaderID = loadShader(fragmentFile,GL20.GL_FRAGMENT_SHADER);
 		programID = GL20.glCreateProgram();
@@ -92,12 +93,15 @@ public abstract class ShaderProgram {
 		StringBuilder shaderSource = new StringBuilder();
 		try{
 			BufferedReader reader = new BufferedReader(new FileReader(file));
+			System.out.println("reader");
+			System.out.println(reader.toString());
 			String line;
 			while((line = reader.readLine())!=null){
 				shaderSource.append(line).append("//\n");
 			}
 			reader.close();
 		}catch(IOException e){
+			System.out.println("Trying to read file: " + file);
 			e.printStackTrace();
 			System.exit(-1);
 		}

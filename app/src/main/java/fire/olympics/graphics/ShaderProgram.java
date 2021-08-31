@@ -26,6 +26,7 @@ public class ShaderProgram {
     private final Map<String, Integer> uniforms;
 
     public ShaderProgram(Path vertexPath, Path fragmentPath) {
+        System.out.println(vertexPath);
         uniforms = new HashMap<>();
         this.vertexPath = vertexPath;
         this.fragmentPath = fragmentPath;
