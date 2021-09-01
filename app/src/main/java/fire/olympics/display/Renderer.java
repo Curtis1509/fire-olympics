@@ -42,11 +42,10 @@ public class Renderer {
     public Matrix4f camera = new Matrix4f();
 
     public Renderer(ShaderProgram program, ShaderProgram programWithTexture) throws IOException {
-        textMaster.init();
-        textMaster.loadText(text);
+        TextMaster.init();
+        TextMaster.loadText(text);
         this.program = program;
         this.programWithTexture = programWithTexture;
-        this.programForText = programForText;
     }
 
     public void add(GameItem tree) {
@@ -111,7 +110,7 @@ public class Renderer {
         render(gameItemsWithTextures, worldMatrix, programWithTexture);
         programWithTexture.unbind();
 
-        textMaster.render();
+        TextMaster.render();
     }
 
     private void render(ArrayList<GameItem> objects, Matrix4f worldMatrix, ShaderProgram program) {

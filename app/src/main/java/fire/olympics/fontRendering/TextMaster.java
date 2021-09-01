@@ -1,26 +1,21 @@
 package fire.olympics.fontRendering;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.FloatBuffer;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import fire.olympics.fontMeshCreator.FontType;
-import fire.olympics.fontMeshCreator.FontType;
 import fire.olympics.fontMeshCreator.GUIText;
 import fire.olympics.fontMeshCreator.TextMeshData;
 import fire.olympics.graphics.Texture;
-import fire.olympics.graphics.VertexArrayObject;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.*;
 
 public class TextMaster {
 
-	private final List<Integer> vaos = new ArrayList<>();
 	private static final List<Integer> vbos = new ArrayList<>();
 	private static final Map<FontType, List<GUIText>> texts = new HashMap<>();
 	private static FontRenderer renderer;

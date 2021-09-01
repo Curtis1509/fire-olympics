@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import fire.olympics.App;
 import fire.olympics.display.Window;
 
 /**

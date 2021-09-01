@@ -4,8 +4,6 @@ import fire.olympics.App;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-import java.nio.file.Path;
-
 public class FontShader extends ShaderProgram{
 	
 	private int location_colour;

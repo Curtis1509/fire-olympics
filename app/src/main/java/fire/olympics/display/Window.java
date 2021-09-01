@@ -149,10 +149,6 @@ public class Window implements AutoCloseable {
         }
     }
 
-    private boolean containsPoint(Vector2f point) {
-        return 0 <= point.x && 0 <= point.y && point.x <= width && point.y <= height;
-    }
-
     private void processMouseButtonEvents(long window, int button, int action, int mods) {
         if(eventDelegate != null) {
             if(action == GLFW_PRESS) {
@@ -188,7 +184,6 @@ public class Window implements AutoCloseable {
             // Free the window callbacks and destroy the window
             glfwFreeCallbacks(window);
             glfwDestroyWindow(window);
-
         }
     }
 

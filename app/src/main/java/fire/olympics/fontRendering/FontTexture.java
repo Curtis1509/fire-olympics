@@ -4,7 +4,6 @@ import de.matthiasmann.twl.utils.PNGDecoder;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.file.Path;
 
 import static org.lwjgl.opengl.GL33C.*;
 
