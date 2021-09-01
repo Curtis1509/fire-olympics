@@ -8,6 +8,8 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL33C.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
+import fire.olympics.fontMeshCreator.FontType;
+
 import java.nio.DoubleBuffer;
 
 import org.joml.Vector2f;
@@ -19,8 +21,8 @@ public class Window implements AutoCloseable {
     private static long mouseDisabledOnWindowId = NULL;
 
     private final String title;
-    private static int width;
-    private static int height;
+    private int width;
+    private int height;
     private long window = NULL;
     private boolean isHidden = false;
     private boolean resized;
@@ -33,6 +35,8 @@ public class Window implements AutoCloseable {
     private double frameDelta = 0;
     private double timeLog = 0;
     private double fps = 0;
+
+    public final FontType font = new FontType();
 
     public Window(String title, int width, int height) {
         this.title = title;
@@ -136,6 +140,7 @@ public class Window implements AutoCloseable {
         if (resized) {
             glViewport(0, 0, width, height);
             resized = false;
+            font.setAspectRatio((double) width / (double)height);
         }
     }
 
@@ -248,14 +253,6 @@ public class Window implements AutoCloseable {
         if (mouseDisabled && window == mouseDisabledOnWindowId) {
             restoreCursor();
         }
-    }
-
-    public static int getWidth(){
-        return width;
-    }
-
-    public static int getHeight(){
-        return height;
     }
 
     public void use() {

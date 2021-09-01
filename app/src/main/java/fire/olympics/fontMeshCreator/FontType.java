@@ -1,25 +1,17 @@
 package fire.olympics.fontMeshCreator;
 
-import java.io.File;
+import fire.olympics.graphics.Texture;
 
 public class FontType {
 
-    private int textureAtlas;
-    private TextMeshCreator loader;
+    public TextMeshCreator loader;
+    public Texture texture;
 
-    public FontType(int textureAtlas, File fontFile) {
-        this.textureAtlas = textureAtlas;
-        this.loader = new TextMeshCreator(fontFile);
+    public void setAspectRatio(double ratio) {
     }
 
-    public int getTextureAtlas() {
-        return textureAtlas;
+    public FontType() {
+
     }
-
-    public TextMeshData loadText(GUIText text) {
-
-        return loader.createTextMesh(text);
-    }
-
 }
 

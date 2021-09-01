@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import fire.olympics.display.Window;
-
 /**
  * Provides functionality for getting the values from a font file.
  * 
@@ -47,8 +45,8 @@ public class MetaFile {
      * @param file
      *            - the font file.
      */
-    protected MetaFile(File file) {
-        this.aspectRatio = (double) Window.getWidth() / (double) Window.getHeight();
+    public MetaFile(File file, double aspectRatio) {
+        this.aspectRatio = aspectRatio;
         openFile(file);
         loadPaddingData();
         loadLineSizes();

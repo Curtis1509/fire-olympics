@@ -1,6 +1,7 @@
 package fire.olympics.graphics;
 
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryStack;
 
@@ -13,11 +14,11 @@ import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL20.glValidateProgram;
 
-/*
-* Based on the source code retrieved from the following video by Tutorial Edge
-* https://www.youtube.com/watch?v=AjQ6U-xEDmw
-* */
-
+/**
+ * An improvement to this class could be to use glBindAttribLocation
+ * to tell opengl the name of our attributes that are being passed through the
+ * shader program.
+ */
 public class ShaderProgram {
 
     private int program;
@@ -34,9 +35,11 @@ public class ShaderProgram {
     }
 
     public void setUniform(String uniformName, Vector3f value) {
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            glUniform3fv(uniforms.get(uniformName), value.get(stack.mallocFloat(3)));
-        }
+        glUniform3f(uniforms.get(uniformName), value.x, value.y, value.z);
+    }
+
+    public void setUniform(String uniformName, Vector2f value) {
+        glUniform2f(uniforms.get(uniformName), value.x, value.y);
     }
 
     public void setUniform(String uniformName, int value) {

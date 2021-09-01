@@ -11,11 +11,11 @@ public class TextMeshCreator {
 
     private MetaFile metaData;
 
-    protected TextMeshCreator(File metaFile) {
-        metaData = new MetaFile(metaFile);
+    public TextMeshCreator(File metaFile) {
+        metaData = new MetaFile(metaFile, 1.0);
     }
 
-    protected TextMeshData createTextMesh(GUIText text) {
+    public TextMeshData createTextMesh(GUIText text) {
         List<Line> lines = createStructure(text);
         TextMeshData data = createQuadVertices(text, lines);
         return data;

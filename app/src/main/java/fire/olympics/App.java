@@ -4,11 +4,13 @@
 package fire.olympics;
 
 import fire.olympics.display.*;
-import fire.olympics.fontMeshCreator.FontType;
 import fire.olympics.fontMeshCreator.GUIText;
-import fire.olympics.fontRendering.TextMaster;
+import fire.olympics.fontMeshCreator.TextMeshCreator;
+import fire.olympics.graphics.MeshText;
 import fire.olympics.graphics.ModelLoader;
 import fire.olympics.graphics.ShaderProgram;
+import fire.olympics.graphics.Texture;
+
 import org.lwjgl.*;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import static org.lwjgl.glfw.GLFW.*;
@@ -37,14 +39,14 @@ public class App implements AutoCloseable {
         }
     }
 
-    private static Path resourcePath;
+    private Path resourcePath;
     private final ArrayList<Controller> controllers = new ArrayList<>();
 
     public App(Path resourcePath) {
         if (!Files.exists(resourcePath)) {
-            App.resourcePath = Path.of("app").relativize(resourcePath);
+            this.resourcePath = Path.of("app").relativize(resourcePath);
         } else {
-            App.resourcePath = resourcePath;
+            this.resourcePath = resourcePath;
         }
         // Setup an error callback. The default implementation
         // will print the error message in System.err.
@@ -129,23 +131,27 @@ public class App implements AutoCloseable {
         programWithTexture.createUniform("texture_sampler");
         programWithTexture.validate();
 
+        ShaderProgram textShaderProgram = new ShaderProgram(resource("shaders", "shader_for_text.vert"), resource("shaders", "shader_for_text.frag"));
+        textShaderProgram.readCompileAndLink();
+        textShaderProgram.createUniform("colour");
+        textShaderProgram.createUniform("translation");
+        textShaderProgram.validate();
 
-        TextMaster textMaster = new TextMaster();
-
-        Path fontimage = App.resource("fonts", "fontfile.png");
-        Path fontfnt = App.resource("fonts", "fontfile.fnt");
-        FontType font = new FontType(textMaster.loadTexture(fontimage.toString()), new File(fontfnt.toString()));
-        GUIText text = new GUIText("FIRE OLYMPICS", 5, font, new Vector2f(0, 0f), 1f, true);
-        textMaster.init();
-        textMaster.loadText(text);
-
+        Path fontimage = resource("fonts", "fontfile.png");
+        Path fontfnt = resource("fonts", "fontfile.fnt");
+        window.font.loader = new TextMeshCreator(new File(fontfnt.toString()));
+        window.font.texture = Texture.loadPngTexture(fontimage.toString());
+        GUIText text = new GUIText("FIRE OLYMPICS", 5, window.font, new Vector2f(0, 0f), 1f, true);
+        text.setColour(1.0f, 0.0f, 0.0f);
+        MeshText mesh = new MeshText(text);
         ModelLoader loader = new ModelLoader(resourcePath);
-        Renderer render = new Renderer(program, programWithTexture, textMaster);
-        Controller controller = new Controller(window, render, loader);
+        Renderer renderer = new Renderer(program, programWithTexture, textShaderProgram);
+        renderer.addText(mesh);
+        Controller controller = new Controller(window, renderer, loader);
         controllers.add(controller);
     }
 
-    public static Path resource(String first, String... more) {
+    public Path resource(String first, String... more) {
         return resourcePath.resolve(Path.of(first, more));
     }
 

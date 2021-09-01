@@ -14,7 +14,7 @@ import org.lwjgl.stb.*;
 import org.lwjgl.system.MemoryUtil;
 
 public class Texture {
-    int id;
+    private int id;
 
     public Texture(int id){
         this.id=id;
@@ -43,7 +43,7 @@ public class Texture {
         STBImage.stbi_image_free(imageData);
     }
 
-    public static Texture loadPNGTexture(String fileName) throws IOException {
+    public static Texture loadPngTexture(String fileName) throws IOException {
 
         //load png file
         PNGDecoder decoder = new PNGDecoder(new java.io.FileInputStream(new File(fileName)));
@@ -76,9 +76,11 @@ public class Texture {
         // Generate Mip Map
         glGenerateMipmap(GL_TEXTURE_2D);
 
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0f);
+
         return new Texture(id);
     }
-
 
     public boolean imageLoaded() {
         return id != 0;
@@ -95,9 +97,4 @@ public class Texture {
     public void close() {
         glDeleteTextures(id);
     }
-
-    public int getId(){
-        return id;
-    }
-
 }

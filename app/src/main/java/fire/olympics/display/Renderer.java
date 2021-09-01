@@ -1,9 +1,9 @@
 package fire.olympics.display;
 
-import fire.olympics.fontRendering.TextMaster;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
+import fire.olympics.graphics.MeshText;
 import fire.olympics.graphics.ShaderProgram;
 
 import static org.lwjgl.opengl.GL33C.*;
@@ -18,21 +18,21 @@ public class Renderer {
     private ArrayList<GameItem> gameItems = new ArrayList<>();
     private ArrayList<GameItem> gameItemsWithTextures = new ArrayList<>();
     private ArrayList<GameItem> gameItemsWithOutTextures = new ArrayList<>();
-
-    private TextMaster textMaster;
+    private ArrayList<MeshText> text = new ArrayList<>();
 
     private float aspectRatio = 1.0f;
     private ShaderProgram program;
     private ShaderProgram programWithTexture;
+    private ShaderProgram textShaderProgram;
     private Vector3f sunDirection = new Vector3f(0, 1, 1); // sun is behind and above camera
     private Matrix4f projectionMatrix = new Matrix4f();
     private Matrix4f worldMatrix = new Matrix4f();
     public Matrix4f camera = new Matrix4f();
 
-    public Renderer(ShaderProgram program, ShaderProgram programWithTexture, TextMaster textMaster) throws IOException {
+    public Renderer(ShaderProgram program, ShaderProgram programWithTexture, ShaderProgram textShaderProgram) throws IOException {
         this.program = program;
         this.programWithTexture = programWithTexture;
-        this.textMaster = textMaster;
+        this.textShaderProgram = textShaderProgram;
     }
 
     public void add(GameItem tree) {
@@ -42,6 +42,10 @@ public class Renderer {
         } else {
             gameItemsWithTextures.add(tree);
         }
+    }
+
+    public void addText(MeshText textMesh) {
+        text.add(textMesh); 
     }
 
     public void update() {
@@ -95,9 +99,23 @@ public class Renderer {
 
         programWithTexture.bind();
         render(gameItemsWithTextures, worldMatrix, programWithTexture);
-        programWithTexture.unbind();
+        programWithTexture.unbind();   
 
-        textMaster.render();
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDisable(GL_DEPTH_TEST);
+        textShaderProgram.bind();
+        for (MeshText meshText : text) {
+            glActiveTexture(GL_TEXTURE0);
+            meshText.getFontTexture().bind();
+            textShaderProgram.setUniform("colour", meshText.getColor());
+            textShaderProgram.setUniform("translation", meshText.getPosition());
+            meshText.render();
+            meshText.getFontTexture().unbind();
+        }
+        textShaderProgram.unbind();
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
     }
 
     private void render(ArrayList<GameItem> objects, Matrix4f worldMatrix, ShaderProgram program) {
