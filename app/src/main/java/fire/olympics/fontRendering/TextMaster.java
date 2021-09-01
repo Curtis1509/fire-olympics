@@ -16,27 +16,28 @@ import org.lwjgl.opengl.*;
 
 public class TextMaster {
 
-    private static final List<Integer> vbos = new ArrayList<>();
-    private static final Map<FontType, List<GUIText>> texts = new HashMap<>();
-    private static FontRenderer renderer;
-    private static final List<Integer> textures = new ArrayList<>();
-    
-    public static void init(){
+    private final List<Integer> vbos = new ArrayList<>();
+    private final Map<FontType, List<GUIText>> texts = new HashMap<>();
+    private FontRenderer renderer;
+    private final List<Integer> textures = new ArrayList<>();
+
+    public void init() {
         renderer = new FontRenderer();
     }
 
-    public static int loadToVAO(float[] positions, float[] textureCoords) {
+    private int loadToVAO(float[] positions, float[] textureCoords) {
         int vaoID = createVAO();
         storeDataInAttributeList(0, 2, positions);
         storeDataInAttributeList(1, 2, textureCoords);
         unbindVAO();
         return vaoID;
     }
-    private static void unbindVAO() {
+
+    private void unbindVAO() {
         GL30.glBindVertexArray(0);
     }
 
-    private static void storeDataInAttributeList(int attributeNumber, int coordinateSize, float[] data) {
+    private void storeDataInAttributeList(int attributeNumber, int coordinateSize, float[] data) {
         int vboID = GL15.glGenBuffers();
         vbos.add(vboID);
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID);
@@ -46,31 +47,30 @@ public class TextMaster {
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
     }
 
-    private static FloatBuffer storeDataInFloatBuffer(float[] data) {
+    private FloatBuffer storeDataInFloatBuffer(float[] data) {
         FloatBuffer buffer = BufferUtils.createFloatBuffer(data.length);
         buffer.put(data);
         buffer.flip();
         return buffer;
     }
 
-    private static int createVAO() {
+    private int createVAO() {
         int vaoID = GL30.glGenVertexArrays();
         GL30.glBindVertexArray(vaoID);
         return vaoID;
     }
-    
-    public static void render(){
+
+    public void render() {
         renderer.render(texts);
     }
 
-    public static Texture texture;
+    public Texture texture;
 
-    public static int loadTexture(String fileName) throws IOException {
+    public int loadTexture(String fileName) throws IOException {
         texture = Texture.loadPNGTexture(fileName);
         try {
             GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER,
-                    GL11.GL_LINEAR_MIPMAP_LINEAR);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
             GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL14.GL_TEXTURE_LOD_BIAS, 0f);
         } catch (Exception e) {
             e.printStackTrace();
@@ -82,7 +82,7 @@ public class TextMaster {
         return texture.getId();
     }
 
-    public static void loadText(GUIText text){
+    public void loadText(GUIText text) {
         FontType font = text.getFont();
         TextMeshData data = font.loadText(text);
         int vao = loadToVAO(data.getVertexPositions(), data.getTextureCoords());
@@ -90,16 +90,16 @@ public class TextMaster {
         List<GUIText> textBatch = texts.computeIfAbsent(font, k -> new ArrayList<>());
         textBatch.add(text);
     }
-    
-    public static void removeText(GUIText text){
+
+    public void removeText(GUIText text) {
         List<GUIText> textBatch = texts.get(text.getFont());
         textBatch.remove(text);
-        if(textBatch.isEmpty()){
+        if (textBatch.isEmpty()) {
             texts.remove(texts.get(text.getFont()));
         }
     }
-    
-    public static void cleanUp(){
+
+    public void cleanUp() {
         renderer.cleanUp();
     }
 

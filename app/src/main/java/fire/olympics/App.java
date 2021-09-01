@@ -4,12 +4,16 @@
 package fire.olympics;
 
 import fire.olympics.display.*;
-
+import fire.olympics.fontMeshCreator.FontType;
+import fire.olympics.fontMeshCreator.GUIText;
+import fire.olympics.fontRendering.TextMaster;
 import fire.olympics.graphics.ModelLoader;
 import fire.olympics.graphics.ShaderProgram;
 import org.lwjgl.*;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import static org.lwjgl.glfw.GLFW.*;
+import org.joml.Vector2f;
+import java.io.File;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -125,8 +129,18 @@ public class App implements AutoCloseable {
         programWithTexture.createUniform("texture_sampler");
         programWithTexture.validate();
 
+
+        TextMaster textMaster = new TextMaster();
+
+        Path fontimage = App.resource("fonts", "fontfile.png");
+        Path fontfnt = App.resource("fonts", "fontfile.fnt");
+        FontType font = new FontType(textMaster.loadTexture(fontimage.toString()), new File(fontfnt.toString()));
+        GUIText text = new GUIText("FIRE OLYMPICS", 5, font, new Vector2f(0, 0f), 1f, true);
+        textMaster.init();
+        textMaster.loadText(text);
+
         ModelLoader loader = new ModelLoader(resourcePath);
-        Renderer render = new Renderer(program, programWithTexture);
+        Renderer render = new Renderer(program, programWithTexture, textMaster);
         Controller controller = new Controller(window, render, loader);
         controllers.add(controller);
     }
