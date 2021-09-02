@@ -1,6 +1,5 @@
 package fire.olympics.graphics;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -43,10 +42,10 @@ public class Texture {
         STBImage.stbi_image_free(imageData);
     }
 
-    public static Texture loadPngTexture(String fileName) throws IOException {
+    public static Texture loadPngTexture(Path path) throws IOException {
 
         //load png file
-        PNGDecoder decoder = new PNGDecoder(new java.io.FileInputStream(new File(fileName)));
+        PNGDecoder decoder = new PNGDecoder(new java.io.FileInputStream(path.toFile()));
 
         //create a byte buffer big enough to store RGBA values
         ByteBuffer buffer = BufferUtils.createByteBuffer(4 * decoder.getWidth() * decoder.getHeight());

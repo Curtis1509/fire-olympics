@@ -4,18 +4,20 @@
 package fire.olympics;
 
 import fire.olympics.display.*;
+import fire.olympics.fontMeshCreator.FontFile;
 import fire.olympics.fontMeshCreator.GUIText;
-import fire.olympics.fontMeshCreator.TextMeshCreator;
+import fire.olympics.fontMeshCreator.FontType;
 import fire.olympics.graphics.MeshText;
 import fire.olympics.graphics.ModelLoader;
 import fire.olympics.graphics.ShaderProgram;
 import fire.olympics.graphics.Texture;
 
+import static org.lwjgl.opengl.GL33C.*;
+
 import org.lwjgl.*;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import static org.lwjgl.glfw.GLFW.*;
 import org.joml.Vector2f;
-import java.io.File;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -62,6 +64,7 @@ public class App implements AutoCloseable {
             try {
                 c.window.use();
                 c.load();
+                c.renderer.setAspectRatio(c.window.aspectRatio());
                 c.window.done();
                 c.window.showWindow();
             } catch (Exception e) {
@@ -72,7 +75,7 @@ public class App implements AutoCloseable {
         ArrayList<Window> closedWindows = new ArrayList<>();
         while (controllers.size() > 0) {
             for (Controller controller : controllers) {
-                boolean shouldClose = updateWindow(controller.window, controller.renderer);
+                boolean shouldClose = controller.window.updateWindow(controller.renderer);
                 if (shouldClose) {
                     controller.window.restoreCursorIfDisabledOnWindow();
                     closedWindows.add(controller.window);
@@ -91,18 +94,6 @@ public class App implements AutoCloseable {
         }
     }
 
-    private boolean updateWindow(Window window, Renderer renderer) {
-        if (!window.isHidden()) {
-            window.use();
-            renderer.update();
-            renderer.setAspectRatio(window.aspectRatio());
-            renderer.render();
-            window.update();
-            window.resizeViewportIfNeeded();
-            window.done();
-        }
-        return window.shouldClose();
-    }
 
     public void createMainWindow() throws Exception {
         System.out.println("LWJGL version: " + Version.getVersion());
@@ -137,12 +128,12 @@ public class App implements AutoCloseable {
         textShaderProgram.createUniform("translation");
         textShaderProgram.validate();
 
-        Path fontimage = resource("fonts", "fontfile.png");
-        Path fontfnt = resource("fonts", "fontfile.fnt");
-        window.font.loader = new TextMeshCreator(new File(fontfnt.toString()));
-        window.font.texture = Texture.loadPngTexture(fontimage.toString());
-        GUIText text = new GUIText("FIRE OLYMPICS", 5, window.font, new Vector2f(0, 0f), 1f, true);
-        text.setColour(1.0f, 0.0f, 0.0f);
+        FontFile fontFile = new FontFile(resource("fonts", "fontfile.fnt"));
+        Texture texture = Texture.loadPngTexture(resource("fonts", "fontfile.png"));
+        FontType fontType = new FontType(fontFile, texture);
+
+        GUIText text = new GUIText("FIRE OLYMPICS", 5, fontType, new Vector2f(0f, 0f), 1f, true);
+        text.setColour(0.0f, 0.5f, 0.5f);
         MeshText mesh = new MeshText(text);
         ModelLoader loader = new ModelLoader(resourcePath);
         Renderer renderer = new Renderer(program, programWithTexture, textShaderProgram);
@@ -160,5 +151,41 @@ public class App implements AutoCloseable {
         // Terminate GLFW and free the error callback
         glfwTerminate();
         Objects.requireNonNull(glfwSetErrorCallback(null)).free();
+    }
+
+    public static void checkError(String message) {
+        int errorCode = glGetError();
+        while (errorCode != GL_NO_ERROR) {
+            String error;
+            switch (errorCode) {
+            case GL_INVALID_ENUM:
+                error = "INVALID_ENUM";
+                break;
+            case GL_INVALID_VALUE:
+                error = "INVALID_VALUE";
+                break;
+            case GL_INVALID_OPERATION:
+                error = "INVALID_OPERATION";
+                break;
+            case GL_STACK_OVERFLOW:
+                error = "STACK_OVERFLOW";
+                break;
+            case GL_STACK_UNDERFLOW:
+                error = "STACK_UNDERFLOW";
+                break;
+            case GL_OUT_OF_MEMORY:
+                error = "OUT_OF_MEMORY";
+                break;
+            case GL_INVALID_FRAMEBUFFER_OPERATION:
+                error = "INVALID_FRAMEBUFFER_OPERATION";
+                break;
+            default:
+                error = "unknown error code (" + errorCode + ")";
+                break;
+            }
+
+            System.out.println(String.format("opengl error: %s, message: %s", error, message));
+            errorCode = glGetError();
+        }
     }
 }

@@ -1,6 +1,5 @@
 package fire.olympics.graphics;
 
-import fire.olympics.fontMeshCreator.FontType;
 import fire.olympics.fontMeshCreator.GUIText;
 import fire.olympics.fontMeshCreator.TextMeshData;
 
@@ -11,22 +10,21 @@ import org.joml.Vector3f;
 
 public class MeshText {
     private VertexArrayObject vao;
-    private GUIText text;
-    private TextMeshData data;
+    public GUIText text;
+    public TextMeshData data;
 
     public MeshText(GUIText text) {
         this.text = text;
         vao = new VertexArrayObject();
-        rebindTextMesh();
     }
 
     public Texture getFontTexture() {
         return text.getFont().texture;
     }
 
-    private void rebindTextMesh() {
+    public void setTextMeshData(TextMeshData data) {
         vao.use();
-        data = text.getFont().loader.createTextMesh(text);
+        this.data = data;
         float[] positions = data.getVertexPositions();
         vao.bindFloats(positions, 0, GL_STATIC_DRAW, 2, GL_FLOAT);
         float[] textureCoordinates = data.getTextureCoords();

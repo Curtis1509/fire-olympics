@@ -3,6 +3,8 @@ package fire.olympics.display;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
+import fire.olympics.App;
+import fire.olympics.fontMeshCreator.TextMeshCache;
 import fire.olympics.graphics.MeshText;
 import fire.olympics.graphics.ShaderProgram;
 
@@ -28,6 +30,7 @@ public class Renderer {
     private Matrix4f projectionMatrix = new Matrix4f();
     private Matrix4f worldMatrix = new Matrix4f();
     public Matrix4f camera = new Matrix4f();
+    private final TextMeshCache textMeshCache = new TextMeshCache();
 
     public Renderer(ShaderProgram program, ShaderProgram programWithTexture, ShaderProgram textShaderProgram) throws IOException {
         this.program = program;
@@ -46,6 +49,7 @@ public class Renderer {
 
     public void addText(MeshText textMesh) {
         text.add(textMesh); 
+        textMeshCache.register(textMesh);
     }
 
     public void update() {
@@ -69,6 +73,7 @@ public class Renderer {
     public void setAspectRatio(float ratio) {
         aspectRatio = ratio;
         recalculateProjectionMatrix();
+        textMeshCache.recalculate(ratio);
     }
 
     public void setFieldOfView(float fov) {
@@ -100,7 +105,9 @@ public class Renderer {
         programWithTexture.bind();
         render(gameItemsWithTextures, worldMatrix, programWithTexture);
         programWithTexture.unbind();   
+        App.checkError("1");
 
+        glDisable(GL_CULL_FACE);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDisable(GL_DEPTH_TEST);
@@ -116,6 +123,7 @@ public class Renderer {
         textShaderProgram.unbind();
         glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
     }
 
     private void render(ArrayList<GameItem> objects, Matrix4f worldMatrix, ShaderProgram program) {

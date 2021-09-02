@@ -27,7 +27,7 @@ public class ShaderProgram {
     private final Map<String, Integer> uniforms;
 
     public ShaderProgram(Path vertexPath, Path fragmentPath) {
-        System.out.println(vertexPath);
+        // System.out.println(vertexPath);
         uniforms = new HashMap<>();
         this.vertexPath = vertexPath;
         this.fragmentPath = fragmentPath;
@@ -62,7 +62,7 @@ public class ShaderProgram {
     public void createUniform(String uniformName) throws Exception {
         int uniformLocation = glGetUniformLocation(program, uniformName);
 
-        System.out.printf("UniformLocation for %s at %d%n", uniformName, uniformLocation);
+        // System.out.printf("UniformLocation for %s at %d%n", uniformName, uniformLocation);
 
         if (uniformLocation < 0) {
             throw new Exception(String.format("Could not find uniform \"%s\" in shader (%s, %s)", uniformName,

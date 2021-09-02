@@ -66,7 +66,7 @@ public class ModelLoader implements AutoCloseable {
 
             for (int x = 0; x < mat.mNumProperties(); x++) {
                 AIMaterialProperty prop = AIMaterialProperty.create(mat.mProperties().get(x));
-                System.out.printf("Property %s has index of %d%n", prop.mKey().dataString(), x);
+                // System.out.printf("Property %s has index of %d%n", prop.mKey().dataString(), x);
             }
 
             if (texPath.dataString().isEmpty()) {
@@ -74,7 +74,7 @@ public class ModelLoader implements AutoCloseable {
 
                 AIMaterialProperty diffData = AIMaterialProperty.create(mat.mProperties().get(3));
                 FloatBuffer diffBuffer = diffData.mData().asFloatBuffer();
-                System.out.printf("Material had diffuse data with length of %d%n", diffBuffer.capacity());
+                // System.out.printf("Material had diffuse data with length of %d%n", diffBuffer.capacity());
                 float[] col = { diffBuffer.get(), diffBuffer.get(), diffBuffer.get() };
 
                 for (int x = 0; x < len; x++) {
@@ -116,9 +116,9 @@ public class ModelLoader implements AutoCloseable {
             FloatBuffer specBuffer = specData.mData().asFloatBuffer();
             FloatBuffer shinyBuffer = shinyData.mData().asFloatBuffer();
 
-            System.out.printf("Material had ambient data with length of %d%n", ambBuffer.capacity());
-            System.out.printf("Material had specular data with length of %d%n", specBuffer.capacity());
-            System.out.printf("Material had shininess data with length of %d%n", shinyBuffer.capacity());
+            // System.out.printf("Material had ambient data with length of %d%n", ambBuffer.capacity());
+            // System.out.printf("Material had specular data with length of %d%n", specBuffer.capacity());
+            // System.out.printf("Material had shininess data with length of %d%n", shinyBuffer.capacity());
 
             float[] ambColour = { ambBuffer.get(), ambBuffer.get(), ambBuffer.get() };
             float[] specColour = { specBuffer.get(), specBuffer.get(), specBuffer.get() };
