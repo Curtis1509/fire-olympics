@@ -19,16 +19,14 @@ public class MeshText {
     }
 
     public Texture getFontTexture() {
-        return text.getFont().texture;
+        return text.font.texture;
     }
 
     public void setTextMeshData(TextMeshData data) {
         vao.use();
         this.data = data;
-        float[] positions = data.getVertexPositions();
-        vao.bindFloats(positions, 0, GL_STATIC_DRAW, 2, GL_FLOAT);
-        float[] textureCoordinates = data.getTextureCoords();
-        vao.bindFloats(textureCoordinates, 1, GL_STATIC_DRAW, 2, GL_FLOAT);
+        vao.bindFloats(data.getVertexPositions(), 0, GL_STATIC_DRAW, 2, GL_FLOAT);
+        vao.bindFloats(data.getTextureCoords(), 1, GL_STATIC_DRAW, 2, GL_FLOAT);
         vao.done();
     }
 
@@ -39,10 +37,10 @@ public class MeshText {
     }
 
     public Vector3f getColor() {
-        return text.getColour();
+        return text.color;
     }
 
     public Vector2f getPosition() {
-        return text.getPosition();
+        return text.position;
     }
 }

@@ -12,17 +12,23 @@ import org.joml.Vector3f;
 public class GUIText {
 
     private String textString;
-    private float fontSize;
-
+    public float fontSize;
     public float lineHeight = 0.03f;
-    private Vector3f colour = new Vector3f(0f, 0f, 0f);
+    public final Vector3f color = new Vector3f(0f, 0f, 0f);
 
-    private Vector2f position;
-    private float lineMaxSize;
+    /**
+     * @return The position of the top-left corner of the text in screen-space.
+     *         (0, 0) is the top left corner of the screen, (1, 1) is the bottom
+     *         right.
+     */
+    public final Vector2f position;
+    public float lineMaxSize;
+    public FontType font;
 
-    private FontType font;
-
-    private boolean centerText = false;
+    /**
+     * @return {@code true} if the text should be centered.
+     */
+    public boolean isCentered = false;
 
     /**
      * Creates a new text, loads the text's quads into a VAO, and adds the text
@@ -56,81 +62,13 @@ public class GUIText {
         this.font = font;
         this.position = position;
         this.lineMaxSize = maxLineLength;
-        this.centerText = centered;
-    }
-
-    /**
-     * @return The font used by this text.
-     */
-    public FontType getFont() {
-        return font;
-    }
-
-    /**
-     * Set the colour of the text.
-     * 
-     * @param r
-     *            - red value, between 0 and 1.
-     * @param g
-     *            - green value, between 0 and 1.
-     * @param b
-     *            - blue value, between 0 and 1.
-     */
-    public void setColour(float r, float g, float b) {
-        colour.set(r, g, b);
-    }
-
-    /**
-     * @return the colour of the text.
-     */
-    public Vector3f getColour() {
-        return colour;
-    }
-
-    /**
-     * @return The position of the top-left corner of the text in screen-space.
-     *         (0, 0) is the top left corner of the screen, (1, 1) is the bottom
-     *         right.
-     */
-    public Vector2f getPosition() {
-        return position;
-    }
-
-    /**
-     * @return the font size of the text (a font size of 1 is normal).
-     */
-    protected float getFontSize() {
-        return fontSize;
-    }
-
-    /**
-     * Sets the number of lines that this text covers (method used only in
-     * loading).
-     * 
-     * @param number
-     */
-    protected void setNumberOfLines(int number) {
-    }
-
-    /**
-     * @return {@code true} if the text should be centered.
-     */
-    protected boolean isCentered() {
-        return centerText;
-    }
-
-    /**
-     * @return The maximum length of a line of this text.
-     */
-    protected float getMaxLineSize() {
-        return lineMaxSize;
+        this.isCentered = centered;
     }
 
     /**
      * @return The string of text.
      */
-    protected String getTextString() {
+    public String text() {
         return textString;
     }
-
 }

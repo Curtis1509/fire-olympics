@@ -4,7 +4,6 @@
 package fire.olympics;
 
 import fire.olympics.display.*;
-import fire.olympics.fontMeshCreator.FontFile;
 import fire.olympics.fontMeshCreator.GUIText;
 import fire.olympics.fontMeshCreator.FontType;
 import fire.olympics.graphics.MeshText;
@@ -128,12 +127,11 @@ public class App implements AutoCloseable {
         textShaderProgram.createUniform("translation");
         textShaderProgram.validate();
 
-        FontFile fontFile = new FontFile(resource("fonts", "fontfile.fnt"));
         Texture texture = Texture.loadPngTexture(resource("fonts", "fontfile.png"));
-        FontType fontType = new FontType(fontFile, texture);
+        FontType fontType = new FontType(resource("fonts", "fontfile.fnt"), texture);
 
         GUIText text = new GUIText("FIRE OLYMPICS", 5, fontType, new Vector2f(0f, 0f), 1f, true);
-        text.setColour(0.0f, 0.5f, 0.5f);
+        text.color.set(0.0f, 0.5f, 0.5f);
         MeshText mesh = new MeshText(text);
         ModelLoader loader = new ModelLoader(resourcePath);
         Renderer renderer = new Renderer(program, programWithTexture, textShaderProgram);

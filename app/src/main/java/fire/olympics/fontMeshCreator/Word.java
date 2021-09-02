@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Word {
 
-    private List<Character> characters = new ArrayList<Character>();
+    private List<FontType.Character> characters = new ArrayList<FontType.Character>();
     private double width = 0;
     private double fontSize;
 
@@ -13,12 +13,12 @@ public class Word {
         this.fontSize = fontSize;
     }
 
-    protected void addCharacter(Character character) {
+    protected void addCharacter(FontType.Character character) {
         characters.add(character);
-        width += character.getxAdvance() * fontSize;
+        width += character.xAdvance * fontSize;
     }
 
-    protected List<Character> getCharacters() {
+    protected List<FontType.Character> getCharacters() {
         return characters;
     }
 

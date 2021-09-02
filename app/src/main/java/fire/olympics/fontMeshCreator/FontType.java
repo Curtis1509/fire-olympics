@@ -2,24 +2,126 @@ package fire.olympics.fontMeshCreator;
 
 import fire.olympics.graphics.Texture;
 import java.util.ArrayList;
+import java.nio.file.Path;
+import java.util.HashMap;
 
 public class FontType {
+    public static final class Padding {
+        public int left;
+        public int right;
+        public int top;
+        public int bottom;
 
-    public final Texture texture;
-    public final FontFile fontFile;
+        public int width() {
+            return left + right;
+        }
 
-    public void setAspectRatio(double ratio) {
+        public int height() {
+            return top + bottom;
+        }
     }
 
-    public FontType(FontFile fontFile, Texture texture) {
-        this.fontFile = fontFile;
+    public static final class CharacterAttribute {
+        public int id;
+        public int x;
+        public int y;
+        public int width;
+        public int height;
+        public int xoffset;
+        public int yoffset;
+        public int xadvance;
+    }
+
+    /**
+     * Simple data structure class holding information about a certain glyph in the
+     * font texture atlas. All sizes are for a font-size of 1.
+     */
+    public static final class Character {
+        /**
+         * @param id
+         *            - the ASCII value of the character.
+         * @param xTextureCoord
+         *            - the x texture coordinate for the top left corner of the
+         *            character in the texture atlas.
+         * @param yTextureCoord
+         *            - the y texture coordinate for the top left corner of the
+         *            character in the texture atlas.
+         * @param xTexSize
+         *            - the width of the character in the texture atlas.
+         * @param yTexSize
+         *            - the height of the character in the texture atlas.
+         * @param xOffset
+         *            - the x distance from the curser to the left edge of the
+         *            character's quad.
+         * @param yOffset
+         *            - the y distance from the curser to the top edge of the
+         *            character's quad.
+         * @param sizeX
+         *            - the width of the character's quad in screen space.
+         * @param sizeY
+         *            - the height of the character's quad in screen space.
+         * @param xAdvance
+         *            - how far in pixels the cursor should advance after adding
+         *            this character.
+         */
+
+        public int id;
+        public double xTextureCoord;
+        public double yTextureCoord;
+        public double xMaxTextureCoord;
+        public double yMaxTextureCoord;
+        public double xOffset;
+        public double yOffset;
+        public double sizeX;
+        public double sizeY;
+        public double xAdvance;
+    }
+
+
+    public final Texture texture;
+
+    private final Padding padding = new Padding();
+    private final int lineHeight;
+    private final int imageWidth;
+    private final int imageHeight;
+    private final HashMap<Integer, CharacterAttribute> characters = new HashMap<>();
+
+    public FontType(Path path, Texture texture) {
         this.texture = texture;
+        MetaFile reader = new MetaFile(path.toFile(), 1.0);
+        reader.processNextLine();
+
+        int[] pads = reader.getValuesOfVariable("padding");
+        padding.top = pads[0];
+        padding.left = pads[1];
+        padding.bottom = pads[2];
+        padding.right = pads[3];
+
+        reader.processNextLine();
+        lineHeight = reader.getValueOfVariable("lineHeight"); 
+        
+        imageWidth = reader.getValueOfVariable("scaleW");
+        imageHeight = reader.getValueOfVariable("scaleH");
+        reader.processNextLine();
+        reader.processNextLine();
+        while (reader.processNextLine()) {
+            CharacterAttribute attribute = new CharacterAttribute();
+            attribute.id = reader.getValueOfVariable("id");
+            attribute.x = reader.getValueOfVariable("x");
+            attribute.y = reader.getValueOfVariable("y");
+            attribute.width = reader.getValueOfVariable("width");
+            attribute.height = reader.getValueOfVariable("height");
+            attribute.xoffset = reader.getValueOfVariable("xoffset");
+            attribute.yoffset = reader.getValueOfVariable("yoffset");
+            attribute.xadvance = reader.getValueOfVariable("xadvance");
+            characters.put(attribute.id, attribute);
+        }
     }
  
     private double spaceWidth(double aspectRatio, double lineHeight) {
-        double verticalPerPixelSize = lineHeight / (double) fontFile.lineHeight;
+        double verticalPerPixelSize = lineHeight / (double) this.lineHeight;
         double horizontalPerPixelSize = verticalPerPixelSize / aspectRatio;
-        return (fontFile.characters.get(32).xadvance - fontFile.padding.width()) / horizontalPerPixelSize;
+        return (characters.get(32).xadvance - padding.width()) / horizontalPerPixelSize;
     }
 
     /**
@@ -32,24 +134,27 @@ public class FontType {
      * @return The data about the character.
      */
     private Character character(int asciiCode, double aspectRatio, double lineHeight) {
-        double verticalPerPixelSize = lineHeight / (double) fontFile.lineHeight;
+        double verticalPerPixelSize = lineHeight / (double) this.lineHeight;
         double horizontalPerPixelSize = verticalPerPixelSize / aspectRatio;
 
-        FontFile.CharacterAttribute attribute = fontFile.characters.get(asciiCode);
+        FontType.CharacterAttribute attribute = characters.get(asciiCode);
 
         int desiredPadding = 3;
-        double xTex = ((double) attribute.x + fontFile.padding.left - desiredPadding) / fontFile.imageWidth;
-        double yTex = ((double) attribute.y + fontFile.padding.top - desiredPadding) / fontFile.imageHeight;
-        int width = attribute.width - (fontFile.padding.width() - (2 * desiredPadding));
-        int height = attribute.height - ((fontFile.padding.height()) - (2 * desiredPadding));
-        double quadWidth = width * horizontalPerPixelSize;
-        double quadHeight = height * verticalPerPixelSize;
-        double xTexSize = (double) width / fontFile.imageWidth;
-        double yTexSize = (double) height / fontFile.imageHeight;
-        double xOff = (attribute.xoffset + fontFile.padding.left - desiredPadding) * horizontalPerPixelSize;
-        double yOff = (attribute.yoffset + (fontFile.padding.top - desiredPadding)) * verticalPerPixelSize;
-        double xAdvance = (attribute.xadvance - fontFile.padding.width()) * horizontalPerPixelSize;
-        return new Character(attribute.id, xTex, yTex, xTexSize, yTexSize, xOff, yOff, quadWidth, quadHeight, xAdvance);
+        int width = attribute.width - (padding.width() - (2 * desiredPadding));
+        int height = attribute.height - ((padding.height()) - (2 * desiredPadding));
+
+        Character c = new Character();
+        c.id = attribute.id;
+        c.xTextureCoord = ((double) attribute.x + padding.left - desiredPadding) / imageWidth;
+        c.yTextureCoord = ((double) attribute.y + padding.top - desiredPadding) / imageHeight;
+        c.sizeX = width * horizontalPerPixelSize;
+        c.sizeY = height * verticalPerPixelSize;
+        c.xMaxTextureCoord = c.xTextureCoord + (double) width / imageWidth;
+        c.yMaxTextureCoord = c.yTextureCoord + (double) height / imageHeight;
+        c.xOffset = (attribute.xoffset + padding.left - desiredPadding) * horizontalPerPixelSize;
+        c.yOffset = (attribute.yoffset + (padding.top - desiredPadding)) * verticalPerPixelSize;
+        c.xAdvance = (attribute.xadvance - padding.width()) * horizontalPerPixelSize;
+        return c;
     }
 
     public TextMeshData createTextMesh(GUIText text, double aspectRatio) {
@@ -59,20 +164,20 @@ public class FontType {
     }
 
     private ArrayList<Line> createStructure(GUIText text, double aspectRatio) {
-        char[] chars = text.getTextString().toCharArray();
+        char[] chars = text.text().toCharArray();
         ArrayList<Line> lines = new ArrayList<Line>();
-        Line currentLine = new Line(spaceWidth(aspectRatio, text.lineHeight), text.getFontSize(), text.getMaxLineSize());
-        Word currentWord = new Word(text.getFontSize());
+        Line currentLine = new Line(spaceWidth(aspectRatio, text.lineHeight), text.fontSize, text.lineMaxSize);
+        Word currentWord = new Word(text.fontSize);
         for (char c : chars) {
             int ascii = (int) c;
             if (ascii == 32 /* i.e. space */) {
                 boolean added = currentLine.attemptToAddWord(currentWord);
                 if (!added) {
                     lines.add(currentLine);
-                    currentLine = new Line(spaceWidth(aspectRatio, text.lineHeight), text.getFontSize(), text.getMaxLineSize());
+                    currentLine = new Line(spaceWidth(aspectRatio, text.lineHeight), text.fontSize, text.lineMaxSize);
                     currentLine.attemptToAddWord(currentWord);
                 }
-                currentWord = new Word(text.getFontSize());
+                currentWord = new Word(text.fontSize);
                 continue;
             }
             Character character = character(ascii, aspectRatio, text.lineHeight);
@@ -86,78 +191,61 @@ public class FontType {
         boolean added = currentLine.attemptToAddWord(currentWord);
         if (!added) {
             lines.add(currentLine);
-            currentLine = new Line(spaceWidth(aspectRatio, text.lineHeight), text.getFontSize(), text.getMaxLineSize());
+            currentLine = new Line(spaceWidth(aspectRatio, text.lineHeight), text.fontSize, text.lineMaxSize);
             currentLine.attemptToAddWord(currentWord);
         }
         lines.add(currentLine);
     }
 
     private TextMeshData createQuadVertices(GUIText text, ArrayList<Line> lines, double aspectRatio) {
-        text.setNumberOfLines(lines.size());
         double curserX = 0f;
         double curserY = 0f;
         ArrayList<Float> vertices = new ArrayList<Float>();
         ArrayList<Float> textureCoords = new ArrayList<Float>();
         for (Line line : lines) {
-            if (text.isCentered()) {
+            if (text.isCentered) {
                 curserX = (line.getMaxLength() - line.getLineLength()) / 2;
             }
             for (Word word : line.getWords()) {
                 for (Character letter : word.getCharacters()) {
-                    addVerticesForCharacter(curserX, curserY, letter, text.getFontSize(), vertices);
-                    addTexCoords(textureCoords, letter.getxTextureCoord(), letter.getyTextureCoord(),
-                            letter.getXMaxTextureCoord(), letter.getYMaxTextureCoord());
-                    curserX += letter.getxAdvance() * text.getFontSize();
+                    addVerticesForCharacter(curserX, curserY, letter, text.fontSize, vertices);
+                    addQuad(textureCoords, letter.xTextureCoord, letter.yTextureCoord, letter.xMaxTextureCoord, letter.yMaxTextureCoord);
+                    curserX += letter.xAdvance * text.fontSize;
                 }
-                curserX += spaceWidth(aspectRatio, text.lineHeight) * text.getFontSize();
+                curserX += spaceWidth(aspectRatio, text.lineHeight) * text.fontSize;
             }
             curserX = 0;
-            curserY += text.lineHeight * text.getFontSize();
+            curserY += text.lineHeight * text.fontSize;
         }
         return new TextMeshData(listToArray(vertices), listToArray(textureCoords));
     }
 
     private void addVerticesForCharacter(double curserX, double curserY, Character character, double fontSize,
             ArrayList<Float> vertices) {
-        double x = curserX + (character.getxOffset() * fontSize);
-        double y = curserY + (character.getyOffset() * fontSize);
-        double maxX = x + (character.getSizeX() * fontSize);
-        double maxY = y + (character.getSizeY() * fontSize);
+        double x = curserX + (character.xOffset * fontSize);
+        double y = curserY + (character.yOffset * fontSize);
+        double maxX = x + (character.sizeX * fontSize);
+        double maxY = y + (character.sizeY * fontSize);
         double properX = (2 * x) - 1;
         double properY = (-2 * y) + 1;
         double properMaxX = (2 * maxX) - 1;
         double properMaxY = (-2 * maxY) + 1;
-        addVertices(vertices, properX, properY, properMaxX, properMaxY);
+        addQuad(vertices, properX, properY, properMaxX, properMaxY);
     }
 
-    private static void addVertices(ArrayList<Float> vertices, double x, double y, double maxX, double maxY) {
-        vertices.add((float) x);
-        vertices.add((float) y);
-        vertices.add((float) x);
-        vertices.add((float) maxY);
-        vertices.add((float) maxX);
-        vertices.add((float) maxY);
-        vertices.add((float) maxX);
-        vertices.add((float) maxY);
-        vertices.add((float) maxX);
-        vertices.add((float) y);
-        vertices.add((float) x);
-        vertices.add((float) y);
-    }
-
-    private static void addTexCoords(ArrayList<Float> texCoords, double x, double y, double maxX, double maxY) {
-        texCoords.add((float) x);
-        texCoords.add((float) y);
-        texCoords.add((float) x);
-        texCoords.add((float) maxY);
-        texCoords.add((float) maxX);
-        texCoords.add((float) maxY);
-        texCoords.add((float) maxX);
-        texCoords.add((float) maxY);
-        texCoords.add((float) maxX);
-        texCoords.add((float) y);
-        texCoords.add((float) x);
-        texCoords.add((float) y);
+    private static void addQuad(ArrayList<Float> list, double x, double y, double maxX, double maxY) {
+        list.add((float) x);
+        list.add((float) y);
+        list.add((float) x);
+        list.add((float) maxY);
+        list.add((float) maxX);
+        list.add((float) maxY);
+        list.add((float) maxX);
+        list.add((float) maxY);
+        list.add((float) maxX);
+        list.add((float) y);
+        list.add((float) x);
+        list.add((float) y);
     }
 
     private static float[] listToArray(ArrayList<Float> listOfFloats) {

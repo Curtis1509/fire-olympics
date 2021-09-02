@@ -12,8 +12,8 @@ public class TextMeshCache {
             if (cache.containsKey(mesh.text.toString())) {
                 mesh.data = cache.get(mesh.text.toString()).data;
             } else {
-                // mesh.setTextMeshData(mesh.text.getFont().createTextMesh(mesh.text, aspectRatio));
-                cache.put(mesh.text.getTextString(), mesh);
+                // mesh.setTextMeshData(mesh.text.font.createTextMesh(mesh.text, aspectRatio));
+                cache.put(mesh.text.text(), mesh);
             }
         } else {
             System.out.println("Warning: registering cached mesh twice!");
@@ -23,7 +23,7 @@ public class TextMeshCache {
     public void recalculate(float ratio) {
         aspectRatio = ratio;
         for (MeshText mesh : cache.values()) {
-            mesh.setTextMeshData(mesh.text.getFont().createTextMesh(mesh.text, aspectRatio));
+            mesh.setTextMeshData(mesh.text.font.createTextMesh(mesh.text, aspectRatio));
         }
     }
 }
