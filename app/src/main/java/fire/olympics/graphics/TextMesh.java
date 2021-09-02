@@ -1,19 +1,18 @@
 package fire.olympics.graphics;
 
 import fire.olympics.fontMeshCreator.GUIText;
-import fire.olympics.fontMeshCreator.TextMeshData;
 
 import static org.lwjgl.opengl.GL33C.*;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-public class MeshText {
+public class TextMesh {
     private VertexArrayObject vao;
     public GUIText text;
     public TextMeshData data;
 
-    public MeshText(GUIText text) {
+    public TextMesh(GUIText text) {
         this.text = text;
         vao = new VertexArrayObject();
     }

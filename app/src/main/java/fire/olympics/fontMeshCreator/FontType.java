@@ -1,5 +1,6 @@
 package fire.olympics.fontMeshCreator;
 
+import fire.olympics.graphics.TextMeshData;
 import fire.olympics.graphics.Texture;
 import java.util.ArrayList;
 import java.nio.file.Path;

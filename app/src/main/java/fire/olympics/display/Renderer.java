@@ -4,8 +4,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import fire.olympics.App;
-import fire.olympics.fontMeshCreator.TextMeshCache;
-import fire.olympics.graphics.MeshText;
+import fire.olympics.graphics.TextMesh;
 import fire.olympics.graphics.ShaderProgram;
 
 import static org.lwjgl.opengl.GL33C.*;
@@ -20,7 +19,7 @@ public class Renderer {
     private ArrayList<GameItem> gameItems = new ArrayList<>();
     private ArrayList<GameItem> gameItemsWithTextures = new ArrayList<>();
     private ArrayList<GameItem> gameItemsWithOutTextures = new ArrayList<>();
-    private ArrayList<MeshText> text = new ArrayList<>();
+    private ArrayList<TextMesh> text = new ArrayList<>();
 
     private float aspectRatio = 1.0f;
     private ShaderProgram program;
@@ -47,22 +46,10 @@ public class Renderer {
         }
     }
 
-    public void addText(MeshText textMesh) {
+    public void addText(TextMesh textMesh) {
         text.add(textMesh); 
         textMeshCache.register(textMesh);
     }
-
-    public void update() {
-        // Update rotation angle
-        for (GameItem gameItem : gameItems) {
-            float rotation = gameItem.getRotation().y() + 0.5f;
-            if (rotation > 360) {
-                rotation = 0;
-            }
-            gameItem.setRotation(rotation, rotation, rotation);
-        }
-    }
-
     public void updateCamera(Vector3f position, Vector3f angle) {
         Matrix4f translation = new Matrix4f().translation(position);
         camera.identity();
@@ -112,7 +99,7 @@ public class Renderer {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDisable(GL_DEPTH_TEST);
         textShaderProgram.bind();
-        for (MeshText meshText : text) {
+        for (TextMesh meshText : text) {
             glActiveTexture(GL_TEXTURE0);
             meshText.getFontTexture().bind();
             textShaderProgram.setUniform("colour", meshText.getColor());

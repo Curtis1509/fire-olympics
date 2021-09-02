@@ -1,13 +1,14 @@
-package fire.olympics.fontMeshCreator;
+package fire.olympics.display;
 
-import fire.olympics.graphics.MeshText;
 import java.util.HashMap;
 
+import fire.olympics.graphics.TextMesh;
+
 public class TextMeshCache {
-    private HashMap<String, MeshText> cache = new HashMap<>();
+    private HashMap<String, TextMesh> cache = new HashMap<>();
     private float aspectRatio;
 
-    public void register(MeshText mesh) {
+    public void register(TextMesh mesh) {
         if (mesh.data == null) {
             if (cache.containsKey(mesh.text.toString())) {
                 mesh.data = cache.get(mesh.text.toString()).data;
@@ -22,7 +23,7 @@ public class TextMeshCache {
 
     public void recalculate(float ratio) {
         aspectRatio = ratio;
-        for (MeshText mesh : cache.values()) {
+        for (TextMesh mesh : cache.values()) {
             mesh.setTextMeshData(mesh.text.font.createTextMesh(mesh.text, aspectRatio));
         }
     }

@@ -6,7 +6,7 @@ package fire.olympics;
 import fire.olympics.display.*;
 import fire.olympics.fontMeshCreator.GUIText;
 import fire.olympics.fontMeshCreator.FontType;
-import fire.olympics.graphics.MeshText;
+import fire.olympics.graphics.TextMesh;
 import fire.olympics.graphics.ModelLoader;
 import fire.olympics.graphics.ShaderProgram;
 import fire.olympics.graphics.Texture;
@@ -25,13 +25,21 @@ import java.util.Objects;
 
 public class App implements AutoCloseable {
     public static void main(String[] args) {
+        // GLFW says that some methods should be called on the main thread,
+        // plus on some systems (like macOS) the program *must* run on the main
+        // thread. So we double check it here.
         Thread t = Thread.currentThread();
         if (!t.getName().equals("main")) {
             System.out.println("warning: not running on main thread!");
         }
-        
-        try (App app = new App(Path.of("app", "src", "main", "resources"))) {
-            // app.createMainWindow();
+
+        Path resourcePath = Path.of("app", "src", "main", "resources");
+        if (!Files.exists(resourcePath)) {
+            resourcePath = Path.of("app").relativize(resourcePath);
+        }
+
+        try (App app = new App(resourcePath)) {
+            // You can technically create two windows by calling this twice.
             app.createMainWindow();
             app.mainLoop();
         } catch (Exception e) {
@@ -40,15 +48,14 @@ public class App implements AutoCloseable {
         }
     }
 
-    private Path resourcePath;
+    /**
+     * A path relative to the current working directory that points to the resources directory.
+     */
+    private final Path resourcePath;
     private final ArrayList<Controller> controllers = new ArrayList<>();
 
     public App(Path resourcePath) {
-        if (!Files.exists(resourcePath)) {
-            this.resourcePath = Path.of("app").relativize(resourcePath);
-        } else {
-            this.resourcePath = resourcePath;
-        }
+        this.resourcePath = resourcePath;
         // Setup an error callback. The default implementation
         // will print the error message in System.err.
         GLFWErrorCallback.createPrint(System.err).set();
@@ -58,6 +65,27 @@ public class App implements AutoCloseable {
         }
     }
 
+    /**
+     * The main loop of the app. This is responsible for coordinating when everything updates.
+     * 
+     * The sequence of events is important, and is broadly:
+     * 1. Everything is created.
+     * 2. Everything is loaded.
+     * 3. Everything is updated.
+     * 4. Everything is released.
+     * 
+     * Many opengl commands assume a window context is present. The controller's load method
+     * for example assumes this, as well as the create main window method. This method respects
+     * these assumptions.
+     * 
+     * The main loop also takes into account that:
+     * 1. Multiple windows need to be updated in a loop.
+     * 2. glfwPollEvents triggers the callbacks for all events, regardless of the window.
+     * 3. A window that's closed should no longer be rendered too.
+     * 4. The program needs to be running until all windows have been closed.
+     * 5. One window might disable a cursor and cause it to be hidden, however enabling/disabling
+     *    the cursor affects all windows.
+     */
     public void mainLoop() {
         for (Controller c : controllers) {
             try {
@@ -74,7 +102,7 @@ public class App implements AutoCloseable {
         ArrayList<Window> closedWindows = new ArrayList<>();
         while (controllers.size() > 0) {
             for (Controller controller : controllers) {
-                boolean shouldClose = controller.window.updateWindow(controller.renderer);
+                boolean shouldClose = controller.window.update(controller.renderer);
                 if (shouldClose) {
                     controller.window.restoreCursorIfDisabledOnWindow();
                     closedWindows.add(controller.window);
@@ -100,6 +128,7 @@ public class App implements AutoCloseable {
         Window window = new Window("Fire Olympics", 800, 600);
 
         window.init();
+        window.use();
         System.out.println(window.openGlVersion());
 
         Path vertPath = resource("shaders", "shader.vert");
@@ -132,14 +161,21 @@ public class App implements AutoCloseable {
 
         GUIText text = new GUIText("FIRE OLYMPICS", 5, fontType, new Vector2f(0f, 0f), 1f, true);
         text.color.set(0.0f, 0.5f, 0.5f);
-        MeshText mesh = new MeshText(text);
+        TextMesh mesh = new TextMesh(text);
         ModelLoader loader = new ModelLoader(resourcePath);
         Renderer renderer = new Renderer(program, programWithTexture, textShaderProgram);
         renderer.addText(mesh);
         Controller controller = new Controller(window, renderer, loader);
         controllers.add(controller);
+
+        window.done();
     }
 
+    /**
+     * Constructs a path object relative to the {@code resourcePath} from the arguments.
+     * @param first A file or directory.
+     * @param more A file or directory.
+     */
     public Path resource(String first, String... more) {
         return resourcePath.resolve(Path.of(first, more));
     }

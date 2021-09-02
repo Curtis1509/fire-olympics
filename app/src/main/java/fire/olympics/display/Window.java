@@ -45,6 +45,9 @@ public class Window implements AutoCloseable {
         return window;
     }
 
+    /**
+     * Initialises the OpenGL graphics context.
+     */
     public void init() {
         glfwDefaultWindowHints(); // optional, the current window hints are already the default
         glfwWindowHint(GLFW_VISIBLE, GL_FALSE); // the window will stay hidden after creation
@@ -97,17 +100,26 @@ public class Window implements AutoCloseable {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     }
 
+    /**
+     * Shows the window.
+     */
     public void showWindow() {
-        // Make the window visible
         glfwShowWindow(window);
         isHidden = false;
     }
 
+    /**
+     * Hides the window.
+     */
     public void hideWindow() {
         glfwHideWindow(window);
         isHidden = true;
     }
 
+    /**
+     * Returns {@code true} whether the window is hidden.
+     * @return
+     */
     public boolean isHidden() {
         return isHidden;
     }
@@ -120,17 +132,15 @@ public class Window implements AutoCloseable {
         return "OpenGL Version: " + maj[0] + "." + min[0];
     }
 
-    public void changeTitle(String title) {
-        glfwSetWindowTitle(window, title);
-    }
-
-
-    public boolean updateWindow(Renderer renderer) {
+    public boolean update(Renderer renderer) {
         if (!isHidden()) {
             use();
-            renderer.update();
+            computeFrameDelta();
+            if(eventDelegate != null)
+                eventDelegate.update(frameDelta);
             renderer.render();
-            update();
+            glfwSwapBuffers(window);
+            glfwSetWindowTitle(window, title + frameCounter(false));
             if (resized) {
                 glViewport(0, 0, width, height);
                 resized = false;
@@ -139,14 +149,6 @@ public class Window implements AutoCloseable {
             done();
         }
         return shouldClose();
-    }
-
-    public void update() {
-        glfwSwapBuffers(window);
-        computeFrameDelta();
-        if(eventDelegate != null)
-            eventDelegate.updatePlayerMovement(frameDelta);
-        changeTitle(title + frameCounter(false));
     }
 
     private void processKeyboardEvent(long window, int key, int scancode, int action, int mods) {

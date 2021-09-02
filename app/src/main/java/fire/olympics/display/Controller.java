@@ -8,6 +8,11 @@ import org.joml.Vector3f;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+/**
+ * The {@code Controller} contains game logic code such as:
+ * 1. What happens after the result of a collision?
+ * 2. How are things in the scene updated as a result of user interaction?
+ */
 public class Controller implements EventDelegate {
     public final Renderer renderer;
     public final Window window;
@@ -16,6 +21,7 @@ public class Controller implements EventDelegate {
     private float movementSpeed = 5f;
     private Vector3f angle = new Vector3f();
     private Vector3f position = new Vector3f();
+    private ArrayList<GameItem> objects;
 
     public Controller(Window window, Renderer renderer, ModelLoader loader) {
         this.renderer = renderer;
@@ -27,7 +33,7 @@ public class Controller implements EventDelegate {
     public void load() throws Exception {
         loader.loadTexture("textures", "metal_test.png");
         loader.loadTexture("textures", "wood_test_2.png");
-        ArrayList<GameItem> objects = loader.loadModel("models", "proto_arrow_textured.obj");
+        objects = loader.loadModel("models", "proto_arrow_textured.obj");
 
         for (GameItem object : objects) {
             object.setPosition(0, 0, -10);
@@ -35,7 +41,17 @@ public class Controller implements EventDelegate {
         }
     }
 
-    public void updatePlayerMovement(double timeDelta) {
+    public void update(double timeDelta) {
+        // Update rotation angle
+        for (GameItem gameItem : objects) {
+            float rotation = gameItem.getRotation().y() + 0.5f;
+            if (rotation > 360) {
+                rotation = 0;
+            }
+            gameItem.setRotation(rotation, rotation, rotation);
+        }
+
+        // todo: use key down and up to store the delta?
         if(glfwGetKey(window.getWindowId(), GLFW_KEY_A) == GLFW_PRESS)
             position.x += movementSpeed * timeDelta;
 

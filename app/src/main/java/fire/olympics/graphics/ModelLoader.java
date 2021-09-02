@@ -11,8 +11,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Loads meshs and their textures from the file system.
+ * 
+ * Note: An instance of a model loader owns the textures that are loaded
+ * but does not (currently) own the meshes that are loaded. 
+ */
 public class ModelLoader implements AutoCloseable {
+    /**
+     * If a mtl file references a texture it is obtained by consulting this map.
+     * 
+     * The keys are normalised absolute file paths and the values are loaded texture objects.
+     */ 
     public final Map<String, Texture> loadedTextures = new HashMap<>();
+
+    /**
+     * This variable has the same semantics {@code App.resourcePath}.
+     */
     private final Path resourcePath;
 
     public ModelLoader(Path resourcePath) {
@@ -23,11 +38,21 @@ public class ModelLoader implements AutoCloseable {
         return resourcePath.resolve(Path.of(first, more));
     }
 
+    /**
+     * Releases all the resources this class owns.
+     */
     @Override
     public void close() {
         loadedTextures.forEach((s, t) -> t.close());
     }
 
+    /**
+     * Load a texture from the given path relative to the resources directory.
+     * 
+     * This method must be called for each 
+     * @param first A file or directory.
+     * @param more A file or directory.
+     */
     public void loadTexture(String first, String... more) {
         Path path = resource(first, more);
         assert !loadedTextures.containsKey(path.toString());
@@ -36,6 +61,13 @@ public class ModelLoader implements AutoCloseable {
         loadedTextures.put(name, t);
     }
 
+    /**
+     * Loads meshes from the given path relative to the resources directory.
+     * @param first A file or directory.
+     * @param more A file or directory.
+     * @return A list of game items representing the meshes that were loaded.
+     * @throws Exception
+     */
     public ArrayList<GameItem> loadModel(String first, String... more) throws Exception {
         Path path = resource(first, more);
         AIScene scene = Assimp.aiImportFile(path.toAbsolutePath().toString(), 0);
@@ -66,7 +98,7 @@ public class ModelLoader implements AutoCloseable {
 
             for (int x = 0; x < mat.mNumProperties(); x++) {
                 AIMaterialProperty prop = AIMaterialProperty.create(mat.mProperties().get(x));
-                // System.out.printf("Property %s has index of %d%n", prop.mKey().dataString(), x);
+                System.out.printf("Property %s has index of %d%n", prop.mKey().dataString(), x);
             }
 
             if (texPath.dataString().isEmpty()) {
@@ -74,7 +106,7 @@ public class ModelLoader implements AutoCloseable {
 
                 AIMaterialProperty diffData = AIMaterialProperty.create(mat.mProperties().get(3));
                 FloatBuffer diffBuffer = diffData.mData().asFloatBuffer();
-                // System.out.printf("Material had diffuse data with length of %d%n", diffBuffer.capacity());
+                System.out.printf("Material had diffuse data with length of %d%n", diffBuffer.capacity());
                 float[] col = { diffBuffer.get(), diffBuffer.get(), diffBuffer.get() };
 
                 for (int x = 0; x < len; x++) {
@@ -116,9 +148,9 @@ public class ModelLoader implements AutoCloseable {
             FloatBuffer specBuffer = specData.mData().asFloatBuffer();
             FloatBuffer shinyBuffer = shinyData.mData().asFloatBuffer();
 
-            // System.out.printf("Material had ambient data with length of %d%n", ambBuffer.capacity());
-            // System.out.printf("Material had specular data with length of %d%n", specBuffer.capacity());
-            // System.out.printf("Material had shininess data with length of %d%n", shinyBuffer.capacity());
+            System.out.printf("Material had ambient data with length of %d%n", ambBuffer.capacity());
+            System.out.printf("Material had specular data with length of %d%n", specBuffer.capacity());
+            System.out.printf("Material had shininess data with length of %d%n", shinyBuffer.capacity());
 
             float[] ambColour = { ambBuffer.get(), ambBuffer.get(), ambBuffer.get() };
             float[] specColour = { specBuffer.get(), specBuffer.get(), specBuffer.get() };
