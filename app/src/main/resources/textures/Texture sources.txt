@@ -7,3 +7,11 @@ aluminium = https://www.sketchuptextureclub.com/textures/materials/metals/basic-
 wood 3 = http://1024x.net/65/-/4_Seamless_Wood_Texture/
 
 crowd = https://wallpapersafari.com/w/LH1Qeq
+
+sky 1 = http://www.photos-public-domain.com/wp-content/uploads/2018/07/sky-with-clouds-texture.jpg
+
+bronze = https://www.wallpapertip.com/wmimgs/37-374816_bronze-wa10057-antique-plaster-wallpaper-textures-wallpaper-antique.jpg
+
+silver = https://img2.goodfon.com/wallpaper/nbig/1/6d/serebro-blestki-tekstura-fon.jpg
+
+brushed metal = https://textures.world/wp-content/uploads/2018/10/Aluminum-Brushed-Metal-Seamless-Background-Textures-5-copy.jpg
