@@ -34,6 +34,23 @@ public class Controller implements EventDelegate {
         loader.loadTexture("textures", "metal_test.png");
         loader.loadTexture("textures", "wood_test_2.png");
         objects = loader.loadModel("models", "proto_arrow_textured.obj");
+//        objects.add(loader.loadModel("models","proto_arrow_textured.obj").get(0));
+//        for (GameItem o : loader.loadModel("models","proto_arrow_textured.obj")) {
+//            objects.add(o);
+//        }
+
+//        loader.loadTexture("textures", "stadium_aluminium.jpg");
+//        loader.loadTexture("textures", "stadium_crowd.jpg");
+//        loader.loadTexture("textures", "stadium_grass.jpg");
+//        loader.loadTexture("textures", "stadium_sky.jpg");
+//        loader.loadTexture("textures", "stadium_track.jpg");
+//        loader.loadTexture("textures", "stadium_wood.jpeg");
+//        objects.add(loader.loadModel("models", "Stadium_w_sky_sphere.obj").get(0));
+
+//        loader.loadTexture("textures", "ring+pole_brushed_metal.jpg");
+//        objects.add(loader.loadModel("models", "ring.obj").get(0));
+//        objects.add(loader.loadModel("models", "pole.obj").get(0));
+
 
         for (GameItem object : objects) {
             object.setPosition(0, 0, -10);

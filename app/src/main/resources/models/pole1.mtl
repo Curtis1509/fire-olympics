@@ -10,4 +10,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 3
-map_Kd -s 0.460000 0.630000 1.000000 Brushed Metal Texture.jpg
+map_Kd -s 0.460000 0.630000 1.000000 ../textures/ring+pole_brushed_metal.jpg
