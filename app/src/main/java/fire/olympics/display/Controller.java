@@ -48,7 +48,7 @@ public class Controller implements EventDelegate {
 
 //        loader.loadTexture("textures", "ring+pole_brushed_metal.jpg");
 //        objects.addAll(loader.loadModel("models", "ring.obj"));
-        objects.addAll(loader.loadModel("models", "pole1.obj"));
+//        objects.addAll(loader.loadModel("models", "pole1.obj"));
 
         // TODO: manage related objects properly (arrow is 3 GameItems, stadium is ~10, ...)
 
