@@ -19,13 +19,18 @@ public class GameItemGroup {
 
     // GameItems should be constructed separately, then "grouped"
     public GameItemGroup(ArrayList<GameItem> gameItems) { group = gameItems; }
+    public GameItemGroup() {group = new ArrayList<>();}
 
     // returns the number of GameItems in the collection
     public int getCount() { return group.size(); }
 
+    // returns the group of GameItems, so that they can be iterated through as needed
+    // use for passing to renderer or anything else that wants GameItems as inputs
+    public ArrayList<GameItem> getAll() { return group; }
+
     // returns the GameItem at a given index
     // this *should* only need to be used in debugging
-    public GameItem get(int index) { return group.get(index); }
+    public GameItem getElement(int index) { return group.get(index); }
 
     // gets the position of the GameItemGroup from the first GameItem
     // All GameItems in the group should have the same position
@@ -40,7 +45,7 @@ public class GameItemGroup {
     }
 
     // sets the position of the GameItemGroup
-    public void setPositions(float x, float y, float z) {
+    public void setPosition(float x, float y, float z) {
         for (GameItem item : group)
             item.setPosition(x,y,z);
     }

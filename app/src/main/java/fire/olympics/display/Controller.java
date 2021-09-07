@@ -3,6 +3,7 @@ package fire.olympics.display;
 import fire.olympics.graphics.ModelLoader;
 import java.util.ArrayList;
 
+import org.checkerframework.checker.units.qual.A;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -21,7 +22,7 @@ public class Controller implements EventDelegate {
     private float movementSpeed = 5f;
     private Vector3f angle = new Vector3f();
     private Vector3f position = new Vector3f();
-    private ArrayList<GameItem> objects;
+    private ArrayList<GameItemGroup> objects = new ArrayList<GameItemGroup>();
 
     public Controller(Window window, Renderer renderer, ModelLoader loader) {
         this.renderer = renderer;
@@ -33,42 +34,65 @@ public class Controller implements EventDelegate {
     public void load() throws Exception {
         loader.loadTexture("textures", "metal_test.png");
         loader.loadTexture("textures", "wood_test_2.png");
-        objects = new ArrayList<GameItem>();
-        objects.addAll(loader.loadModel("models","proto_arrow_textured.obj"));
-//        objects.addAll(loader.loadModel("models","Brazier v2 Textured.obj"));
+        loader.loadTexture("textures", "stadium_aluminium.jpg");
+        loader.loadTexture("textures", "stadium_crowd.jpg");
+        loader.loadTexture("textures", "stadium_grass.jpg");
+        loader.loadTexture("textures", "stadium_sky.jpg");
+        loader.loadTexture("textures", "stadium_track.jpg");
+        loader.loadTexture("textures", "stadium_wood.jpeg");
+        loader.loadTexture("textures", "stadium_sky.jpg");
+        loader.loadTexture("textures", "ring+pole_brushed_metal.jpg");
 
-//        loader.loadTexture("textures", "stadium_aluminium.jpg");
-//        loader.loadTexture("textures", "stadium_crowd.jpg");
-//        loader.loadTexture("textures", "stadium_grass.jpg");
-//        loader.loadTexture("textures", "stadium_sky.jpg");
-//        loader.loadTexture("textures", "stadium_track.jpg");
-//        loader.loadTexture("textures", "stadium_wood.jpeg");
-//        loader.loadTexture("textures", "stadium_sky.jpg");
-//        objects.addAll(loader.loadModel("models", "Stadium_w_sky_sphere.obj"));
+        // adding to ArrayList with indices, to explicitly place objects in order
+        // skipping an index, or adding them out of order, will break things!!
 
-//        loader.loadTexture("textures", "ring+pole_brushed_metal.jpg");
-//        objects.addAll(loader.loadModel("models", "ring.obj"));
-//        objects.addAll(loader.loadModel("models", "pole1.obj"));
+        objects.add(0,new GameItemGroup(
+                loader.loadModel("models","proto_arrow_textured.obj")
+        ));
 
-        // TODO: manage related objects properly (arrow is 3 GameItems, stadium is ~10, ...)
+        objects.add(1, new GameItemGroup(
+                loader.loadModel("models","Brazier v2 Textured.obj")
+        ));
 
-        for (GameItem object : objects) {
-            object.setPosition(0, 0, -10);
-            renderer.add(object);
+        objects.add(2, new GameItemGroup(
+                loader.loadModel("models","Stadium_w_sky_sphere.obj")
+        ));
+
+        objects.add(3, new GameItemGroup(
+                loader.loadModel("models","ring.obj")
+        ));
+
+
+
+        // setting initial positions
+        objects.get(0).setPosition(0, 0, -10);
+        objects.get(1).setPosition(0, -3, -10);
+        objects.get(2).setPosition(0, -7, 0);
+        objects.get(2).setScale(7);
+        objects.get(3).setPosition(0, 2, -10);
+
+        for (GameItemGroup object : objects) {
+            for (GameItem item : object.getAll())
+                renderer.add(item);
         }
     }
 
     public void update(double timeDelta) {
-        // Update rotation angle
-        for (GameItem gameItem : objects) {
-            float rotation = gameItem.getRotation().y() + 0.5f;
-            if (rotation > 360) {
-                rotation = 0;
-            }
-            gameItem.setRotation(rotation, rotation, rotation);
+        // Update rotation angle of arrow
+        float rotation = objects.get(0).getRotation().y() + 0.5f;
+        if (rotation > 360) {
+            rotation = 0;
         }
+        objects.get(0).setRotation(rotation, rotation, rotation);
+
 
         // todo: use key down and up to store the delta?
+        if(glfwGetKey(window.getWindowId(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+            movementSpeed = 35f;
+        else if(glfwGetKey(window.getWindowId(), GLFW_KEY_LEFT_ALT) == GLFW_PRESS)
+            movementSpeed = 2f;
+        else movementSpeed = 5f;
+
         if(glfwGetKey(window.getWindowId(), GLFW_KEY_A) == GLFW_PRESS)
             position.x += movementSpeed * timeDelta;
 
@@ -81,13 +105,19 @@ public class Controller implements EventDelegate {
         if(glfwGetKey(window.getWindowId(), GLFW_KEY_S) == GLFW_PRESS)
             position.z -= movementSpeed * timeDelta;
 
+        if(glfwGetKey(window.getWindowId(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+            position.y += movementSpeed * timeDelta;
+
+        if(glfwGetKey(window.getWindowId(), GLFW_KEY_SPACE) == GLFW_PRESS)
+            position.y -= movementSpeed * timeDelta;
+
         renderer.updateCamera(position, angle);
     }
 
     public void keyDown(int key) {
         System.out.println("key down: " + key);
         switch (key) {
-            case GLFW_KEY_SPACE:
+            case GLFW_KEY_R:
                 position.zero();
                 angle.zero();
                 break;
