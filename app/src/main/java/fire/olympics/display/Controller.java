@@ -41,6 +41,7 @@ public class Controller implements EventDelegate {
         loader.loadTexture("textures", "stadium_track.jpg");
         loader.loadTexture("textures", "stadium_wood.jpeg");
         loader.loadTexture("textures", "stadium_sky.jpg");
+        loader.loadTexture("textures", "stadium_lane.jpg");
         loader.loadTexture("textures", "ring+pole_brushed_metal.jpg");
 
         // adding to ArrayList with indices, to explicitly place objects in order
@@ -59,7 +60,7 @@ public class Controller implements EventDelegate {
         ));
 
         objects.add(3, new GameItemGroup(
-                loader.loadModel("models","ring.obj")
+                loader.loadModel("models","ring+pole.obj")
         ));
 
 
