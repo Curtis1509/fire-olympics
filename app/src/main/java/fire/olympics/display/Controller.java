@@ -3,7 +3,6 @@ package fire.olympics.display;
 import fire.olympics.graphics.ModelLoader;
 import java.util.ArrayList;
 
-import org.checkerframework.checker.units.qual.A;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -85,30 +84,29 @@ public class Controller implements EventDelegate {
         }
         objects.get(0).setRotation(rotation, rotation, rotation);
 
-
-        // todo: use key down and up to store the delta?
-        if(glfwGetKey(window.getWindowId(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        if (window.isKeyDown(GLFW_KEY_LEFT_SHIFT))
             movementSpeed = 35f;
-        else if(glfwGetKey(window.getWindowId(), GLFW_KEY_LEFT_ALT) == GLFW_PRESS)
+        else if (window.isKeyDown(GLFW_KEY_LEFT_ALT))
             movementSpeed = 2f;
-        else movementSpeed = 5f;
+        else
+            movementSpeed = 5f;
 
-        if(glfwGetKey(window.getWindowId(), GLFW_KEY_A) == GLFW_PRESS)
+        if (window.isKeyDown(GLFW_KEY_A))
             position.x += movementSpeed * timeDelta;
 
-        if(glfwGetKey(window.getWindowId(), GLFW_KEY_D) == GLFW_PRESS)
+        if (window.isKeyDown(GLFW_KEY_D))
             position.x -= movementSpeed * timeDelta;
 
-        if(glfwGetKey(window.getWindowId(), GLFW_KEY_W) == GLFW_PRESS)
+        if (window.isKeyDown(GLFW_KEY_W))
             position.z += movementSpeed * timeDelta;
 
-        if(glfwGetKey(window.getWindowId(), GLFW_KEY_S) == GLFW_PRESS)
+        if (window.isKeyDown(GLFW_KEY_S))
             position.z -= movementSpeed * timeDelta;
 
-        if(glfwGetKey(window.getWindowId(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+        if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL))
             position.y += movementSpeed * timeDelta;
 
-        if(glfwGetKey(window.getWindowId(), GLFW_KEY_SPACE) == GLFW_PRESS)
+        if (window.isKeyDown(GLFW_KEY_SPACE))
             position.y -= movementSpeed * timeDelta;
 
         renderer.updateCamera(position, angle);

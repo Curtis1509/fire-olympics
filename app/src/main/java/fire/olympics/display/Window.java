@@ -18,31 +18,91 @@ public class Window implements AutoCloseable {
     private static boolean mouseDisabled = false;
     private static long mouseDisabledOnWindowId = NULL;
 
-    private final String title;
+    /**
+     * OpenGL's internal window id.
+     */
+    private long windowId = NULL;
+
+
+    /**
+     * Stores the width of the window. Note that this is not necessarily the same as the opengl 
+     * viewport's width when the window is being resized.
+     */
     private int width;
+
+    /**
+     * Stores the height of the window. Note that this is not necessarily the same as the opengl 
+     * viewport's height when the window is being resized.
+     */
     private int height;
-    private long window = NULL;
+
+    /**
+     * Set to true when the window is hidden.
+     */
     private boolean isHidden = false;
+
+    /**
+     * Set to true when the window has been resized and false when the opengl viewport has been 
+     * adjusted to match the windows width and height.
+     */
     private boolean resized;
-    public EventDelegate eventDelegate;
+
     private Vector2f previousMousePosition;
 
     private double lastTime;
+    /**
+     * The number of times the update method has been called.
+     */
     private double nbFrames;
+
+    /**
+     * The average amount of time between update calls over at least a 1 second interval.
+     */
     private double frameTime;
+
+    /**
+     * The amount of time since the last update call.
+     */
     private double frameDelta = 0;
+
+    /**
+     * The total amount of time elapised that sums to less than one second. (This is used to update
+     * the window title approximately every second).
+     */
     private double timeLog = 0;
+
+    /**
+     * The average number of update calls per second.
+     */
     private double fps = 0;
 
+    /**
+     * The name of the window.
+     */
+    public String titlePrefix;
+
+    /**
+     * An object that can respond to window events such as:
+     * - Keyboard input
+     * - Mouse input
+     * - Updating the scene.
+     */
+    public EventDelegate eventDelegate;
+
     public Window(String title, int width, int height) {
-        this.title = title;
+        this.titlePrefix = title;
         this.width = width;
         this.height = height;
         this.resized = false;
     }
 
-    public long getWindowId() {
-        return window;
+    /**
+     * Returns {@code true} if the {@code key} is currently pressed and the focus is on this window.
+     * @param key A key code, for example {@code GLFW_KEY_A} or {@code GLFW_KEY_LEFT_CONTROL}.
+     * @return {@code true} if the key is pressed otherwise {@code false}.
+     */
+    public boolean isKeyDown(int key) {
+        return glfwGetKey(windowId, key) == GLFW_PRESS;
     }
 
     /**
@@ -58,13 +118,13 @@ public class Window implements AutoCloseable {
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
         // Create the window
-        window = glfwCreateWindow(width, height, title, NULL, NULL);
-        if (window == NULL) {
+        windowId = glfwCreateWindow(width, height, titlePrefix, NULL, NULL);
+        if (windowId == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
         }
 
         // Setup resize callback
-        glfwSetFramebufferSizeCallback(window, (window, width, height) -> {
+        glfwSetFramebufferSizeCallback(windowId, (window, width, height) -> {
             this.width = width;
             this.height = height;
             this.resized = true;
@@ -75,20 +135,20 @@ public class Window implements AutoCloseable {
 
         // Setup a key callback. It will be called every time a key is pressed, repeated
         // or released.
-        glfwSetKeyCallback(window, this::processKeyboardEvent);
-        glfwSetMouseButtonCallback(window, this::processMouseButtonEvents);
-        glfwSetCursorPosCallback(window, this::processMouseMovementEvents);
+        glfwSetKeyCallback(windowId, this::processKeyboardEvent);
+        glfwSetMouseButtonCallback(windowId, this::processMouseButtonEvents);
+        glfwSetCursorPosCallback(windowId, this::processMouseMovementEvents);
 
         // Get the resolution of the primary monitor
         GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
         if (vidmode != null) {
             // Center our window
-            glfwSetWindowPos(window, (vidmode.width() - width) / 2, (vidmode.height() - height) / 2);
+            glfwSetWindowPos(windowId, (vidmode.width() - width) / 2, (vidmode.height() - height) / 2);
         }
 
         // Make the OpenGL context current
-        glfwMakeContextCurrent(window);
+        glfwMakeContextCurrent(windowId);
 
         GL.createCapabilities();
         glEnable(GL_CULL_FACE);
@@ -104,7 +164,7 @@ public class Window implements AutoCloseable {
      * Shows the window.
      */
     public void showWindow() {
-        glfwShowWindow(window);
+        glfwShowWindow(windowId);
         isHidden = false;
     }
 
@@ -112,7 +172,7 @@ public class Window implements AutoCloseable {
      * Hides the window.
      */
     public void hideWindow() {
-        glfwHideWindow(window);
+        glfwHideWindow(windowId);
         isHidden = true;
     }
 
@@ -138,14 +198,13 @@ public class Window implements AutoCloseable {
             computeFrameDelta();
             if(eventDelegate != null)
                 eventDelegate.update(frameDelta);
-            renderer.render();
-            glfwSwapBuffers(window);
-            glfwSetWindowTitle(window, title + frameCounter(false));
             if (resized) {
                 glViewport(0, 0, width, height);
                 resized = false;
                 renderer.setAspectRatio(aspectRatio());
             }
+            renderer.render();
+            glfwSwapBuffers(windowId);
             done();
         }
         return shouldClose();
@@ -185,17 +244,17 @@ public class Window implements AutoCloseable {
     private Vector2f cursorPosition() {
         DoubleBuffer x = BufferUtils.createDoubleBuffer(1);
         DoubleBuffer y = BufferUtils.createDoubleBuffer(1);
-        glfwGetCursorPos(window, x, y);
+        glfwGetCursorPos(windowId, x, y);
         x.rewind();
         y.rewind();
         return new Vector2f((float)x.get(), (float)y.get());
     }
 
     public void close() {
-        if (window != NULL) {
+        if (windowId != NULL) {
             // Free the window callbacks and destroy the window
-            glfwFreeCallbacks(window);
-            glfwDestroyWindow(window);
+            glfwFreeCallbacks(windowId);
+            glfwDestroyWindow(windowId);
         }
     }
 
@@ -203,9 +262,7 @@ public class Window implements AutoCloseable {
         double currentTime = glfwGetTime();
         frameDelta = currentTime - lastTime;
         lastTime = currentTime;
-    }
 
-    private String frameCounter(boolean debug) {
         timeLog += frameDelta;
         nbFrames++;
 
@@ -213,57 +270,61 @@ public class Window implements AutoCloseable {
             frameTime = 1000 / nbFrames;
             fps = nbFrames / timeLog;
 
-            if (debug) {
-                System.out.println("Frametime: " + frameTime);
-                System.out.println("Fps: " + fps);
-            }
-
+            String fullTitle = String.format("%s | Frame Time: %.2fms | FPS: %.2f", titlePrefix, frameTime, fps);
+            glfwSetWindowTitle(windowId, fullTitle);
             nbFrames = 0;
             timeLog = 0;
         }
-        return String.format(" | Frametime: %.2f | FPS: %.2f", frameTime, fps);
     }
 
     public float aspectRatio() {
         return (float) width / height;
     }
 
+    /**
+     * Indicate that the window should close.
+     * @param value {@code true} if the window should be closed otherwise {@code false}.
+     */
     public void setShouldClose(boolean value) {
         // Note: GLFW may set this, for example, when the user clicks on the window's close button.
-        // To query the value use glfwWindowShouldClose().
-        glfwSetWindowShouldClose(window, value); 
+        glfwSetWindowShouldClose(windowId, value); 
     }
     
+    /**
+     * Checks to see whether the window should be closed.
+     * @return {@code true} if the window should be closed otherwise {@code false}.
+
+     */
     public boolean shouldClose() {
-        return glfwWindowShouldClose(window);
+        return glfwWindowShouldClose(windowId);
     }
 
     public void disableCursor() {
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetInputMode(windowId, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         mouseDisabled = true;
-        mouseDisabledOnWindowId = window;
+        mouseDisabledOnWindowId = windowId;
     }
 
     public void hideCursor() {
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+        glfwSetInputMode(windowId, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
         mouseDisabled = false;
         mouseDisabledOnWindowId = NULL;
     }
 
     public void restoreCursor() {
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        glfwSetInputMode(windowId, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         mouseDisabled = false;
         mouseDisabledOnWindowId = NULL;
     }
 
     public void restoreCursorIfDisabledOnWindow() {
-        if (mouseDisabled && window == mouseDisabledOnWindowId) {
+        if (mouseDisabled && windowId == mouseDisabledOnWindowId) {
             restoreCursor();
         }
     }
 
     public void use() {
-        glfwMakeContextCurrent(window);
+        glfwMakeContextCurrent(windowId);
     }
 
     public void done() {
