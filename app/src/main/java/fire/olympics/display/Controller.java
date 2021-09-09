@@ -110,6 +110,7 @@ public class Controller implements EventDelegate {
             position.y -= movementSpeed * timeDelta;
 
         renderer.updateCamera(position, angle);
+        renderer.particleSystem.update(timeDelta);
     }
 
     public void keyDown(int key) {

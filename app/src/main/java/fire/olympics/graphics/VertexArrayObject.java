@@ -2,11 +2,7 @@ package fire.olympics.graphics;
 
 import static org.lwjgl.opengl.GL33C.*;
 
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
-
-import org.lwjgl.system.MemoryUtil;
 
 /**
  * Stores variables needed to free the buffers when a VertexArrayObject is closed.
@@ -78,14 +74,10 @@ public class VertexArrayObject implements AutoCloseable {
         b.type = GL_ELEMENT_ARRAY_BUFFER;
         boundBuffers.add(b);
 
-        IntBuffer intBuffer = MemoryUtil.memAllocInt(buffer.length);
-        intBuffer.put(buffer).flip();
-
         use();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, b.gpuId);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer, usage);
         done();
-        MemoryUtil.memFree(intBuffer);
     }
 
     /**
@@ -103,9 +95,6 @@ public class VertexArrayObject implements AutoCloseable {
         b.type = GL_ARRAY_BUFFER;
         boundBuffers.add(b);
 
-        FloatBuffer floatBuffer = MemoryUtil.memAllocFloat(buffer.length);
-        floatBuffer.put(buffer).flip();
-
         use();
         glBindBuffer(b.type, b.gpuId);
         glBufferData(b.type, buffer, usage);
@@ -113,8 +102,17 @@ public class VertexArrayObject implements AutoCloseable {
         glVertexAttribPointer(index, componentCount, componentType, false, 0, 0);
         glBindBuffer(b.type, 0);
         done();
+    }
 
-        MemoryUtil.memFree(floatBuffer);
+    public void updateBuffer(int index, float[] buffer) {
+        for (BoundBuffer b : boundBuffers) {
+            if (b.vertexAttributeIndex == index) {
+                glBindBuffer(b.type, b.gpuId);
+                glBufferSubData(b.type, 0, buffer);
+                return;
+            }
+        }
+        throw new RuntimeException("Invalid vertex attribute index.");
     }
 
     public void use() {

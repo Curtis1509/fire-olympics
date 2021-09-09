@@ -3,6 +3,7 @@ package fire.olympics.graphics;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.file.Files;
@@ -51,6 +52,10 @@ public class ShaderProgram {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             glUniformMatrix4fv(uniforms.get(uniformName), false, value.get(stack.mallocFloat(16)));
         }
+    }
+
+    public void setUniform(String uniformName, Vector4f v) {
+        glUniform4f(uniforms.get(uniformName), v.x, v.y, v.z, v.w);
     }
 
     public void readCompileAndLink() throws Exception {

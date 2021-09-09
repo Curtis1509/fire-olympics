@@ -156,6 +156,13 @@ public class App implements AutoCloseable {
         textShaderProgram.createUniform("translation");
         textShaderProgram.validate();
 
+        ShaderProgram particleShader = new ShaderProgram(resource("shaders", "particle_system.vert"), resource("shaders", "particle_system.frag"));
+        particleShader.readCompileAndLink();;
+        particleShader.createUniform("projectionMatrix");
+        particleShader.createUniform("worldMatrix");
+        particleShader.createUniform("hotColor");
+        particleShader.createUniform("coldColor");
+
         Texture texture = Texture.loadPngTexture(resource("fonts", "fontfile.png"));
         FontType fontType = new FontType(resource("fonts", "fontfile.fnt"), texture);
 
@@ -163,7 +170,7 @@ public class App implements AutoCloseable {
         text.color.set(0.0f, 0.5f, 0.5f);
         TextMesh mesh = new TextMesh(text);
         ModelLoader loader = new ModelLoader(resourcePath);
-        Renderer renderer = new Renderer(program, programWithTexture, textShaderProgram);
+        Renderer renderer = new Renderer(program, programWithTexture, textShaderProgram, particleShader);
         renderer.addText(mesh);
         Controller controller = new Controller(window, renderer, loader);
         controllers.add(controller);

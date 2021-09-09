@@ -5,11 +5,11 @@ import org.joml.Vector3f;
 
 import fire.olympics.App;
 import fire.olympics.graphics.TextMesh;
+import fire.olympics.particles.ParticleSystem;
 import fire.olympics.graphics.ShaderProgram;
 
 import static org.lwjgl.opengl.GL33C.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class Renderer {
@@ -25,16 +25,19 @@ public class Renderer {
     private ShaderProgram program;
     private ShaderProgram programWithTexture;
     private ShaderProgram textShaderProgram;
+    private ShaderProgram particleShader;
     private Vector3f sunDirection = new Vector3f(0, 1, 1); // sun is behind and above camera
     private Matrix4f projectionMatrix = new Matrix4f();
     private Matrix4f worldMatrix = new Matrix4f();
     public Matrix4f camera = new Matrix4f();
     private final TextMeshCache textMeshCache = new TextMeshCache();
+    public ParticleSystem particleSystem = new ParticleSystem(100);
 
-    public Renderer(ShaderProgram program, ShaderProgram programWithTexture, ShaderProgram textShaderProgram) throws IOException {
+    public Renderer(ShaderProgram program, ShaderProgram programWithTexture, ShaderProgram textShaderProgram, ShaderProgram particleShader) {
         this.program = program;
         this.programWithTexture = programWithTexture;
         this.textShaderProgram = textShaderProgram;
+        this.particleShader = particleShader;
     }
 
     public void add(GameItem tree) {
@@ -111,6 +114,24 @@ public class Renderer {
         glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
+
+        particleShader.bind();
+        // Set world matrix for this item
+        Vector3f rotation = particleSystem.rotation;
+        worldMatrix
+                .translation(particleSystem.position)
+                .rotateAffineXYZ(
+                    (float) Math.toRadians(rotation.x),
+                    (float) Math.toRadians(rotation.y),
+                    (float) Math.toRadians(rotation.z))
+                .scale(particleSystem.scale);
+        worldMatrix.mulLocal(camera);
+        particleShader.setUniform("projectionMatrix", projectionMatrix);
+        particleShader.setUniform("worldMatrix", worldMatrix);
+        particleShader.setUniform("hotColor", particleSystem.hotColor);
+        particleShader.setUniform("coldColor", particleSystem.coldColor);
+        particleSystem.render();
+        particleShader.unbind();
     }
 
     private void render(ArrayList<GameItem> objects, Matrix4f worldMatrix, ShaderProgram program) {
