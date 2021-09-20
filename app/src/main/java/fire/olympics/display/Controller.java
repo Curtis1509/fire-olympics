@@ -18,12 +18,13 @@ public class Controller implements EventDelegate {
     public final Renderer renderer;
     public final Window window;
     private final ModelLoader loader;
+    private FollowCamera followCamera;
     private boolean mouseEnabled = true;
     private float movementSpeed = 5f;
     private Vector3f angle = new Vector3f();
     private Vector3f position = new Vector3f();
     private ArrayList<GameItemGroup> objects = new ArrayList<>();
-
+    private GameItemGroup arrow;
     public Controller(Window window, Renderer renderer, ModelLoader loader) {
         this.renderer = renderer;
         this.window = window;
@@ -75,18 +76,23 @@ public class Controller implements EventDelegate {
             for (GameItem item : object.getAll())
                 renderer.add(item);
         }
+
+        arrow = objects.get(0);
+        followCamera = new FollowCamera(arrow);
     }
 
     boolean enableFreeCamera = true;
-
     boolean keyVPrev = false;
+
+
+
     public void update(double timeDelta) {
-        // Update rotation angle of arrow
-        float rotation = (float) (objects.get(0).getRotation().y() + (timeDelta * 50));
-        if (rotation > 360) {
-            rotation = 0;
-        }
-        objects.get(0).setRotation(rotation, rotation, rotation);
+//        // Update rotation angle of arrow
+//        float rotation = (float) (objects.get(0).getRotation().y + (timeDelta * 50));
+//        if (rotation > 360) {
+//            rotation = 0;
+//        }
+//        objects.get(0).setRotation(rotation, rotation, rotation);
 
         // Enable or Disable free Camera
         boolean keyV = window.isKeyDown(GLFW_KEY_V);
@@ -98,14 +104,41 @@ public class Controller implements EventDelegate {
 
         // Check if freeCamera is enabled
         if (enableFreeCamera) {
-            freeCamera(timeDelta);
+            freeCameraControl(timeDelta);
+        } else {
+            followCameraControl(timeDelta);
+            followCamera.moveCamera();
+            renderer.updateCamera(followCamera.getPosition(), followCamera.getRotation());
         }
 
         renderer.particleSystem.update(timeDelta);
     }
 
+    public void followCameraControl(double timeDelta) {
+        if (window.isKeyDown(GLFW_KEY_W)) {
+            if (arrow.getRotation().x > 75) {
+                arrow.setRotX(75);
+            }
+            arrow.increaseRotX((float) (timeDelta * 25f));
+        } else if (window.isKeyDown(GLFW_KEY_S)) {
+            if (arrow.getRotation().x < -15) {
+                arrow.setRotX(-15);
+            }
+            arrow.increaseRotX((float) - (timeDelta * 25f));
+        }
+        if (window.isKeyDown(GLFW_KEY_A)) {
+            arrow.increaseRotY((float) (timeDelta * 50f));
+            arrow.setRotZ((float) (-(timeDelta * 100f)));
+        } else if (window.isKeyDown(GLFW_KEY_D)) {
+            arrow.increaseRotY((float) - (timeDelta * 50f));
+            arrow.setRotZ((float) ((timeDelta * 100f)));
+        } else {
+            arrow.setRotZ(0);
+        }
+    }
+
     // Controls for free Camera
-    public void freeCamera(double timeDelta) {
+    public void freeCameraControl(double timeDelta) {
         if (window.isKeyDown(GLFW_KEY_LEFT_SHIFT))
             movementSpeed = 35f;
         else if (window.isKeyDown(GLFW_KEY_LEFT_ALT))
