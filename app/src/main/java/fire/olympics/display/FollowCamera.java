@@ -11,9 +11,9 @@ public class FollowCamera {
     private float roll = 0;
 
     // This is how far the camera will be from the object
-    private final float distanceFromObject = 5;
+    private final float distanceFromObject = 10;
     // This is the angle that the camera will have above to arrow
-    private final float angleAboveObj = 10;
+    private final float angleAboveObj = 5;
 
     FollowCamera(GameItemGroup arrow) {
         this.arrow = arrow;
@@ -60,6 +60,6 @@ public class FollowCamera {
     }
 
     public Vector3f getRotation() {
-        return new Vector3f(-pitch, -yaw, roll);
+        return new Vector3f(pitch, yaw, roll);
     }
 }

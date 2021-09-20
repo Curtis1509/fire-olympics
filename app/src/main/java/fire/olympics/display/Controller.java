@@ -20,11 +20,14 @@ public class Controller implements EventDelegate {
     private final ModelLoader loader;
     private FollowCamera followCamera;
     private boolean mouseEnabled = true;
+    private boolean enableFreeCamera = true; // Used to determine if camera should be locked to arrow or not
+    private boolean keyVPrev = false; // Allows V key to toggle camera type
     private float movementSpeed = 5f;
     private Vector3f angle = new Vector3f();
     private Vector3f position = new Vector3f();
     private ArrayList<GameItemGroup> objects = new ArrayList<>();
     private GameItemGroup arrow;
+
     public Controller(Window window, Renderer renderer, ModelLoader loader) {
         this.renderer = renderer;
         this.window = window;
@@ -66,7 +69,7 @@ public class Controller implements EventDelegate {
 
 
         // setting initial positions
-        objects.get(0).setPosition(0, 0, -10);
+        objects.get(0).setPosition(0, 0, 10);
         objects.get(1).setPosition(0, -3, -10);
         objects.get(2).setPosition(0, -7, 0);
         objects.get(2).setScale(7);
@@ -81,11 +84,6 @@ public class Controller implements EventDelegate {
         followCamera = new FollowCamera(arrow);
     }
 
-    boolean enableFreeCamera = true;
-    boolean keyVPrev = false;
-
-
-
     public void update(double timeDelta) {
 //        // Update rotation angle of arrow
 //        float rotation = (float) (objects.get(0).getRotation().y + (timeDelta * 50));
@@ -98,7 +96,6 @@ public class Controller implements EventDelegate {
         boolean keyV = window.isKeyDown(GLFW_KEY_V);
         if(window.checkKeyState(GLFW_KEY_V, keyVPrev) == 1) {
             enableFreeCamera = !enableFreeCamera;
-            System.out.printf("Free Camera: %b", enableFreeCamera);
         }
         keyVPrev = keyV;
 
@@ -107,8 +104,20 @@ public class Controller implements EventDelegate {
             freeCameraControl(timeDelta);
         } else {
             followCameraControl(timeDelta);
+
+            double arrowSpeed = 25;
+
+            // Move player
+            float dx = (float) ((arrowSpeed * timeDelta) * Math.sin(Math.toRadians(arrow.getRotation().y)));
+            float dz = (float) ((arrowSpeed * timeDelta) * Math.cos(Math.toRadians(arrow.getRotation().y)));
+            arrow.movePosition(dx, 0 , dz);
+
+            float dy = (float) ((arrowSpeed * timeDelta) * Math.sin(Math.toRadians(arrow.getRotation().x)));
+            float dz2 = (float) ((arrowSpeed * timeDelta) * Math.cos(Math.toRadians(arrow.getRotation().x)));
+            arrow.movePosition(0, -dy, 0);
+
             followCamera.moveCamera();
-            renderer.updateCamera(followCamera.getPosition(), followCamera.getRotation());
+            renderer.updateCamera(followCamera.getPosition().negate(), followCamera.getRotation());
         }
 
         renderer.particleSystem.update(timeDelta);

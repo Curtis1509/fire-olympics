@@ -50,6 +50,14 @@ public class GameItemGroup {
             item.setPosition(x,y,z);
     }
 
+    public void movePosition(float offsetX, float offsetY, float offsetZ) {
+        for (GameItem item : group) {
+            item.getPosition().x += offsetX;
+            item.getPosition().y += offsetY;
+            item.getPosition().z += offsetZ;
+        }
+    }
+
     // gets the rotation of the GameItemGroup from the first GameItem
     // All GameItems in the group should have the same rotation
     public Vector3f getRotation() {

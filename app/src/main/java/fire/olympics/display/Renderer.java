@@ -147,11 +147,10 @@ public class Renderer {
             // Set world matrix for this item
             Vector3f rotation = object.getRotation();
             worldMatrix
-                    .translation(object.getPosition())
-                    .rotateAffineXYZ(
-                        (float) Math.toRadians(rotation.x),
-                        (float) Math.toRadians(rotation.y), 
-                        (float) Math.toRadians(rotation.z))
+                    .translation(object.getPosition()).
+                    rotate((float)Math.toRadians(rotation.y),0, 1, 0).
+                    rotate((float)Math.toRadians(rotation.z),0, 0, 1).
+                    rotate((float)Math.toRadians(rotation.x), 1, 0, 0)
                     .scale(object.getScale());
             worldMatrix.mulLocal(camera);
 
