@@ -68,6 +68,36 @@ public class GameItemGroup {
             item.setRotation(x,y,z);
     }
 
+    public void setRotX(float x) {
+        for (GameItem item : group)
+            item.getRotation().x = x;
+    }
+
+    public void setRotY(float y) {
+        for (GameItem item : group)
+            item.getRotation().y = y;
+    }
+
+    public void setRotZ(float z) {
+        for (GameItem item : group)
+            item.getRotation().z = z;
+    }
+
+    public void increaseRotX(float x) {
+        for (GameItem item : group)
+            item.getRotation().x += x;
+    }
+
+    public void increaseRotY(float y) {
+        for (GameItem item : group)
+            item.getRotation().y += y;
+    }
+
+    public void increaseRotZ(float z) {
+        for (GameItem item : group)
+            item.getRotation().z += z;
+    }
+
     // gets the scale of the GameItemGroup from the first GameItem
     // All GameItems in the group should have the same scale
     public float getScale() {
