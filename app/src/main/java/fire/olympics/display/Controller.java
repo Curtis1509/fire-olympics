@@ -77,14 +77,35 @@ public class Controller implements EventDelegate {
         }
     }
 
+    boolean enableFreeCamera = true;
+
+    boolean keyVPrev = false;
     public void update(double timeDelta) {
         // Update rotation angle of arrow
-        float rotation = objects.get(0).getRotation().y() + 0.5f;
+        float rotation = (float) (objects.get(0).getRotation().y() + (timeDelta * 50));
         if (rotation > 360) {
             rotation = 0;
         }
         objects.get(0).setRotation(rotation, rotation, rotation);
 
+        // Enable or Disable free Camera
+        boolean keyV = window.isKeyDown(GLFW_KEY_V);
+        if(window.checkKeyState(GLFW_KEY_V, keyVPrev) == 1) {
+            enableFreeCamera = !enableFreeCamera;
+            System.out.printf("Free Camera: %b", enableFreeCamera);
+        }
+        keyVPrev = keyV;
+
+        // Check if freeCamera is enabled
+        if (enableFreeCamera) {
+            freeCamera(timeDelta);
+        }
+
+        renderer.particleSystem.update(timeDelta);
+    }
+
+    // Controls for free Camera
+    public void freeCamera(double timeDelta) {
         if (window.isKeyDown(GLFW_KEY_LEFT_SHIFT))
             movementSpeed = 35f;
         else if (window.isKeyDown(GLFW_KEY_LEFT_ALT))
@@ -117,9 +138,9 @@ public class Controller implements EventDelegate {
         updateCameraPos(offsetX, offsetY, offsetZ);
 
         renderer.updateCamera(position, angle);
-        renderer.particleSystem.update(timeDelta);
     }
 
+    // Update camera position taking into account camera rotation
     public void updateCameraPos(float offsetX, float offsetY, float offsetZ) {
         if ( offsetZ != 0 ) {
             position.x += (float)Math.sin(Math.toRadians(angle.y)) * -1.0f * offsetZ;
@@ -136,14 +157,16 @@ public class Controller implements EventDelegate {
         System.out.println("key down: " + key);
         switch (key) {
             case GLFW_KEY_R:
-                position.zero();
-                angle.zero();
+                if (enableFreeCamera) {
+                    position.zero();
+                    angle.zero();
+                }
                 break;
             default:
                 return;
         }
 
-        renderer.updateCamera(position, angle);
+        if (enableFreeCamera) renderer.updateCamera(position, angle);
     }
 
     public void keyUp(int key) {
@@ -172,12 +195,15 @@ public class Controller implements EventDelegate {
         }
     }
 
+    // Adjust angle of camera to match mouse movement
     public void mouseMoved(Vector2f delta) {
-        if (!mouseEnabled) {
-            angle.y += delta.x / 10;
-            angle.x += delta.y / 10;
-        }
+        if (enableFreeCamera) {
+            if (!mouseEnabled) {
+                angle.y += delta.x / MOUSE_SENSITIVITY;
+                angle.x += delta.y / MOUSE_SENSITIVITY;
+            }
 
-        renderer.updateCamera(position, angle);
+            renderer.updateCamera(position, angle);
+        }
     }
 }

@@ -106,6 +106,24 @@ public class Window implements AutoCloseable {
     }
 
     /**
+     * Check if a key was either pressed then released or released then pressed.
+     * Allows a keystroke to only be recognised once.
+     * @param key A key code, for example {@code GLFW_KEY_A} or {@code GLFW_KEY_LEFT_CONTROL}.
+     * @param prevState Previous state of key, stored from {@code isKeyDown(int key)}
+     * @return 1 if key was press then released, 0 if key was released then pressed, -1 if neither
+     */
+    public int checkKeyState(int key, boolean prevState) {
+        // Key was pressed then released
+        if (glfwGetKey(windowId, key) == GLFW_RELEASE && prevState) {
+            return 1;
+        }
+        // Key was released then pressed again
+        else if (glfwGetKey(windowId, key) == GLFW_PRESS && !prevState) {
+            return 0;
+        }
+        return -1; // If prevState matches key action
+    }
+    /**
      * Initialises the OpenGL graphics context.
      */
     public void init() {
@@ -177,8 +195,8 @@ public class Window implements AutoCloseable {
     }
 
     /**
-     * Returns {@code true} whether the window is hidden.
-     * @return
+     * Returns whether the window is hidden.
+     * @return {@code true} when window is hidden
      */
     public boolean isHidden() {
         return isHidden;
