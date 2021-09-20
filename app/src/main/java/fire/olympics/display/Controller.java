@@ -14,6 +14,7 @@ import static org.lwjgl.glfw.GLFW.*;
  * 2. How are things in the scene updated as a result of user interaction?
  */
 public class Controller implements EventDelegate {
+    private static final float MOUSE_SENSITIVITY = 5;
     public final Renderer renderer;
     public final Window window;
     private final ModelLoader loader;
@@ -21,7 +22,7 @@ public class Controller implements EventDelegate {
     private float movementSpeed = 5f;
     private Vector3f angle = new Vector3f();
     private Vector3f position = new Vector3f();
-    private ArrayList<GameItemGroup> objects = new ArrayList<GameItemGroup>();
+    private ArrayList<GameItemGroup> objects = new ArrayList<>();
 
     public Controller(Window window, Renderer renderer, ModelLoader loader) {
         this.renderer = renderer;
@@ -91,26 +92,44 @@ public class Controller implements EventDelegate {
         else
             movementSpeed = 5f;
 
+        float offsetX = 0;
+        float offsetY = 0;
+        float offsetZ = 0;
+
         if (window.isKeyDown(GLFW_KEY_A))
-            position.x += movementSpeed * timeDelta;
+            offsetX += movementSpeed * timeDelta;
 
         if (window.isKeyDown(GLFW_KEY_D))
-            position.x -= movementSpeed * timeDelta;
+            offsetX -= movementSpeed * timeDelta;
 
         if (window.isKeyDown(GLFW_KEY_W))
-            position.z += movementSpeed * timeDelta;
+            offsetZ += movementSpeed * timeDelta;
 
         if (window.isKeyDown(GLFW_KEY_S))
-            position.z -= movementSpeed * timeDelta;
+            offsetZ -= movementSpeed * timeDelta;
 
         if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL))
-            position.y += movementSpeed * timeDelta;
+            offsetY += movementSpeed * timeDelta;
 
         if (window.isKeyDown(GLFW_KEY_SPACE))
-            position.y -= movementSpeed * timeDelta;
+            offsetY -= movementSpeed * timeDelta;
+
+        updateCameraPos(offsetX, offsetY, offsetZ);
 
         renderer.updateCamera(position, angle);
         renderer.particleSystem.update(timeDelta);
+    }
+
+    public void updateCameraPos(float offsetX, float offsetY, float offsetZ) {
+        if ( offsetZ != 0 ) {
+            position.x += (float)Math.sin(Math.toRadians(angle.y)) * -1.0f * offsetZ;
+            position.z += (float)Math.cos(Math.toRadians(angle.y)) * offsetZ;
+        }
+        if ( offsetX != 0) {
+            position.x += (float)Math.sin(Math.toRadians(angle.y - 90)) * -1.0f * offsetX;
+            position.z += (float)Math.cos(Math.toRadians(angle.y - 90)) * offsetX;
+        }
+        position.y += offsetY;
     }
 
     public void keyDown(int key) {
@@ -155,8 +174,8 @@ public class Controller implements EventDelegate {
 
     public void mouseMoved(Vector2f delta) {
         if (!mouseEnabled) {
-            angle.y += delta.x / 1000;
-            angle.x += delta.y / 1000;
+            angle.y += delta.x / 10;
+            angle.x += delta.y / 10;
         }
 
         renderer.updateCamera(position, angle);

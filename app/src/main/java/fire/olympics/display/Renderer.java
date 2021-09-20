@@ -56,8 +56,12 @@ public class Renderer {
     public void updateCamera(Vector3f position, Vector3f angle) {
         Matrix4f translation = new Matrix4f().translation(position);
         camera.identity();
-        camera.setRotationXYZ(angle.x, angle.y, angle.z);
+        camera.rotate((float) Math.toRadians(angle.x), new Vector3f(1, 0, 0));
+        camera.rotate((float) Math.toRadians(angle.y), new Vector3f(0, 1, 0));
+        camera.rotate((float) Math.toRadians(angle.z), new Vector3f(0, 0, 1));
         camera.mul(translation);
+
+
     }
 
     public void setAspectRatio(float ratio) {
