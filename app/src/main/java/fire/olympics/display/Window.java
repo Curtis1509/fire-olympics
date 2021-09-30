@@ -232,9 +232,9 @@ public class Window implements AutoCloseable {
     private void processKeyboardEvent(long window, int key, int scancode, int action, int mods) {
         if (eventDelegate != null) {
             if (action == GLFW_PRESS) {
-                eventDelegate.keyDown(key);
+                eventDelegate.keyDown(key, mods);
             } else if (action == GLFW_RELEASE) {
-                eventDelegate.keyUp(key);
+                eventDelegate.keyUp(key, mods);
             }
         }
     }

@@ -27,7 +27,7 @@ public class TextController extends Controller {
     }
 
     @Override
-    public void keyDown(int key) {
+    public void keyDown(int key, int mods) {
         switch (key) {
         case GLFW_KEY_BACKSPACE:
             if (text.value.length() > 0) {

@@ -35,17 +35,19 @@ public class Controller {
 
     }
 
-    public void keyDown(int key) {
+    public void keyDown(int key, int mods) {
 
     }
 
-    public void keyUp(int key) {
+    public void keyUp(int key, int mods) {
         switch (key) {
             case GLFW_KEY_ESCAPE:
                 window.setShouldClose(true);
                 break;
             case GLFW_KEY_0:
-                app.addTextController();
+                if (mods == GLFW_MOD_SUPER) {
+                    app.addTextController();
+                }
                 break;
         }
     }

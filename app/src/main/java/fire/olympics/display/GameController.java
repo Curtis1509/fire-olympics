@@ -185,7 +185,7 @@ public class GameController extends Controller {
     }
 
     @Override
-    public void keyDown(int key) {
+    public void keyDown(int key, int mods) {
         System.out.println("key down: " + key);
         switch (key) {
             case GLFW_KEY_R:
@@ -202,9 +202,9 @@ public class GameController extends Controller {
     }
 
     @Override
-    public void keyUp(int key) {
+    public void keyUp(int key, int mods) {
         System.out.println("key up: " + key);
-        super.keyUp(key);
+        super.keyUp(key, mods);
     }
 
     @Override
