@@ -7,7 +7,7 @@ import fire.olympics.graphics.ModelLoader;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class Controller implements EventDelegate {
+public class Controller {
     public final Renderer renderer;
     public final Window window;
     protected final ModelLoader loader;
@@ -31,17 +31,14 @@ public class Controller implements EventDelegate {
 
     }
 
-    @Override
     public void update(double timeDelta) {
 
     }
 
-    @Override
     public void keyDown(int key) {
 
     }
 
-    @Override
     public void keyUp(int key) {
         switch (key) {
             case GLFW_KEY_ESCAPE:
@@ -53,17 +50,18 @@ public class Controller implements EventDelegate {
         }
     }
 
-    @Override
+    public void keyboardInput(String unicodeCharacter) {
+
+    }
+
     public void mouseDown(Vector2f position, int button) {
 
     }
 
-    @Override
     public void mouseUp(Vector2f position, int button) {
 
     }
 
-    @Override
     public void mouseMoved(Vector2f delta) {
 
     }

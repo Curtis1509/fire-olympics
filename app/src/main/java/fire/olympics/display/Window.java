@@ -87,7 +87,7 @@ public class Window implements AutoCloseable {
      * - Mouse input
      * - Updating the scene.
      */
-    public EventDelegate eventDelegate;
+    public Controller eventDelegate;
 
     public Window(String title, int width, int height) {
         this.titlePrefix = title;
@@ -154,6 +154,7 @@ public class Window implements AutoCloseable {
         // Setup a key callback. It will be called every time a key is pressed, repeated
         // or released.
         glfwSetKeyCallback(windowId, this::processKeyboardEvent);
+        glfwSetCharCallback(windowId, this::processKeyboardInput);
         glfwSetMouseButtonCallback(windowId, this::processMouseButtonEvents);
         glfwSetCursorPosCallback(windowId, this::processMouseMovementEvents);
 
@@ -235,6 +236,12 @@ public class Window implements AutoCloseable {
             } else if (action == GLFW_RELEASE) {
                 eventDelegate.keyUp(key);
             }
+        }
+    }
+
+    private void processKeyboardInput(long window, int codepoint) {
+        if (eventDelegate != null) {
+            eventDelegate.keyboardInput(Character.toString(codepoint));
         }
     }
 

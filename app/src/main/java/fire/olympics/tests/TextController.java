@@ -12,29 +12,27 @@ import fire.olympics.graphics.ModelLoader;
 import fire.olympics.graphics.TextMesh;
 
 public class TextController extends Controller {
-
-    private final FontType fontType;
+    private TextMesh mesh;
+    private GUIText text;
 
     public TextController(App app, Window window, Renderer renderer, ModelLoader loader, FontType fontType) {
         super(app, window, renderer, loader);
-        this.fontType = fontType;
-    }
-
-    public void load() {
-        GUIText text = new GUIText("Text", 5, fontType, new Vector2f(0f, 0f), 1f, true);
+        this.text = new GUIText("", 5, fontType, new Vector2f(0f, 0f), 1f, true);
         text.color.set(0.0f, 0.5f, 0.5f);
-        TextMesh mesh = new TextMesh(text);
+        mesh = new TextMesh(text);
         renderer.addText(mesh);
     }
 
     @Override
     public void update(double timeDelta) {
-        
+
     }
 
     @Override
-    public void keyDown(int key) {
-        
-    }
-
+    public void keyboardInput(String unicodeCharacter) {
+        System.out.println(unicodeCharacter);
+        String t = text.text();
+        String newT = t + unicodeCharacter;
+        text.set(newT);
+   }
 }

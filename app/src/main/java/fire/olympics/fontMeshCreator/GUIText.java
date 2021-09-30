@@ -68,4 +68,8 @@ public class GUIText {
     public String text() {
         return textString;
     }
+
+    public void set(String text) {
+        this.textString = text;
+    }
 }
