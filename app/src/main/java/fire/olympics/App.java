@@ -87,18 +87,6 @@ public class App implements AutoCloseable {
      *    the cursor affects all windows.
      */
     public void mainLoop() {
-        for (Controller c : controllers) {
-            try {
-                c.window.use();
-                c.load();
-                c.renderer.setAspectRatio(c.window.aspectRatio());
-                c.window.done();
-                c.window.showWindow();
-            } catch (Exception e) {
-                System.out.println("error loading window: " + e);
-            }
-        }
-
         ArrayList<Window> closedWindows = new ArrayList<>();
         while (controllers.size() > 0) {
             for (Controller controller : controllers) {
@@ -118,6 +106,18 @@ public class App implements AutoCloseable {
             }
 
             glfwPollEvents(); // i.e. processKeyboardEvents() for all windows
+        }
+    }
+
+    private void setupController(Controller c) {
+        try {
+            c.window.use();
+            c.load();
+            c.renderer.setAspectRatio(c.window.aspectRatio());
+            c.window.done();
+            c.window.showWindow();
+        } catch (Exception e) {
+            System.out.println("error loading window: " + e);
         }
     }
 
@@ -172,10 +172,12 @@ public class App implements AutoCloseable {
         ModelLoader loader = new ModelLoader(resourcePath);
         Renderer renderer = new Renderer(program, programWithTexture, textShaderProgram, particleShader);
         renderer.addText(mesh);
-        Controller controller = new Controller(window, renderer, loader);
+        GameController controller = new GameController(this, window, renderer, loader);
         controllers.add(controller);
 
         window.done();
+
+        setupController(controller);
     }
 
     /**

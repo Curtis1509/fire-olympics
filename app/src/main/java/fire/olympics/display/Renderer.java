@@ -92,50 +92,59 @@ public class Renderer {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Start issueing render commands.
-        program.bind();
-        render(gameItemsWithOutTextures, worldMatrix, program);
-        program.unbind();
+        if (program != null) {
+            program.bind();
+            render(gameItemsWithOutTextures, worldMatrix, program);
+            program.unbind();
+        }
 
-        programWithTexture.bind();
-        render(gameItemsWithTextures, worldMatrix, programWithTexture);
-        programWithTexture.unbind();   
+        if (programWithTexture != null) {
+            programWithTexture.bind();
+            render(gameItemsWithTextures, worldMatrix, programWithTexture);
+            programWithTexture.unbind();
+        }
         App.checkError("1");
 
-        glDisable(GL_CULL_FACE);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glDisable(GL_DEPTH_TEST);
-        textShaderProgram.bind();
-        for (TextMesh meshText : text) {
-            glActiveTexture(GL_TEXTURE0);
-            meshText.getFontTexture().bind();
-            textShaderProgram.setUniform("colour", meshText.getColor());
-            textShaderProgram.setUniform("translation", meshText.getPosition());
-            meshText.render();
-            meshText.getFontTexture().unbind();
-        }
-        textShaderProgram.unbind();
-        glDisable(GL_BLEND);
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_CULL_FACE);
 
-        particleShader.bind();
-        // Set world matrix for this item
-        Vector3f rotation = particleSystem.rotation;
-        worldMatrix
-                .translation(particleSystem.position)
-                .rotateAffineXYZ(
-                    (float) Math.toRadians(rotation.x),
-                    (float) Math.toRadians(rotation.y),
-                    (float) Math.toRadians(rotation.z))
-                .scale(particleSystem.scale);
-        worldMatrix.mulLocal(camera);
-        particleShader.setUniform("projectionMatrix", projectionMatrix);
-        particleShader.setUniform("worldMatrix", worldMatrix);
-        particleShader.setUniform("hotColor", particleSystem.hotColor);
-        particleShader.setUniform("coldColor", particleSystem.coldColor);
-        particleSystem.render();
-        particleShader.unbind();
+        if (textShaderProgram != null) {
+            glDisable(GL_CULL_FACE);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glDisable(GL_DEPTH_TEST);
+            textShaderProgram.bind();
+            for (TextMesh meshText : text) {
+                glActiveTexture(GL_TEXTURE0);
+                meshText.getFontTexture().bind();
+                textShaderProgram.setUniform("colour", meshText.getColor());
+                textShaderProgram.setUniform("translation", meshText.getPosition());
+                meshText.render();
+                meshText.getFontTexture().unbind();
+            }
+            textShaderProgram.unbind();
+            glDisable(GL_BLEND);
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
+        }
+
+        if (particleShader != null) {
+            particleShader.bind();
+            // Set world matrix for this item
+            Vector3f rotation = particleSystem.rotation;
+            worldMatrix
+                    .translation(particleSystem.position)
+                    .rotateAffineXYZ(
+                        (float) Math.toRadians(rotation.x),
+                        (float) Math.toRadians(rotation.y),
+                        (float) Math.toRadians(rotation.z))
+                    .scale(particleSystem.scale);
+            worldMatrix.mulLocal(camera);
+            particleShader.setUniform("projectionMatrix", projectionMatrix);
+            particleShader.setUniform("worldMatrix", worldMatrix);
+            particleShader.setUniform("hotColor", particleSystem.hotColor);
+            particleShader.setUniform("coldColor", particleSystem.coldColor);
+            particleSystem.render();
+            particleShader.unbind();
+        }
     }
 
     private void render(ArrayList<GameItem> objects, Matrix4f worldMatrix, ShaderProgram program) {
