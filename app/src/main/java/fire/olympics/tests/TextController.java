@@ -1,7 +1,5 @@
 package fire.olympics.tests;
 
-import org.joml.Vector2f;
-
 import static org.lwjgl.glfw.GLFW.*;
 
 import fire.olympics.App;

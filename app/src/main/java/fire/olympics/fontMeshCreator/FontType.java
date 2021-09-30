@@ -122,7 +122,8 @@ public class FontType {
     private double spaceWidth(double aspectRatio, double lineHeight) {
         double verticalPerPixelSize = lineHeight / (double) this.lineHeight;
         double horizontalPerPixelSize = verticalPerPixelSize / aspectRatio;
-        return (characters.get(32).xadvance - padding.width()) / horizontalPerPixelSize;
+        double value = (characters.get(32).xadvance - padding.width()) * horizontalPerPixelSize;
+        return value;
     }
 
     /**
@@ -171,12 +172,16 @@ public class FontType {
         Word currentWord = new Word(text.fontSize);
         for (char c : chars) {
             int ascii = (int) c;
-            if (ascii == 32 /* i.e. space */) {
+            if (ascii == ' ' || ascii == '\n' || ascii == '\t' || ascii == '\r') {
                 boolean added = currentLine.attemptToAddWord(currentWord);
                 if (!added) {
                     lines.add(currentLine);
                     currentLine = new Line(spaceWidth(aspectRatio, text.lineHeight), text.fontSize, text.lineMaxSize);
                     currentLine.attemptToAddWord(currentWord);
+                }
+                if (ascii == '\n') {
+                    lines.add(currentLine);
+                    currentLine = new Line(spaceWidth(aspectRatio, text.lineHeight), text.fontSize, text.lineMaxSize);
                 }
                 currentWord = new Word(text.fontSize);
                 continue;

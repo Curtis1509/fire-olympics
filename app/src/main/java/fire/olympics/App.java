@@ -17,7 +17,6 @@ import static org.lwjgl.opengl.GL33C.*;
 import org.lwjgl.*;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import static org.lwjgl.glfw.GLFW.*;
-import org.joml.Vector2f;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
