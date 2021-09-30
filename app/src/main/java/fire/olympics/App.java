@@ -11,6 +11,8 @@ import fire.olympics.graphics.ModelLoader;
 import fire.olympics.graphics.ShaderProgram;
 import fire.olympics.graphics.Texture;
 
+import fire.olympics.tests.TextController;
+
 import static org.lwjgl.opengl.GL33C.*;
 
 import org.lwjgl.*;
@@ -178,6 +180,35 @@ public class App implements AutoCloseable {
         window.done();
 
         setupController(controller);
+    }
+
+    public void addTextController() {
+        Window window = new Window("Text Tests", 800, 600);
+        window.init();
+        window.use();
+        try {
+            ShaderProgram textShaderProgram = new ShaderProgram(resource("shaders", "shader_for_text.vert"), resource("shaders", "shader_for_text.frag"));
+            textShaderProgram.readCompileAndLink();
+            textShaderProgram.createUniform("colour");
+            textShaderProgram.createUniform("translation");
+            textShaderProgram.validate();
+            
+            ModelLoader loader = new ModelLoader(resourcePath);
+            Renderer renderer = new Renderer(null, null, textShaderProgram, null);
+
+            Texture texture = Texture.loadPngTexture(resource("fonts", "fontfile.png"));
+            FontType fontType = new FontType(resource("fonts", "fontfile.fnt"), texture);
+
+            TextController controller = new TextController(this, window, renderer, loader, fontType);
+            controllers.add(controller);
+            setupController(controller);
+        } catch (Exception e) {
+            System.out.println("Error occured while initailasing TextContreller.");
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        } finally {
+            window.done();
+        }
     }
 
     /**

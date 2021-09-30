@@ -47,6 +47,9 @@ public class Controller implements EventDelegate {
             case GLFW_KEY_ESCAPE:
                 window.setShouldClose(true);
                 break;
+            case GLFW_KEY_0:
+                app.addTextController();
+                break;
         }
     }
 
