@@ -3,6 +3,8 @@ package fire.olympics.fontMeshCreator;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
+import fire.olympics.graphics.TextMesh;
+
 /**
  * Represents a piece of text in the game.
  */
@@ -21,6 +23,8 @@ public class GUIText {
     public final Vector2f position;
     public float lineMaxSize;
     public FontType font;
+
+    private TextMesh mesh;
 
     /**
      * @return {@code true} if the text should be centered.
@@ -71,5 +75,12 @@ public class GUIText {
 
     public void set(String text) {
         this.textString = text;
+    }
+
+    public void setMesh(TextMesh mesh) {
+        if (this.mesh != null) {
+            throw new RuntimeException("error: attempting to render gui text multiple times is not well defined.");
+        }
+        this.mesh = mesh;
     }
 }

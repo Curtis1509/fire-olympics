@@ -6,7 +6,6 @@ package fire.olympics;
 import fire.olympics.display.*;
 import fire.olympics.fontMeshCreator.GUIText;
 import fire.olympics.fontMeshCreator.FontType;
-import fire.olympics.graphics.TextMesh;
 import fire.olympics.graphics.ModelLoader;
 import fire.olympics.graphics.ShaderProgram;
 import fire.olympics.graphics.Texture;
@@ -170,10 +169,9 @@ public class App implements AutoCloseable {
 
         GUIText text = new GUIText("FIRE OLYMPICS", 5, fontType, new Vector2f(0f, 0f), 1f, true);
         text.color.set(0.0f, 0.5f, 0.5f);
-        TextMesh mesh = new TextMesh(text);
         ModelLoader loader = new ModelLoader(resourcePath);
         Renderer renderer = new Renderer(program, programWithTexture, textShaderProgram, particleShader);
-        renderer.addText(mesh);
+        renderer.addText(text);
         GameController controller = new GameController(this, window, renderer, loader);
         controllers.add(controller);
 

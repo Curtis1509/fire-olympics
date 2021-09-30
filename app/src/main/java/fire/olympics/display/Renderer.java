@@ -5,6 +5,7 @@ import org.joml.Vector3f;
 
 import fire.olympics.App;
 import fire.olympics.graphics.TextMesh;
+import fire.olympics.fontMeshCreator.GUIText;
 import fire.olympics.particles.ParticleSystem;
 import fire.olympics.graphics.ShaderProgram;
 
@@ -16,10 +17,10 @@ public class Renderer {
     private float FOV = (float) Math.toRadians(60.0f);
     private float z_near = 0.01f;
     private float z_far = 1000.f;
-    private ArrayList<GameItem> gameItems = new ArrayList<>();
-    private ArrayList<GameItem> gameItemsWithTextures = new ArrayList<>();
-    private ArrayList<GameItem> gameItemsWithOutTextures = new ArrayList<>();
-    private ArrayList<TextMesh> text = new ArrayList<>();
+    private final ArrayList<GameItem> gameItems = new ArrayList<>();
+    private final ArrayList<GameItem> gameItemsWithTextures = new ArrayList<>();
+    private final ArrayList<GameItem> gameItemsWithOutTextures = new ArrayList<>();
+    private final ArrayList<TextMesh> textMeshes = new ArrayList<>();
 
     private float aspectRatio = 1.0f;
     private ShaderProgram program;
@@ -30,7 +31,6 @@ public class Renderer {
     private Matrix4f projectionMatrix = new Matrix4f();
     private Matrix4f worldMatrix = new Matrix4f();
     public Matrix4f camera = new Matrix4f();
-    private final TextMeshCache textMeshCache = new TextMeshCache();
     public ParticleSystem particleSystem = new ParticleSystem(100);
 
     public Renderer(ShaderProgram program, ShaderProgram programWithTexture, ShaderProgram textShaderProgram, ShaderProgram particleShader) {
@@ -49,10 +49,10 @@ public class Renderer {
         }
     }
 
-    public void addText(TextMesh textMesh) {
-        text.add(textMesh); 
-        textMeshCache.register(textMesh);
+    public void addText(GUIText text) {
+        textMeshes.add(new TextMesh(text));
     }
+
     public void updateCamera(Vector3f position, Vector3f angle) {
         Matrix4f translation = new Matrix4f().translation(position);
         camera.identity();
@@ -60,14 +60,14 @@ public class Renderer {
         camera.rotate((float) Math.toRadians(angle.y), new Vector3f(0, 1, 0));
         camera.rotate((float) Math.toRadians(angle.z), new Vector3f(0, 0, 1));
         camera.mul(translation);
-
-
     }
 
     public void setAspectRatio(float ratio) {
         aspectRatio = ratio;
         recalculateProjectionMatrix();
-        textMeshCache.recalculate(ratio);
+        for (TextMesh mesh : textMeshes) {
+            mesh.recalculate(aspectRatio);
+        }
     }
 
     public void setFieldOfView(float fov) {
@@ -112,7 +112,7 @@ public class Renderer {
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glDisable(GL_DEPTH_TEST);
             textShaderProgram.bind();
-            for (TextMesh meshText : text) {
+            for (TextMesh meshText : textMeshes) {
                 glActiveTexture(GL_TEXTURE0);
                 meshText.getFontTexture().bind();
                 textShaderProgram.setUniform("colour", meshText.getColor());
