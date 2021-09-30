@@ -165,7 +165,7 @@ public class FontType {
     }
 
     private ArrayList<Line> createStructure(GUIText text, double aspectRatio) {
-        char[] chars = text.text().toCharArray();
+        char[] chars = text.value.toCharArray();
         ArrayList<Line> lines = new ArrayList<Line>();
         Line currentLine = new Line(spaceWidth(aspectRatio, text.lineHeight), text.fontSize, text.lineMaxSize);
         Word currentWord = new Word(text.fontSize);

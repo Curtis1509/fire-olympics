@@ -107,8 +107,23 @@ public class VertexArrayObject implements AutoCloseable {
     public void updateBuffer(int index, float[] buffer) {
         for (BoundBuffer b : boundBuffers) {
             if (b.vertexAttributeIndex == index) {
+                use();
                 glBindBuffer(b.type, b.gpuId);
                 glBufferSubData(b.type, 0, buffer);
+                done();
+                return;
+            }
+        }
+        throw new RuntimeException("Invalid vertex attribute index.");
+    }
+
+    public void discardAndBindBuffer(int index, float[] buffer) {
+        for (BoundBuffer b : boundBuffers) {
+            if (b.vertexAttributeIndex == index) {
+                use();
+                glBindBuffer(b.type, b.gpuId);
+                glBufferData(b.type, buffer, GL_STATIC_DRAW);
+                done();
                 return;
             }
         }

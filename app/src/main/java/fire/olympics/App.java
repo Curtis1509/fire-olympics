@@ -167,7 +167,9 @@ public class App implements AutoCloseable {
         Texture texture = Texture.loadPngTexture(resource("fonts", "fontfile.png"));
         FontType fontType = new FontType(resource("fonts", "fontfile.fnt"), texture);
 
-        GUIText text = new GUIText("FIRE OLYMPICS", 5, fontType, new Vector2f(0f, 0f), 1f, true);
+        GUIText text = new GUIText(fontType, "FIRE OLYMPICS");
+        text.fontSize = 5.0f;
+        text.isCentered = true;
         text.color.set(0.0f, 0.5f, 0.5f);
         ModelLoader loader = new ModelLoader(resourcePath);
         Renderer renderer = new Renderer(program, programWithTexture, textShaderProgram, particleShader);

@@ -10,46 +10,46 @@ import org.joml.Vector3f;
 public class TextMesh {
     private VertexArrayObject vao;
     private GUIText text;
-    private TextMeshData data;
+    private int vertexCount = 0;
     private float aspectRatio = 1.0f;
     private String renderedText = null;
 
     public TextMesh(GUIText text) {
         this.text = text;
         vao = new VertexArrayObject();
-        text.setMesh(this);
+        TextMeshData data = text.font.createTextMesh(text, aspectRatio);
+        vao.use();
+        vao.bindFloats(data.getVertexPositions(), 0, GL_STATIC_DRAW, 2, GL_FLOAT);
+        vao.bindFloats(data.getTextureCoords(), 1, GL_STATIC_DRAW, 2, GL_FLOAT);
+        vao.done();
+        vertexCount = data.getVertexCount();
     }
 
     public Texture getFontTexture() {
         return text.font.texture;
     }
 
-    private void setTextMeshData(TextMeshData data) {
-        vao.use();
-        this.data = data;
-        vao.bindFloats(data.getVertexPositions(), 0, GL_STATIC_DRAW, 2, GL_FLOAT);
-        vao.bindFloats(data.getTextureCoords(), 1, GL_STATIC_DRAW, 2, GL_FLOAT);
-        vao.done();
-    }
-
     public void recalculate(float aspectRatio) {
         if (aspectRatio != this.aspectRatio) {
             this.aspectRatio = aspectRatio;
-            setTextMeshData(text.font.createTextMesh(text, aspectRatio));
+            updateData();
         }
     }
 
-    public void updateData() {
-        setTextMeshData(text.font.createTextMesh(text, aspectRatio));
+    private void updateData() {
+        TextMeshData data = text.font.createTextMesh(text, aspectRatio);
+        vao.discardAndBindBuffer(0, data.getVertexPositions());
+        vao.discardAndBindBuffer(1, data.getTextureCoords());
+        vertexCount = data.getVertexCount();
     }
 
     public void render() {
-        if (renderedText != text.text()) {
-            renderedText = text.text();
+        if (renderedText != text.value) {
+            renderedText = text.value;
             updateData();
         }
         vao.use();
-        glDrawArrays(GL_TRIANGLES, 0, data.getVertexCount());
+        glDrawArrays(GL_TRIANGLES, 0, vertexCount);
         vao.done();
     }
 
