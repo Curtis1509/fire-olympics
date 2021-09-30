@@ -134,33 +134,37 @@ public class App implements AutoCloseable {
         window.use();
         System.out.println(window.openGlVersion());
 
-        Path vertPath = resource("shaders", "shader.vert");
-        Path fragPath = resource("shaders", "shader.frag");
-
-        ShaderProgram program = new ShaderProgram(vertPath, fragPath);
-        program.readCompileAndLink();
+        ShaderProgram program = new ShaderProgram();
+        program.load(GL_VERTEX_SHADER, resource("shaders", "shader.vert"));
+        program.load(GL_FRAGMENT_SHADER, resource("shaders", "shader.frag"));
+        program.link();
         program.createUniform("projectionMatrix");
         program.createUniform("worldMatrix");
         program.createUniform("sun");
         program.validate();
 
-        ShaderProgram programWithTexture = new ShaderProgram(resource("shaders", "shader_with_texture.vert"),
-                resource("shaders", "shader_with_texture.frag"));
-        programWithTexture.readCompileAndLink();
+        ShaderProgram programWithTexture = new ShaderProgram();
+        programWithTexture.load(GL_VERTEX_SHADER, resource("shaders", "shader_with_texture.vert"));
+        programWithTexture.load(GL_FRAGMENT_SHADER, resource("shaders", "shader_with_texture.frag"));
+        programWithTexture.link();
         programWithTexture.createUniform("projectionMatrix");
         programWithTexture.createUniform("worldMatrix");
         programWithTexture.createUniform("sun");
         programWithTexture.createUniform("texture_sampler");
         programWithTexture.validate();
 
-        ShaderProgram textShaderProgram = new ShaderProgram(resource("shaders", "shader_for_text.vert"), resource("shaders", "shader_for_text.frag"));
-        textShaderProgram.readCompileAndLink();
+        ShaderProgram textShaderProgram = new ShaderProgram();
+        textShaderProgram.load(GL_VERTEX_SHADER, resource("shaders", "shader_for_text.vert"));
+        textShaderProgram.load(GL_FRAGMENT_SHADER, resource("shaders", "shader_for_text.frag"));
+        textShaderProgram.link();
         textShaderProgram.createUniform("colour");
         textShaderProgram.createUniform("translation");
         textShaderProgram.validate();
 
-        ShaderProgram particleShader = new ShaderProgram(resource("shaders", "particle_system.vert"), resource("shaders", "particle_system.frag"));
-        particleShader.readCompileAndLink();;
+        ShaderProgram particleShader = new ShaderProgram();
+        particleShader.load(GL_VERTEX_SHADER, resource("shaders", "particle_system.vert"));
+        particleShader.load(GL_FRAGMENT_SHADER, resource("shaders", "particle_system.frag"));
+        particleShader.link();
         particleShader.createUniform("projectionMatrix");
         particleShader.createUniform("worldMatrix");
         particleShader.createUniform("hotColor");
@@ -194,8 +198,10 @@ public class App implements AutoCloseable {
         window.init();
         window.use();
         try {
-            ShaderProgram textShaderProgram = new ShaderProgram(resource("shaders", "shader_for_text.vert"), resource("shaders", "shader_for_text.frag"));
-            textShaderProgram.readCompileAndLink();
+            ShaderProgram textShaderProgram = new ShaderProgram();
+            textShaderProgram.load(GL_VERTEX_SHADER, resource("shaders", "shader_for_text.vert"));
+            textShaderProgram.load(GL_FRAGMENT_SHADER, resource("shaders", "shader_for_text.frag"));
+            textShaderProgram.link();
             textShaderProgram.createUniform("colour");
             textShaderProgram.createUniform("translation");
             textShaderProgram.validate();
