@@ -1,12 +1,12 @@
 package fire.olympics.display;
 
-import fire.olympics.fontMeshCreator.GUIText;
 import fire.olympics.graphics.ModelLoader;
 import fire.olympics.App;
 
 import java.util.ArrayList;
 
-import fire.olympics.graphics.TextMesh;
+import fire.olympics.particles.ParticleSystem;
+
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -28,6 +28,8 @@ public class GameController extends Controller {
     private Vector3f position = new Vector3f();
     private ArrayList<GameItemGroup> objects = new ArrayList<>();
     private GameItemGroup arrow;
+
+    private ParticleSystem particleSystem = new ParticleSystem(100);
 
     public GameController(App app, Window window, Renderer renderer, ModelLoader loader) {
         super(app, window, renderer, loader);
@@ -78,6 +80,8 @@ public class GameController extends Controller {
                 renderer.add(item);
         }
 
+        renderer.add(particleSystem);
+
         arrow = objects.get(0);
         followCamera = new FollowCamera(arrow);
     }
@@ -112,7 +116,7 @@ public class GameController extends Controller {
             renderer.updateCamera(followCamera.getPosition().negate(), followCamera.getRotation());
         }
 
-        renderer.particleSystem.update(timeDelta);
+        particleSystem.update(timeDelta);
     }
 
     int collisionTick = 0;

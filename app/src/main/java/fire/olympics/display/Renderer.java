@@ -2,6 +2,7 @@ package fire.olympics.display;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import fire.olympics.App;
 import fire.olympics.graphics.TextMesh;
@@ -21,6 +22,7 @@ public class Renderer {
     private final ArrayList<GameItem> gameItemsWithTextures = new ArrayList<>();
     private final ArrayList<GameItem> gameItemsWithOutTextures = new ArrayList<>();
     private static final ArrayList<TextMesh> textMeshes = new ArrayList<>();
+    private final ArrayList<ParticleSystem> particleSystems = new ArrayList<>();
 
     private float aspectRatio = 1.0f;
     private ShaderProgram program;
@@ -31,7 +33,8 @@ public class Renderer {
     private Matrix4f projectionMatrix = new Matrix4f();
     private Matrix4f worldMatrix = new Matrix4f();
     public Matrix4f camera = new Matrix4f();
-    public ParticleSystem particleSystem = new ParticleSystem(100);
+    private Vector3f cameraPosition = new Vector3f(0, 0, 0);
+    private Vector3f cameraAngle = new Vector3f();
 
     public Renderer(ShaderProgram program, ShaderProgram programWithTexture, ShaderProgram textShaderProgram, ShaderProgram particleShader) {
         this.program = program;
@@ -49,6 +52,10 @@ public class Renderer {
         }
     }
 
+    public void add(ParticleSystem particleSystem) {
+        particleSystems.add(particleSystem);
+    }
+
     public void addText(GUIText text) {
         textMeshes.add(new TextMesh(text));
     }
@@ -58,10 +65,14 @@ public class Renderer {
 
     public void updateCamera(Vector3f position, Vector3f angle) {
         Matrix4f translation = new Matrix4f().translation(position);
+        cameraPosition = position;
         camera.identity();
         camera.rotate((float) Math.toRadians(angle.x), new Vector3f(1, 0, 0));
         camera.rotate((float) Math.toRadians(angle.y), new Vector3f(0, 1, 0));
         camera.rotate((float) Math.toRadians(angle.z), new Vector3f(0, 0, 1));
+        Vector4f result = new Vector4f();
+        camera.transform(0.0f, 0.0f, -1.0f, 0.0f, result);
+        cameraAngle.set(result.x, result.y, result.z);
         camera.mul(translation);
     }
 
@@ -131,21 +142,10 @@ public class Renderer {
 
         if (particleShader != null) {
             particleShader.bind();
-            // Set world matrix for this item
-            Vector3f rotation = particleSystem.rotation;
-            worldMatrix
-                    .translation(particleSystem.position)
-                    .rotateAffineXYZ(
-                        (float) Math.toRadians(rotation.x),
-                        (float) Math.toRadians(rotation.y),
-                        (float) Math.toRadians(rotation.z))
-                    .scale(particleSystem.scale);
-            worldMatrix.mulLocal(camera);
             particleShader.setUniform("projectionMatrix", projectionMatrix);
-            particleShader.setUniform("worldMatrix", worldMatrix);
-            particleShader.setUniform("hotColor", particleSystem.hotColor);
-            particleShader.setUniform("coldColor", particleSystem.coldColor);
-            particleSystem.render();
+            for (ParticleSystem particleSystem : particleSystems) {
+                renderParticleSystem(particleSystem);
+            }
             particleShader.unbind();
         }
     }
@@ -169,5 +169,25 @@ public class Renderer {
             program.setUniform("worldMatrix", worldMatrix);
             object.mesh.render();
         }
+    }
+
+    private void renderParticleSystem(ParticleSystem particleSystem) {
+        // Set world matrix for this item
+        Vector3f rotation = particleSystem.rotation;
+        worldMatrix
+                .translation(particleSystem.position)
+                .rotateAffineXYZ(
+                    (float) Math.toRadians(rotation.x),
+                    (float) Math.toRadians(rotation.y),
+                    (float) Math.toRadians(rotation.z))
+                .scale(particleSystem.scale);
+        // worldMatrix.mulLocal(camera);
+        particleShader.setUniform("worldMatrix", worldMatrix);
+        particleShader.setUniform("hotColor", particleSystem.hotColor);
+        particleShader.setUniform("coldColor", particleSystem.coldColor);
+        particleShader.setUniform("cameraMatrix", camera);
+        particleShader.setUniform("cameraLocation", cameraPosition);
+        particleShader.setUniform("cameraDirection", cameraAngle);
+        particleSystem.render();
     }
 }

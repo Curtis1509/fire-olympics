@@ -53,12 +53,13 @@ public class ModelLoader implements AutoCloseable {
      * @param first A file or directory.
      * @param more A file or directory.
      */
-    public void loadTexture(String first, String... more) {
+    public Texture loadTexture(String first, String... more) {
         Path path = resource(first, more);
         assert !loadedTextures.containsKey(path.toString());
         Texture t = new Texture(path);
         String name = path.toAbsolutePath().toString();
         loadedTextures.put(name, t);
+        return t;
     }
 
     /**

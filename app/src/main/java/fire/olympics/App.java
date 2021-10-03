@@ -11,6 +11,7 @@ import fire.olympics.graphics.ShaderProgram;
 import fire.olympics.graphics.Texture;
 
 import fire.olympics.tests.TextController;
+import fire.olympics.tests.ParticleController;
 
 import static org.lwjgl.opengl.GL33C.*;
 
@@ -40,7 +41,9 @@ public class App implements AutoCloseable {
 
         try (App app = new App(resourcePath)) {
             // You can technically create two windows by calling this twice.
-            app.createMainWindow();
+            // TODO: uncomment line
+            // app.createMainWindow();
+            app.addParticleController();
             app.mainLoop();
         } catch (Exception e) {
             System.out.printf("error: %s%n", e);
@@ -121,6 +124,15 @@ public class App implements AutoCloseable {
         }
     }
 
+    public void addMainWindow() {
+        try {
+            createMainWindow();
+        } catch (Exception e) {
+            System.out.println("Error occured while initailasing TextContreller.");
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
     public static int score = 0;
 
@@ -217,7 +229,38 @@ public class App implements AutoCloseable {
             setupController(controller);
         } catch (Exception e) {
             System.out.println("Error occured while initailasing TextContreller.");
-            System.out.println(e.getMessage());
+            e.printStackTrace();
+        } finally {
+            window.done();
+        }
+    }
+
+    public void addParticleController() {
+        Window window = new Window("Particle Tests", 800, 600);
+        window.init();
+        window.use();
+        try {
+            ShaderProgram particleShader = new ShaderProgram();
+            particleShader.load(GL_VERTEX_SHADER, resource("shaders", "particle_system.vert"));
+            particleShader.load(GL_GEOMETRY_SHADER, resource("shaders", "particle_system.geom"));
+            particleShader.load(GL_FRAGMENT_SHADER, resource("shaders", "particle_system.frag"));
+            particleShader.link();
+            particleShader.createUniform("projectionMatrix");
+            particleShader.createUniform("worldMatrix");
+            particleShader.createUniform("hotColor");
+            particleShader.createUniform("coldColor");
+            particleShader.createUniform("cameraLocation");
+            particleShader.createUniform("cameraMatrix");
+            particleShader.createUniform("cameraDirection");
+
+            ModelLoader loader = new ModelLoader(resourcePath);
+            Renderer renderer = new Renderer(null, null, null, particleShader);
+
+            ParticleController controller = new ParticleController(this, window, renderer, loader);
+            controllers.add(controller);
+            setupController(controller);
+        } catch (Exception e) {
+            System.out.println("Error occured while initailasing Particle Controller.");
             e.printStackTrace();
         } finally {
             window.done();

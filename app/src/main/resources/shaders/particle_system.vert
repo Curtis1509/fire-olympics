@@ -3,15 +3,21 @@
 layout (location=0) in vec3 position;
 layout (location=1) in float age;
 layout (location=2) in float lifetime;
+layout (location=3) in vec2 size;
 
-out float fragAge;
-out float fragLifetime;
-uniform mat4 projectionMatrix;
-uniform mat4 worldMatrix;
+out VertexData
+{
+    vec3 position;
+    float age;
+    float lifetime;
+    vec2 size;
+} vs_out;
 
 void main()
 {
-    gl_Position = projectionMatrix * worldMatrix * vec4(position, 1);
-    fragAge = age;
-    fragLifetime = lifetime;
+    gl_Position = vec4(0);
+    vs_out.position = position;
+    vs_out.age = age;
+    vs_out.lifetime = lifetime;
+    vs_out.size = size;
 }

@@ -40,15 +40,20 @@ public class Controller {
     }
 
     public void keyUp(int key, int mods) {
-        switch (key) {
-            case GLFW_KEY_ESCAPE:
+        if (key == GLFW_KEY_ESCAPE) {
                 window.setShouldClose(true);
-                break;
-            case GLFW_KEY_0:
-                if (mods == GLFW_MOD_CONTROL) {
+        } else if (mods == GLFW_MOD_CONTROL) {
+            switch (key) {
+                case GLFW_KEY_1:
                     app.addTextController();
-                }
-                break;
+                    break;
+                case GLFW_KEY_2:
+                    app.addParticleController();
+                    break;
+                case GLFW_KEY_0:
+                    app.addMainWindow();
+                    break;
+            }
         }
     }
 

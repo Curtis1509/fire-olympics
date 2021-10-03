@@ -11,3 +11,5 @@ stadium_crowd = https://wallpapersafari.com/w/LH1Qeq
 stadium_sky = http://www.photos-public-domain.com/wp-content/uploads/2018/07/sky-with-clouds-texture.jpg
 
 ring+pole_brushed_metal = https://textures.world/wp-content/uploads/2018/10/Aluminum-Brushed-Metal-Seamless-Background-Textures-5-copy.jpg
+
+fire_particle = Made by Andrew Thompson
