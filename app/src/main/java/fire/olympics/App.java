@@ -122,6 +122,9 @@ public class App implements AutoCloseable {
     }
 
 
+    public static int score = 0;
+
+
     public void createMainWindow() throws Exception {
         System.out.println("LWJGL version: " + Version.getVersion());
 
@@ -167,12 +170,17 @@ public class App implements AutoCloseable {
         FontType fontType = new FontType(resource("fonts", "fontfile.fnt"), texture);
 
         GUIText text = new GUIText(fontType, "FIRE OLYMPICS");
+        GUIText text2 = new GUIText(fontType, "" + score);
         text.fontSize = 5.0f;
         text.isCentered = true;
         text.color.set(0.0f, 0.5f, 0.5f);
+        text2.fontSize = 4.0f;
+        text2.isCentered = false;
+        text2.color.set(1.0f, 0.0f, 0.0f);
         ModelLoader loader = new ModelLoader(resourcePath);
         Renderer renderer = new Renderer(program, programWithTexture, textShaderProgram, particleShader);
         renderer.addText(text);
+        renderer.addText(text2);
         GameController controller = new GameController(this, window, renderer, loader);
         controllers.add(controller);
 

@@ -174,7 +174,7 @@ public class Window implements AutoCloseable {
         // Enables ordered rendering of triangles
         glEnable(GL_DEPTH_TEST);
         // Enable v-sync
-        glfwSwapInterval(1);
+        //glfwSwapInterval(1);
         // Set the clear color
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     }

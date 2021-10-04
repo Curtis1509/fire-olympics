@@ -1,9 +1,12 @@
 package fire.olympics.display;
 
+import fire.olympics.fontMeshCreator.GUIText;
 import fire.olympics.graphics.ModelLoader;
 import fire.olympics.App;
+
 import java.util.ArrayList;
 
+import fire.olympics.graphics.TextMesh;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -46,22 +49,21 @@ public class GameController extends Controller {
         // adding to ArrayList with indices, to explicitly place objects in order
         // skipping an index, or adding them out of order, will break things!!
 
-        objects.add(0,new GameItemGroup(
-                loader.loadModel("models","proto_arrow_textured.obj")
+        objects.add(0, new GameItemGroup(
+                loader.loadModel("models", "proto_arrow_textured.obj")
         ));
 
         objects.add(1, new GameItemGroup(
-                loader.loadModel("models","Brazier v2 Textured.obj")
+                loader.loadModel("models", "Brazier v2 Textured.obj")
         ));
 
         objects.add(2, new GameItemGroup(
-                loader.loadModel("models","Stadium_w_sky_sphere.obj")
+                loader.loadModel("models", "Stadium_w_sky_sphere.obj")
         ));
 
         objects.add(3, new GameItemGroup(
-                loader.loadModel("models","ring.obj")
+                loader.loadModel("models", "ring.obj")
         ));
-
 
 
         // setting initial positions
@@ -82,9 +84,10 @@ public class GameController extends Controller {
 
     @Override
     public void update(double timeDelta) {
+        checkCollision();
         // Enable or Disable free Camera
         boolean keyV = window.isKeyDown(GLFW_KEY_V);
-        if(window.checkKeyState(GLFW_KEY_V, keyVPrev) == 1) {
+        if (window.checkKeyState(GLFW_KEY_V, keyVPrev) == 1) {
             enableFreeCamera = !enableFreeCamera;
         }
         keyVPrev = keyV;
@@ -100,7 +103,7 @@ public class GameController extends Controller {
             // Move player
             float dx = (float) ((arrowSpeed * timeDelta) * Math.sin(Math.toRadians(arrow.getRotation().y)));
             float dz = (float) ((arrowSpeed * timeDelta) * Math.cos(Math.toRadians(arrow.getRotation().y)));
-            arrow.movePosition(dx, 0 , dz);
+            arrow.movePosition(dx, 0, dz);
 
             float dy = (float) ((arrowSpeed * timeDelta) * Math.sin(Math.toRadians(arrow.getRotation().x)));
             arrow.movePosition(0, -dy, 0);
@@ -112,6 +115,32 @@ public class GameController extends Controller {
         renderer.particleSystem.update(timeDelta);
     }
 
+    int collisionTick = 0;
+
+    public void checkCollision() {
+        //System.out.println("a" + arrow.getPosition().x + " r" + objects.get(3).getPosition().z);
+        if (collisionTick == 0 && arrow.getPosition().x >= objects.get(3).getPosition().x
+                && arrow.getPosition().x <= objects.get(3).getPosition().x + 4f
+                && arrow.getPosition().y >= objects.get(3).getPosition().y
+                && arrow.getPosition().y <= objects.get(3).getPosition().y + 4f
+                && arrow.getPosition().z >= objects.get(3).getPosition().z
+                && arrow.getPosition().z <= objects.get(3).getPosition().z + 4f) {
+            collisionTick++;
+            App.score++;
+            Renderer.updateText(1, "" + App.score);
+
+            System.out.println("COLLIDE");
+        } else if (collisionTick > 0 && (!(arrow.getPosition().x >= objects.get(3).getPosition().x
+                && arrow.getPosition().x <= objects.get(3).getPosition().x + 4f
+                && arrow.getPosition().y >= objects.get(3).getPosition().y
+                && arrow.getPosition().y <= objects.get(3).getPosition().y + 4f
+                && arrow.getPosition().z >= objects.get(3).getPosition().z
+                && arrow.getPosition().z <= objects.get(3).getPosition().z + 4f))){
+            collisionTick = 0;
+        }
+    }
+
+
     public void followCameraControl(double timeDelta) {
         if (window.isKeyDown(GLFW_KEY_W)) {
             if (arrow.getRotation().x > 75) {
@@ -122,13 +151,13 @@ public class GameController extends Controller {
             if (arrow.getRotation().x < -15) {
                 arrow.setRotX(-15);
             }
-            arrow.increaseRotX((float) - (timeDelta * 25f));
+            arrow.increaseRotX((float) -(timeDelta * 25f));
         }
         if (window.isKeyDown(GLFW_KEY_A)) {
             arrow.increaseRotY((float) (timeDelta * 50f));
             arrow.setRotZ((float) (-(timeDelta * 100f)));
         } else if (window.isKeyDown(GLFW_KEY_D)) {
-            arrow.increaseRotY((float) - (timeDelta * 50f));
+            arrow.increaseRotY((float) -(timeDelta * 50f));
             arrow.setRotZ((float) ((timeDelta * 100f)));
         } else {
             arrow.setRotZ(0);
@@ -173,13 +202,13 @@ public class GameController extends Controller {
 
     // Update camera position taking into account camera rotation
     public void updateCameraPos(float offsetX, float offsetY, float offsetZ) {
-        if ( offsetZ != 0 ) {
-            position.x += (float)Math.sin(Math.toRadians(angle.y)) * -1.0f * offsetZ;
-            position.z += (float)Math.cos(Math.toRadians(angle.y)) * offsetZ;
+        if (offsetZ != 0) {
+            position.x += (float) Math.sin(Math.toRadians(angle.y)) * -1.0f * offsetZ;
+            position.z += (float) Math.cos(Math.toRadians(angle.y)) * offsetZ;
         }
-        if ( offsetX != 0) {
-            position.x += (float)Math.sin(Math.toRadians(angle.y - 90)) * -1.0f * offsetX;
-            position.z += (float)Math.cos(Math.toRadians(angle.y - 90)) * offsetX;
+        if (offsetX != 0) {
+            position.x += (float) Math.sin(Math.toRadians(angle.y - 90)) * -1.0f * offsetX;
+            position.z += (float) Math.cos(Math.toRadians(angle.y - 90)) * offsetX;
         }
         position.y += offsetY;
     }
@@ -216,7 +245,7 @@ public class GameController extends Controller {
     public void mouseUp(Vector2f position, int button) {
         System.out.printf("mouse up: %s; position: %4.2f, %4.2f%n", button == GLFW_MOUSE_BUTTON_LEFT ? "left" : (button == GLFW_MOUSE_BUTTON_RIGHT ? "right" : "middle"), position.x, position.y);
 
-        if(button == GLFW_MOUSE_BUTTON_LEFT) {
+        if (button == GLFW_MOUSE_BUTTON_LEFT) {
             if (mouseEnabled) {
                 window.disableCursor();
             } else {

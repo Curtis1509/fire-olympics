@@ -20,7 +20,7 @@ public class Renderer {
     private final ArrayList<GameItem> gameItems = new ArrayList<>();
     private final ArrayList<GameItem> gameItemsWithTextures = new ArrayList<>();
     private final ArrayList<GameItem> gameItemsWithOutTextures = new ArrayList<>();
-    private final ArrayList<TextMesh> textMeshes = new ArrayList<>();
+    private static final ArrayList<TextMesh> textMeshes = new ArrayList<>();
 
     private float aspectRatio = 1.0f;
     private ShaderProgram program;
@@ -51,6 +51,9 @@ public class Renderer {
 
     public void addText(GUIText text) {
         textMeshes.add(new TextMesh(text));
+    }
+    public static void updateText(int index, String text){
+        textMeshes.get(index).updateText(text);
     }
 
     public void updateCamera(Vector3f position, Vector3f angle) {

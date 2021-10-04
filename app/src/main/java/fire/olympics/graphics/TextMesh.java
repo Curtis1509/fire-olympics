@@ -36,6 +36,10 @@ public class TextMesh {
         }
     }
 
+    public void updateText(String t){
+        text.value = t;
+    }
+
     private void updateData() {
         TextMeshData data = text.font.createTextMesh(text, aspectRatio);
         vao.discardAndBindBuffer(0, data.getVertexPositions());
