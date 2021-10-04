@@ -45,7 +45,7 @@ public class Controller {
                 window.setShouldClose(true);
                 break;
             case GLFW_KEY_0:
-                if (mods == GLFW_MOD_SUPER) {
+                if (mods == GLFW_MOD_CONTROL) {
                     app.addTextController();
                 }
                 break;
