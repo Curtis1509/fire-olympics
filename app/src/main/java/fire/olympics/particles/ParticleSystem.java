@@ -93,6 +93,11 @@ public class ParticleSystem {
             sizeBuffer[2 * i + 1] = height;
         }
 
+        positionBuffer[0] = -0.5f;
+        positionBuffer[1] = -0.5f;
+        // positionBuffer[3] = 0.5f;
+        // positionBuffer[5] = 0.5f;
+
         // Tell OpenGL to use the updated data.
         vao.updateBuffer(0, positionBuffer);
         vao.updateBuffer(1, ageBuffer);

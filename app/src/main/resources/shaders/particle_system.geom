@@ -30,20 +30,65 @@ void main()
     gs_out.age = gs_in[0].age;
     gs_out.lifetime = gs_in[0].lifetime;
 
+    vec4 upDirectionWorldSpace = vec4(0, 1, 0, 0);
+    vec4 upDirectionParticleSystem = inverse(worldMatrix) * upDirectionWorldSpace;
+    vec4 cameraLocationParticleSystem = inverse(worldMatrix) * vec4(cameraLocation, 1);
+    vec4 particlePositionParticleSystem = vec4(gs_in[0].position, 0);
+    vec4 normalToBillboardPlaneFacingCameraParticleSystem  = normalize(cameraLocationParticleSystem - particlePositionParticleSystem);
+
+    vec4 billboardUpDirectionParticleSystem = upDirectionParticleSystem - dot(normalToBillboardPlaneFacingCameraParticleSystem, upDirectionParticleSystem) * normalToBillboardPlaneFacingCameraParticleSystem;
+    vec3 sideDirectionParticleSystem = cross(upDirectionParticleSystem.xyz, normalToBillboardPlaneFacingCameraParticleSystem.xyz);
+
+    // mat4 particleSystemToParticleMatrix = mat4(
+    //     vec4(normalize(sideDirectionParticleSystem), 0),
+    //     normalize(billboardUpDirectionParticleSystem),
+    //     normalize(normalToBillboardPlaneFacingCameraParticleSystem),
+    //     vec4(0, 0, 0, 1)
+    // );
+
+    mat4 particleSystemToParticleMatrix = mat4(
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1
+    );
+
+    mat4 particleToParticleSystem = inverse(particleSystemToParticleMatrix);
+
+    float w = gs_in[0].size.x;
+    float h = gs_in[0].size.y;
+
+    vec4 v0 = vec4(-w/2, -h/2, 0, 1);
+    vec4 v1 = vec4(-w/2, h/2, 0, 1);
+    vec4 v2 = vec4(w/2, -h/2, 0, 1);
+    vec4 v3 = vec4(w/2, h/2, 0, 1);
+
+    gs_out.age = gs_in[0].age;
+    gs_out.lifetime = gs_in[0].lifetime;
     gs_out.textureCoordinate = vec2(0.0, 0.0);
-    gl_Position = projectionMatrix * cameraMatrix * vec4(v0, 0.0);
+    gl_Position = v0;
+    // gl_Position = projectionMatrix * cameraMatrix * v0;
     EmitVertex();
 
-    gs_out.textureCoordinate = vec2(1.0, 0.0);
-    gl_Position = projectionMatrix * cameraMatrix * vec4(v1, 0.0);
-    EmitVertex();
-
+    gs_out.age = gs_in[0].age;
+    gs_out.lifetime = gs_in[0].lifetime;
     gs_out.textureCoordinate = vec2(0.0, 1.0);
-    gl_Position = projectionMatrix * cameraMatrix * vec4(v2, 0.0);
+    gl_Position = v1;
+    // gl_Position = projectionMatrix * cameraMatrix * v1;
     EmitVertex();
 
+    gs_out.age = gs_in[0].age;
+    gs_out.lifetime = gs_in[0].lifetime;
+    gs_out.textureCoordinate = vec2(1.0, 0.0);
+    gl_Position = v2;
+    // gl_Position = projectionMatrix * cameraMatrix * v2;
+    EmitVertex();
+
+    gs_out.age = gs_in[0].age;
+    gs_out.lifetime = gs_in[0].lifetime;
     gs_out.textureCoordinate = vec2(1.0, 1.0);
-    gl_Position = projectionMatrix * cameraMatrix * vec4(v3, 0.0);
+    gl_Position = v3;
+    // gl_Position = projectionMatrix * cameraMatrix * v3;
     EmitVertex();
 
     EndPrimitive();

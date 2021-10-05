@@ -19,7 +19,7 @@ public class ParticleController extends Controller {
     @Override
     public void load() throws Exception {
         particleSystem.texture = loader.loadTexture("textures", "fire_particle.png");
-        particleSystem.update(0.1);
+        particleSystem.update(0.5);
         renderer.add(particleSystem);
     }
     

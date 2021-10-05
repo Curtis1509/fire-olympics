@@ -142,11 +142,15 @@ public class Renderer {
 
         if (particleShader != null) {
             particleShader.bind();
+            glDisable(GL_CULL_FACE);
+            glDisable(GL_DEPTH_TEST);
             particleShader.setUniform("projectionMatrix", projectionMatrix);
             for (ParticleSystem particleSystem : particleSystems) {
                 renderParticleSystem(particleSystem);
             }
             particleShader.unbind();
+            glEnable(GL_CULL_FACE);
+            glEnable(GL_DEPTH_TEST);
         }
     }
 
