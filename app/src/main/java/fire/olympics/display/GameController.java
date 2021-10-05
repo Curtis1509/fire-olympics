@@ -80,7 +80,9 @@ public class GameController extends Controller {
                 renderer.add(item);
         }
 
-        renderer.add(particleSystem);
+        // Particle effects are disabled at the moment because they are buggy.
+        // particleSystem.texture = loader.loadTexture("textures", "fire_particle.png");
+        // renderer.add(particleSystem);
 
         arrow = objects.get(0);
         followCamera = new FollowCamera(arrow);
