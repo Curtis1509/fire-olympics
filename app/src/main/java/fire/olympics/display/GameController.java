@@ -67,6 +67,10 @@ public class GameController extends Controller {
                 loader.loadModel("models", "ring.obj")
         ));
 
+        objects.add(4, new GameItemGroup(
+                loader.loadModel("models", "ring+pole.obj")
+        ));
+
 
         // setting initial positions
         objects.get(0).setPosition(0, 0, 10);
@@ -74,6 +78,7 @@ public class GameController extends Controller {
         objects.get(2).setPosition(0, -7, 0);
         objects.get(2).setScale(7);
         objects.get(3).setPosition(0, 2, -10);
+        objects.get(4).setPosition(0, -9, -35);
 
         for (GameItemGroup object : objects) {
             for (GameItem item : object.getAll())
