@@ -151,7 +151,7 @@ public class GameController extends Controller {
                 && arrow.getPosition().z <= objects.get(3).getPosition().z + 4f) {
             collisionTick++;
             App.score++;
-            Renderer.updateText(1, "" + App.score);
+            renderer.updateText(1, "" + App.score);
 
             System.out.println("COLLIDE");
         } else if (collisionTick > 0 && (!(arrow.getPosition().x >= objects.get(3).getPosition().x
