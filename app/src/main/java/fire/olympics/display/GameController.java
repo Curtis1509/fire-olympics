@@ -102,7 +102,7 @@ public class GameController extends Controller {
         // renderer.add(particleSystem);
 
         arrow = objects.get(0);
-        followCamera = new FollowCamera(arrow);
+        followCamera = new FollowCamera(window, arrow);
     }
 
     @Override
@@ -119,7 +119,7 @@ public class GameController extends Controller {
         if (enableFreeCamera) {
             freeCameraControl(timeDelta);
         } else {
-            followCameraControl(timeDelta);
+            followCamera.followCameraControl(timeDelta);
 
             double arrowSpeed = 25;
 
@@ -161,29 +161,6 @@ public class GameController extends Controller {
                 && arrow.getPosition().z >= objects.get(3).getPosition().z
                 && arrow.getPosition().z <= objects.get(3).getPosition().z + 4f))) {
             collisionTick = 0;
-        }
-    }
-
-    public void followCameraControl(double timeDelta) {
-        if (window.isKeyDown(GLFW_KEY_W)) {
-            if (arrow.getRotation().x > 75) {
-                arrow.setRotX(75);
-            }
-            arrow.increaseRotX((float) (timeDelta * 25f));
-        } else if (window.isKeyDown(GLFW_KEY_S)) {
-            if (arrow.getRotation().x < -15) {
-                arrow.setRotX(-15);
-            }
-            arrow.increaseRotX((float) -(timeDelta * 25f));
-        }
-        if (window.isKeyDown(GLFW_KEY_A)) {
-            arrow.increaseRotY((float) (timeDelta * 50f));
-            arrow.setRotZ((float) (-(timeDelta * 100f)));
-        } else if (window.isKeyDown(GLFW_KEY_D)) {
-            arrow.increaseRotY((float) -(timeDelta * 50f));
-            arrow.setRotZ((float) ((timeDelta * 100f)));
-        } else {
-            arrow.setRotZ(0);
         }
     }
 
