@@ -4,6 +4,7 @@ import fire.olympics.graphics.ModelLoader;
 import fire.olympics.App;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import fire.olympics.particles.ParticleSystem;
 
@@ -13,9 +14,9 @@ import org.joml.Vector3f;
 import static org.lwjgl.glfw.GLFW.*;
 
 /**
- * The {@code Controller} contains game logic code such as:
- * 1. What happens after the result of a collision?
- * 2. How are things in the scene updated as a result of user interaction?
+ * The {@code Controller} contains game logic code such as: 1. What happens
+ * after the result of a collision? 2. How are things in the scene updated as a
+ * result of user interaction?
  */
 public class GameController extends Controller {
     private static final float MOUSE_SENSITIVITY = 5;
@@ -28,6 +29,7 @@ public class GameController extends Controller {
     private Vector3f position = new Vector3f();
     private ArrayList<GameItemGroup> objects = new ArrayList<>();
     private GameItemGroup arrow;
+    private int numOfPoles = 10;
 
     private ParticleSystem particleSystem = new ParticleSystem(100);
 
@@ -51,26 +53,20 @@ public class GameController extends Controller {
         // adding to ArrayList with indices, to explicitly place objects in order
         // skipping an index, or adding them out of order, will break things!!
 
-        objects.add(0, new GameItemGroup(
-                loader.loadModel("models", "proto_arrow_textured.obj")
-        ));
+        objects.add(0, new GameItemGroup(loader.loadModel("models", "proto_arrow_textured.obj")));
 
-        objects.add(1, new GameItemGroup(
-                loader.loadModel("models", "Brazier v2 Textured.obj")
-        ));
+        objects.add(1, new GameItemGroup(loader.loadModel("models", "Brazier v2 Textured.obj")));
 
-        objects.add(2, new GameItemGroup(
-                loader.loadModel("models", "Stadium_w_sky_sphere.obj")
-        ));
+        objects.add(2, new GameItemGroup(loader.loadModel("models", "Stadium_w_sky_sphere.obj")));
 
-        objects.add(3, new GameItemGroup(
-                loader.loadModel("models", "ring.obj")
-        ));
+        objects.add(3, new GameItemGroup(loader.loadModel("models", "ring.obj")));
 
-        objects.add(4, new GameItemGroup(
-                loader.loadModel("models", "ring+pole.obj")
-        ));
-
+        int size = objects.size();
+        //int sizeBeforePoles = size;
+        // Add ring poles to the model loader
+        for (int i = size; i < numOfPoles; i++) {
+            objects.add(i, new GameItemGroup(loader.loadModel("models", "ring+pole.obj")));
+        }
 
         // setting initial positions
         objects.get(0).setPosition(0, 0, 10);
@@ -78,7 +74,23 @@ public class GameController extends Controller {
         objects.get(2).setPosition(0, -7, 0);
         objects.get(2).setScale(7);
         objects.get(3).setPosition(0, 2, -10);
-        objects.get(4).setPosition(0, -9, -35);
+
+        Random r = new Random();
+        int lowX = -100;
+        int highX = 100;
+        int lowY = -10;
+        int highY = 10;
+        int lowZ = -100;
+        int highZ = 100;
+
+        // Spawn ring and poles in random positions
+        for (int i = size; i < objects.size(); i++) {
+            int resultX = r.nextInt(highX - lowX) + lowX;
+            int resultY = r.nextInt(highY - lowY) + lowY;
+            int resultZ = r.nextInt(highZ - lowZ) + lowZ;
+
+            objects.get(i).setPosition(resultX, resultY, -resultZ);
+        }
 
         for (GameItemGroup object : objects) {
             for (GameItem item : object.getAll())
@@ -129,7 +141,8 @@ public class GameController extends Controller {
     int collisionTick = 0;
 
     public void checkCollision() {
-        //System.out.println("a" + arrow.getPosition().x + " r" + objects.get(3).getPosition().z);
+        // System.out.println("a" + arrow.getPosition().x + " r" +
+        // objects.get(3).getPosition().z);
         if (collisionTick == 0 && arrow.getPosition().x >= objects.get(3).getPosition().x
                 && arrow.getPosition().x <= objects.get(3).getPosition().x + 4f
                 && arrow.getPosition().y >= objects.get(3).getPosition().y
@@ -146,11 +159,10 @@ public class GameController extends Controller {
                 && arrow.getPosition().y >= objects.get(3).getPosition().y
                 && arrow.getPosition().y <= objects.get(3).getPosition().y + 4f
                 && arrow.getPosition().z >= objects.get(3).getPosition().z
-                && arrow.getPosition().z <= objects.get(3).getPosition().z + 4f))){
+                && arrow.getPosition().z <= objects.get(3).getPosition().z + 4f))) {
             collisionTick = 0;
         }
     }
-
 
     public void followCameraControl(double timeDelta) {
         if (window.isKeyDown(GLFW_KEY_W)) {
@@ -238,7 +250,8 @@ public class GameController extends Controller {
                 return;
         }
 
-        if (enableFreeCamera) renderer.updateCamera(position, angle);
+        if (enableFreeCamera)
+            renderer.updateCamera(position, angle);
     }
 
     @Override
@@ -249,12 +262,16 @@ public class GameController extends Controller {
 
     @Override
     public void mouseDown(Vector2f position, int button) {
-        System.out.printf("mouse down: %s; position: %4.2f, %4.2f%n", button == GLFW_MOUSE_BUTTON_LEFT ? "left" : (button == GLFW_MOUSE_BUTTON_RIGHT ? "right" : "middle"), position.x, position.y);
+        System.out.printf("mouse down: %s; position: %4.2f, %4.2f%n",
+                button == GLFW_MOUSE_BUTTON_LEFT ? "left" : (button == GLFW_MOUSE_BUTTON_RIGHT ? "right" : "middle"),
+                position.x, position.y);
     }
 
     @Override
     public void mouseUp(Vector2f position, int button) {
-        System.out.printf("mouse up: %s; position: %4.2f, %4.2f%n", button == GLFW_MOUSE_BUTTON_LEFT ? "left" : (button == GLFW_MOUSE_BUTTON_RIGHT ? "right" : "middle"), position.x, position.y);
+        System.out.printf("mouse up: %s; position: %4.2f, %4.2f%n",
+                button == GLFW_MOUSE_BUTTON_LEFT ? "left" : (button == GLFW_MOUSE_BUTTON_RIGHT ? "right" : "middle"),
+                position.x, position.y);
 
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
             if (mouseEnabled) {
