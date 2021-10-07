@@ -74,6 +74,7 @@ public class Renderer {
         camera.transform(0.0f, 0.0f, -1.0f, 0.0f, result);
         cameraAngle.set(result.x, result.y, result.z);
         camera.mul(translation);
+        logMatricies();
     }
 
     public void setAspectRatio(float ratio) {
@@ -97,6 +98,14 @@ public class Renderer {
 
     private void recalculateProjectionMatrix() {
         projectionMatrix.setPerspective(FOV, aspectRatio, z_near, z_far);
+        logMatricies();
+    }
+
+    private void logMatricies() {
+        System.out.println(String.format("Projection Matrix: %n%s", projectionMatrix));
+        System.out.println(String.format("Camera Matrix: %n%s", camera));
+        System.out.println(String.format("Camera Position: %n%s", cameraPosition));
+        System.out.println(String.format("Camera Angle: %n%s", cameraAngle));
     }
 
     public void render() {

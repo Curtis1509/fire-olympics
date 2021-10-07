@@ -10,7 +10,7 @@ import fire.olympics.graphics.VertexArrayObject;
 import static org.lwjgl.opengl.GL33C.*;
 
 public class ParticleSystem {
-    private Random randomGenerator = new Random();
+    public Random randomGenerator = new Random();
     private final VertexArrayObject vao = new VertexArrayObject();
     
     public final Vector4f hotColor = new Vector4f(1.0f, 0, 0, 1.0f);
@@ -93,10 +93,10 @@ public class ParticleSystem {
             sizeBuffer[2 * i + 1] = height;
         }
 
-        positionBuffer[0] = -0.5f;
-        positionBuffer[1] = -0.5f;
-        // positionBuffer[3] = 0.5f;
-        // positionBuffer[5] = 0.5f;
+        positionBuffer[0] = -1.0f;
+        positionBuffer[1] = 0.0f;
+        positionBuffer[3] = 1.0f;
+        positionBuffer[5] = 0.0f;
 
         // Tell OpenGL to use the updated data.
         vao.updateBuffer(0, positionBuffer);
