@@ -47,6 +47,7 @@ public class GameController extends Controller {
         loader.loadTexture("textures", "stadium_grass.jpg");
         loader.loadTexture("textures", "stadium_sky.jpg");
         loader.loadTexture("textures", "stadium_track.jpg");
+        loader.loadTexture("textures", "stadium_lane.jpg");
         loader.loadTexture("textures", "stadium_wood.jpeg");
         loader.loadTexture("textures", "stadium_sky.jpg");
         loader.loadTexture("textures", "ring+pole_brushed_metal.jpg");
@@ -58,7 +59,11 @@ public class GameController extends Controller {
 
         objects.add(1, new GameItemGroup(loader.loadModel("models", "Brazier v2 Textured.obj")));
 
-        objects.add(2, new GameItemGroup(loader.loadModel("models", "Stadium_w_sky_sphere.obj")));
+        // stadium_old has the black sky. sky4 has the smoothest sky that fits in github. export sky5 from blender
+        // for the smoothest sky
+//        objects.add(2, new GameItemGroup(loader.loadModel("models", "stadium_old.obj")));
+        objects.add(2, new GameItemGroup(loader.loadModel("models", "stadium_sky4.obj")));
+//        objects.add(2, new GameItemGroup(loader.loadModel("models", "stadium_sky5.obj")));
 
         objects.add(3, new GameItemGroup(loader.loadModel("models", "ring.obj")));
 
@@ -79,8 +84,8 @@ public class GameController extends Controller {
         Random r = new Random();
         int lowX = -100;
         int highX = 100;
-        int lowY = -10;
-        int highY = 10;
+        int lowY = -15;
+        int highY = -5;
         int lowZ = -100;
         int highZ = 100;
 
@@ -91,6 +96,7 @@ public class GameController extends Controller {
             int resultZ = r.nextInt(highZ - lowZ) + lowZ;
 
             objects.get(i).setPosition(resultX, resultY, -resultZ);
+            objects.get(i).setScale(2);
         }
 
         for (GameItemGroup object : objects) {
