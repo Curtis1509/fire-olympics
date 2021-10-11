@@ -21,10 +21,11 @@ import static org.lwjgl.glfw.GLFW.*;
 public class GameController extends Controller {
     private static final float MOUSE_SENSITIVITY = 5;
     private FollowCamera followCamera;
+    private FreeCamera freeCamera;
     private boolean mouseEnabled = true;
     private boolean enableFreeCamera = true; // Used to determine if camera should be locked to arrow or not
     private boolean keyVPrev = false; // Allows V key to toggle camera type
-    private float movementSpeed = 5f;
+//    private float movementSpeed = 5f;
     private Vector3f angle = new Vector3f();
     private Vector3f position = new Vector3f();
     private ArrayList<GameItemGroup> objects = new ArrayList<>();
@@ -103,6 +104,8 @@ public class GameController extends Controller {
 
         arrow = objects.get(0);
         followCamera = new FollowCamera(window, arrow);
+
+        freeCamera = new FreeCamera(window, renderer, position, angle);
     }
 
     @Override
@@ -117,7 +120,7 @@ public class GameController extends Controller {
 
         // Check if freeCamera is enabled
         if (enableFreeCamera) {
-            freeCameraControl(timeDelta);
+            freeCamera.freeCameraControl(timeDelta);
         } else {
             followCamera.followCameraControl(timeDelta);
 
@@ -164,70 +167,11 @@ public class GameController extends Controller {
         }
     }
 
-    // Controls for free Camera
-    public void freeCameraControl(double timeDelta) {
-        if (window.isKeyDown(GLFW_KEY_LEFT_SHIFT))
-            movementSpeed = 35f;
-        else if (window.isKeyDown(GLFW_KEY_LEFT_ALT))
-            movementSpeed = 2f;
-        else
-            movementSpeed = 5f;
-
-        float offsetX = 0;
-        float offsetY = 0;
-        float offsetZ = 0;
-
-        if (window.isKeyDown(GLFW_KEY_A))
-            offsetX += movementSpeed * timeDelta;
-
-        if (window.isKeyDown(GLFW_KEY_D))
-            offsetX -= movementSpeed * timeDelta;
-
-        if (window.isKeyDown(GLFW_KEY_W))
-            offsetZ += movementSpeed * timeDelta;
-
-        if (window.isKeyDown(GLFW_KEY_S))
-            offsetZ -= movementSpeed * timeDelta;
-
-        if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL))
-            offsetY += movementSpeed * timeDelta;
-
-        if (window.isKeyDown(GLFW_KEY_SPACE))
-            offsetY -= movementSpeed * timeDelta;
-
-        updateCameraPos(offsetX, offsetY, offsetZ);
-
-        renderer.updateCamera(position, angle);
-    }
-
-    // Update camera position taking into account camera rotation
-    public void updateCameraPos(float offsetX, float offsetY, float offsetZ) {
-        if (offsetZ != 0) {
-            position.x += (float) Math.sin(Math.toRadians(angle.y)) * -1.0f * offsetZ;
-            position.z += (float) Math.cos(Math.toRadians(angle.y)) * offsetZ;
-        }
-        if (offsetX != 0) {
-            position.x += (float) Math.sin(Math.toRadians(angle.y - 90)) * -1.0f * offsetX;
-            position.z += (float) Math.cos(Math.toRadians(angle.y - 90)) * offsetX;
-        }
-        position.y += offsetY;
-    }
-
     @Override
     public void keyDown(int key, int mods) {
         System.out.println("key down: " + key);
-        switch (key) {
-            case GLFW_KEY_R:
-                if (enableFreeCamera) {
-                    position.zero();
-                    angle.zero();
-                }
-                break;
-            default:
-                return;
-        }
 
-        if (enableFreeCamera)
+        if (freeCamera.isEnabled())
             renderer.updateCamera(position, angle);
     }
 
