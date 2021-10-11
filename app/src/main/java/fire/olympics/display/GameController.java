@@ -58,8 +58,11 @@ public class GameController extends Controller {
 
         objects.add(1, new GameItemGroup(loader.loadModel("models", "Brazier v2 Textured.obj")));
 
-        objects.add(2, new GameItemGroup(loader.loadModel("models", "Stadium_w_sky_sphere.obj")));
-//        objects.add(2, new GameItemGroup(loader.loadModel("models", "Stadium_lanes.obj")));
+        // stadium_old has the black sky. sky4 has the smoothest sky that fits in github. export sky5 from blender
+        // for the smoothest sky
+//        objects.add(2, new GameItemGroup(loader.loadModel("models", "stadium_old.obj")));
+        objects.add(2, new GameItemGroup(loader.loadModel("models", "stadium_sky4.obj")));
+//        objects.add(2, new GameItemGroup(loader.loadModel("models", "stadium_sky5.obj")));
 
         objects.add(3, new GameItemGroup(loader.loadModel("models", "ring.obj")));
 
