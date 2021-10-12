@@ -29,7 +29,7 @@ public class Renderer {
     private ShaderProgram programWithTexture;
     private ShaderProgram textShaderProgram;
     private ShaderProgram particleShader;
-    private Vector3f sunDirection = new Vector3f(0, 1, 1); // sun is behind and above camera
+    private Vector3f sunDirection = new Vector3f(0, 50000 , 120000); // sun is behind and above camera
     private Matrix4f projectionMatrix = new Matrix4f();
     private Matrix4f worldMatrix = new Matrix4f();
     public Matrix4f camera = new Matrix4f();

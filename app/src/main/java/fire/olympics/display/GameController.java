@@ -114,6 +114,8 @@ public class GameController extends Controller {
         freeCamera = new FreeCamera(window, renderer, position, angle);
     }
 
+    boolean keyPPrev = false;
+
     @Override
     public void update(double timeDelta) {
         checkCollision();
@@ -123,6 +125,12 @@ public class GameController extends Controller {
             enableFreeCamera = !enableFreeCamera;
         }
         keyVPrev = keyV;
+
+        boolean keyP = window.isKeyDown(GLFW_KEY_P);
+        if(window.checkKeyState(GLFW_KEY_P, keyPPrev) == 1) {
+            System.out.println(freeCamera.position);
+        }
+        keyPPrev = keyP;
 
         // Check if freeCamera is enabled
         if (enableFreeCamera) {

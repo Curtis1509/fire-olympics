@@ -19,11 +19,13 @@ uniform mat4 worldMatrix;
 
 void main()
 {
-    gl_Position = projectionMatrix * worldMatrix * vec4(position, 1);
-    fragPos = vec3(worldMatrix * vec4(position, 1));
+    vec4 worldPosition = worldMatrix * vec4(position, 1);
+    gl_Position = projectionMatrix * worldPosition;
+    fragPos = worldPosition.xyz;
     outTexCoord = inColour;
     ambientColour = ambient;
     specularColour = specular;
     fragShiny = shininess;
-    fragNormal = mat3(worldMatrix) * normal;
+    fragNormal = normalize(worldMatrix * vec4(normal, 0.0)).xyz;
+
 }
