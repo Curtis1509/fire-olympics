@@ -128,6 +128,7 @@ public class Window implements AutoCloseable {
      */
     public void init() {
         glfwDefaultWindowHints(); // optional, the current window hints are already the default
+        glfwWindowHint(GLFW_SAMPLES, 4); // Turn on MSAA
         glfwWindowHint(GLFW_VISIBLE, GL_FALSE); // the window will stay hidden after creation
         glfwWindowHint(GLFW_RESIZABLE, GL_TRUE); // the window will be resizable
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -173,8 +174,10 @@ public class Window implements AutoCloseable {
         glEnable(GL_CULL_FACE);
         // Enables ordered rendering of triangles
         glEnable(GL_DEPTH_TEST);
+        // Extra check to enable MSAA
+        glEnable(GL_MULTISAMPLE);
         // Enable v-sync
-        //glfwSwapInterval(1);
+//        glfwSwapInterval(1);
         // Set the clear color
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     }

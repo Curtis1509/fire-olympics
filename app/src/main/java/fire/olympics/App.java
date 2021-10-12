@@ -139,7 +139,7 @@ public class App implements AutoCloseable {
     public void createMainWindow() throws Exception {
         System.out.println("LWJGL version: " + Version.getVersion());
 
-        Window window = new Window("Fire Olympics", 800, 600);
+        Window window = new Window("Fire Olympics", 1280, 720);
 
         window.init();
         window.use();
@@ -286,35 +286,18 @@ public class App implements AutoCloseable {
     public static void checkError(String message) {
         int errorCode = glGetError();
         while (errorCode != GL_NO_ERROR) {
-            String error;
-            switch (errorCode) {
-            case GL_INVALID_ENUM:
-                error = "INVALID_ENUM";
-                break;
-            case GL_INVALID_VALUE:
-                error = "INVALID_VALUE";
-                break;
-            case GL_INVALID_OPERATION:
-                error = "INVALID_OPERATION";
-                break;
-            case GL_STACK_OVERFLOW:
-                error = "STACK_OVERFLOW";
-                break;
-            case GL_STACK_UNDERFLOW:
-                error = "STACK_UNDERFLOW";
-                break;
-            case GL_OUT_OF_MEMORY:
-                error = "OUT_OF_MEMORY";
-                break;
-            case GL_INVALID_FRAMEBUFFER_OPERATION:
-                error = "INVALID_FRAMEBUFFER_OPERATION";
-                break;
-            default:
-                error = "unknown error code (" + errorCode + ")";
-                break;
-            }
+            String error = switch (errorCode) {
+                case GL_INVALID_ENUM -> "INVALID_ENUM";
+                case GL_INVALID_VALUE -> "INVALID_VALUE";
+                case GL_INVALID_OPERATION -> "INVALID_OPERATION";
+                case GL_STACK_OVERFLOW -> "STACK_OVERFLOW";
+                case GL_STACK_UNDERFLOW -> "STACK_UNDERFLOW";
+                case GL_OUT_OF_MEMORY -> "OUT_OF_MEMORY";
+                case GL_INVALID_FRAMEBUFFER_OPERATION -> "INVALID_FRAMEBUFFER_OPERATION";
+                default -> "unknown error code (" + errorCode + ")";
+            };
 
-            System.out.println(String.format("opengl error: %s, message: %s", error, message));
+            System.out.printf("opengl error: %s, message: %s%n", error, message);
             errorCode = glGetError();
         }
     }
