@@ -12,8 +12,8 @@ uniform vec3 sun;
 
 void main()
 {
-    vec3 lightColour = vec3(0, 0, 0);
-    float ambientStrength = 0.1;
+    vec3 lightColour = vec3(1, 1, 1);
+    float ambientStrength = 0.2;
     float specularStrength = 0.5;
 
     /* Ambient */
@@ -21,15 +21,16 @@ void main()
     vec3 ambient = ambientColour * ambientLight;
 
     /* Diffuse */
-    vec3 norm = normalize(fragNormal);
-    vec3 lightDir = normalize(sun);
-    float diffStrength = max(dot(norm, lightDir), 0);
+    vec3 lightDir = normalize(sun.xyz - fragPos);
+    float diffStrength = max(dot(fragNormal, lightDir), 0);
     vec3 diffuse = diffStrength * exColour;
 
     /* Specular */
-    vec3 reflectDir = reflect(-lightDir, norm);
+    vec3 reflectDir = reflect(-lightDir, fragNormal);
     float spec = pow(max(dot(normalize(-fragPos), reflectDir), 0), fragShiny);
     vec3 specular = specularStrength * spec * specularColour;
 
-    fragColor = vec4(ambient + diffuse + specular, 1.0);
+
+    vec3 result = (ambient + diffuse + specular) * exColour;
+    fragColor = vec4(result, 1.0);
 }

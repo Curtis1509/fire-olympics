@@ -25,5 +25,5 @@ void main()
     specularColour = specular;
     fragShiny = shininess;
     exColour = inColour;
-    fragNormal = mat3(worldMatrix) * normal; // apply rotation transformation to normal vector
+    fragNormal = normalize(worldMatrix * vec4(normal, 0.0)).xyz; // apply rotation transformation to normal vector
 }

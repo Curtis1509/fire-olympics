@@ -15,12 +15,12 @@ void main()
 {
     vec4 tex = texture(texture_sampler, outTexCoord);
     vec3 lightColour = vec3(1, 1, 1);
-    float ambientStrength = 0.1;
-    float specularStrength = 0.1;
+    float ambientStrength = 0.2;
+    float specularStrength = 0.5;
 
     /* Ambient */
     vec3 ambientLight = ambientStrength * lightColour;
-    vec3 ambient = ambientColour * ambientLight;
+    vec3 ambient = (ambientColour * ambientLight);
 
     /* Diffuse */
     vec3 lightDir = normalize(sun.xyz - fragPos);
@@ -32,7 +32,7 @@ void main()
     float spec = pow(max(dot(normalize(-fragPos), reflectDir), 0), fragShiny);
     vec3 specular = specularStrength * spec * specularColour;
 
-//    fragColor = vec4(ambient + diffuse + specular, tex.a);
+    vec3 result =  (ambient + diffuse + specular) * tex.xyz;
 
-    fragColor = vec4(ambient + diffuse, tex.a);
+    fragColor = vec4(result, tex.a);
 }
