@@ -29,7 +29,8 @@ void main()
 
     /* Specular */
     vec3 reflectDir = reflect(-lightDir, fragNormal);
-    float spec = pow(max(dot(normalize(-fragPos), reflectDir), 0), fragShiny);
+    float temp = max(dot(normalize(-fragPos), reflectDir), 0);
+    float spec = temp == 0 && fragShiny == 0 ? pow(0, 0) : pow(temp, fragShiny);
     vec3 specular = specularStrength * spec * specularColour;
 
 
