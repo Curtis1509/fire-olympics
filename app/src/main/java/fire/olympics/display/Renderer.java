@@ -17,7 +17,7 @@ import java.util.ArrayList;
 public class Renderer {
     private float FOV = (float) Math.toRadians(60.0f);
     private float z_near = 0.01f;
-    private float z_far = 1000.f;
+    private float z_far = 2000f;
     private final ArrayList<GameItem> gameItems = new ArrayList<>();
     private final ArrayList<GameItem> gameItemsWithTextures = new ArrayList<>();
     private final ArrayList<GameItem> gameItemsWithOutTextures = new ArrayList<>();
