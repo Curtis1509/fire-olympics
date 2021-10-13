@@ -172,6 +172,14 @@ public class App implements AutoCloseable {
         textShaderProgram.createUniform("translation");
         textShaderProgram.validate();
 
+        ShaderProgram depthShaderProgram = new ShaderProgram();
+        depthShaderProgram.load(GL_VERTEX_SHADER, resource("shaders", "shadow_depth.vert"));
+        depthShaderProgram.load(GL_FRAGMENT_SHADER, resource("shaders", "shadow_depth.frag"));
+        depthShaderProgram.link();
+        depthShaderProgram.createUniform("orthoProjectionMatrix");
+        depthShaderProgram.createUniform("modelLightViewMatrix");
+        depthShaderProgram.validate();
+
         ShaderProgram particleShader = new ShaderProgram();
         particleShader.load(GL_VERTEX_SHADER, resource("shaders", "particle_system.vert"));
         particleShader.load(GL_GEOMETRY_SHADER, resource("shaders", "particle_system.geom"));
