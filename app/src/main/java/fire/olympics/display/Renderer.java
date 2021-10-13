@@ -1,5 +1,6 @@
 package fire.olympics.display;
 
+import fire.olympics.graphics.shadow.ShadowMap;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 public class Renderer {
     private float FOV = (float) Math.toRadians(60.0f);
     private float z_near = 0.01f;
-    private float z_far = 1000.f;
+    private float z_far = 2000f;
     private final ArrayList<GameItem> gameItems = new ArrayList<>();
     private final ArrayList<GameItem> gameItemsWithTextures = new ArrayList<>();
     private final ArrayList<GameItem> gameItemsWithOutTextures = new ArrayList<>();
@@ -29,18 +30,24 @@ public class Renderer {
     private ShaderProgram programWithTexture;
     private ShaderProgram textShaderProgram;
     private ShaderProgram particleShader;
+    private ShaderProgram depthShadowShaderProgram;
     private Vector3f sunDirection = new Vector3f(0, 300, 10); // sun is behind and above camera
     private Matrix4f projectionMatrix = new Matrix4f();
+    private Matrix4f orthoProjectionMatrix = new Matrix4f();
     private Matrix4f worldMatrix = new Matrix4f();
-    public Matrix4f camera = new Matrix4f();
+    private Matrix4f lightViewMatrix = new Matrix4f();
     private Vector3f cameraPosition = new Vector3f(0, 0, 0);
     private Vector3f cameraAngle = new Vector3f();
+    private ShadowMap shadowMap = new ShadowMap();
 
-    public Renderer(ShaderProgram program, ShaderProgram programWithTexture, ShaderProgram textShaderProgram, ShaderProgram particleShader) {
+    public Matrix4f camera = new Matrix4f();
+
+    public Renderer(ShaderProgram program, ShaderProgram programWithTexture, ShaderProgram textShaderProgram, ShaderProgram particleShader, ShaderProgram depthShadowShaderProgram) throws Exception {
         this.program = program;
         this.programWithTexture = programWithTexture;
         this.textShaderProgram = textShaderProgram;
         this.particleShader = particleShader;
+        this.depthShadowShaderProgram = depthShadowShaderProgram;
     }
 
     public void add(GameItem tree) {
@@ -99,11 +106,17 @@ public class Renderer {
         projectionMatrix.setPerspective(FOV, aspectRatio, z_near, z_far);
     }
 
-    public void render() {
+    public void render(Window window) {
         // Set the color.
         glClearColor(0f, 0f, 0f, 1.0f);
         // Apply the color.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+//        if (depthShadowShaderProgram != null) {
+//            renderDepthMap(window, ob);
+//            window.updateViewPort(this);
+//        }
 
         // Start issueing render commands.
         if (program != null) {
@@ -118,7 +131,6 @@ public class Renderer {
             programWithTexture.unbind();
         }
         App.checkError("1");
-
 
         if (textShaderProgram != null) {
             glDisable(GL_CULL_FACE);
@@ -193,5 +205,44 @@ public class Renderer {
         particleShader.setUniform("cameraLocation", cameraPosition);
         particleShader.setUniform("cameraDirection", cameraAngle);
         particleSystem.render();
+    }
+
+    private void renderDepthMap(Window window, ArrayList<GameItem> objects) {
+        glBindFramebuffer(GL_FRAMEBUFFER, shadowMap.getDepthMapFBO());
+        window.setViewPort(this, ShadowMap.SHADOW_MAP_WIDTH, ShadowMap.SHADOW_MAP_HEIGHT);
+
+        glClear(GL_DEPTH_BUFFER_BIT);
+
+        depthShadowShaderProgram.bind();
+
+        float lightAngleX = (float) Math.acos(-sunDirection.z);
+        float lightAngleY = (float) Math.asin(-sunDirection.x);
+        float lightAngleZ = 0;
+
+        lightViewMatrix.identity();
+        // First do the rotation so camera rotates over its position
+        lightViewMatrix.rotate((float)Math.toRadians(lightAngleX), new Vector3f(1, 0, 0))
+                .rotate((float)Math.toRadians(lightAngleY), new Vector3f(0, 1, 0));
+        // Then do the translation
+        lightViewMatrix.translate(-sunDirection.x, -sunDirection.y, -sunDirection.z);
+
+
+        orthoProjectionMatrix.identity();
+        orthoProjectionMatrix.setOrtho(-35.0f, 35.0f, -35.0f, 35.0f, 0.1f, 75.0f);
+
+        depthShadowShaderProgram.setUniform("orthoProjectionMatrix", orthoProjectionMatrix);
+        // Render each gameItem
+        for (GameItem object : objects) {
+            // Set world matrix for this item
+            Vector3f rotation = object.getRotation();
+
+            // TODO render gameObjects to shadowMap
+
+            program.setUniform("worldMatrix", worldMatrix);
+            object.mesh.render();
+        }
+
+        depthShadowShaderProgram.unbind();
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 }

@@ -172,13 +172,13 @@ public class App implements AutoCloseable {
         textShaderProgram.createUniform("translation");
         textShaderProgram.validate();
 
-        ShaderProgram depthShaderProgram = new ShaderProgram();
-        depthShaderProgram.load(GL_VERTEX_SHADER, resource("shaders", "shadow_depth.vert"));
-        depthShaderProgram.load(GL_FRAGMENT_SHADER, resource("shaders", "shadow_depth.frag"));
-        depthShaderProgram.link();
-        depthShaderProgram.createUniform("orthoProjectionMatrix");
-        depthShaderProgram.createUniform("modelLightViewMatrix");
-        depthShaderProgram.validate();
+        ShaderProgram depthShadowShaderProgram = new ShaderProgram();
+        depthShadowShaderProgram.load(GL_VERTEX_SHADER, resource("shaders", "shadow_depth.vert"));
+        depthShadowShaderProgram.load(GL_FRAGMENT_SHADER, resource("shaders", "shadow_depth.frag"));
+        depthShadowShaderProgram.link();
+        depthShadowShaderProgram.createUniform("orthoProjectionMatrix");
+        depthShadowShaderProgram.createUniform("modelLightViewMatrix");
+        depthShadowShaderProgram.validate();
 
         ShaderProgram particleShader = new ShaderProgram();
         particleShader.load(GL_VERTEX_SHADER, resource("shaders", "particle_system.vert"));
@@ -202,7 +202,7 @@ public class App implements AutoCloseable {
         text2.isCentered = false;
         text2.color.set(1.0f, 0.0f, 0.0f);
         ModelLoader loader = new ModelLoader(resourcePath);
-        Renderer renderer = new Renderer(program, programWithTexture, textShaderProgram, particleShader);
+        Renderer renderer = new Renderer(program, programWithTexture, textShaderProgram, particleShader, depthShadowShaderProgram);
         renderer.addText(text);
         renderer.addText(text2);
         GameController controller = new GameController(this, window, renderer, loader);
@@ -227,7 +227,7 @@ public class App implements AutoCloseable {
             textShaderProgram.validate();
             
             ModelLoader loader = new ModelLoader(resourcePath);
-            Renderer renderer = new Renderer(null, null, textShaderProgram, null);
+            Renderer renderer = new Renderer(null, null, textShaderProgram, null, null);
 
             Texture texture = Texture.loadPngTexture(resource("fonts", "fontfile.png"));
             FontType fontType = new FontType(resource("fonts", "fontfile.fnt"), texture);
@@ -262,7 +262,7 @@ public class App implements AutoCloseable {
             particleShader.createUniform("cameraDirection");
 
             ModelLoader loader = new ModelLoader(resourcePath);
-            Renderer renderer = new Renderer(null, null, null, particleShader);
+            Renderer renderer = new Renderer(null, null, null, particleShader, null);
 
             ParticleController controller = new ParticleController(this, window, renderer, loader);
             controllers.add(controller);

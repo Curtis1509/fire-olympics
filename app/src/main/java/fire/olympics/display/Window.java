@@ -221,15 +221,23 @@ public class Window implements AutoCloseable {
             if(eventDelegate != null)
                 eventDelegate.update(frameDelta);
             if (resized) {
-                glViewport(0, 0, width, height);
-                resized = false;
-                renderer.setAspectRatio(aspectRatio());
+                updateViewPort(renderer);
             }
-            renderer.render();
+            renderer.render(this);
             glfwSwapBuffers(windowId);
             done();
         }
         return shouldClose();
+    }
+
+    public void setViewPort(Renderer renderer, int width, int height) {
+        glViewport(0, 0, width, height);
+        resized = false;
+        renderer.setAspectRatio(aspectRatio());
+    }
+
+    public void updateViewPort(Renderer renderer) {
+        setViewPort(renderer, width, height);
     }
 
     private void processKeyboardEvent(long window, int key, int scancode, int action, int mods) {
