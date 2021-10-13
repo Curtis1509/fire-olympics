@@ -37,7 +37,21 @@ public class Texture {
         IntBuffer comp = MemoryUtil.memAllocInt(1);
 
         STBImage.stbi_info(path.toAbsolutePath().toString(), w, h, comp);
-        ByteBuffer imageData = STBImage.stbi_load(path.toAbsolutePath().toString(), w, h, comp, STBImage.STBI_rgb);
+
+        // Guess the pixel layout to support both RGB and RGBA formats.
+        int stbimagePixelLayout;
+        int glteximagePixelLayout;
+        if (comp.get(0) == 3) {
+            stbimagePixelLayout = STBImage.STBI_rgb;
+            glteximagePixelLayout = GL_RGB;
+        } else if (comp.get(0) == 4) {
+            stbimagePixelLayout = STBImage.STBI_rgb_alpha;
+            glteximagePixelLayout = GL_RGBA;
+        } else {
+            throw new RuntimeException("unknown number of components in texture.");
+        }
+
+        ByteBuffer imageData = STBImage.stbi_load(path.toAbsolutePath().toString(), w, h, comp, stbimagePixelLayout);
 
         if (imageData == null) {
             id = 0;
@@ -48,10 +62,10 @@ public class Texture {
         id = glGenTextures();
         bind();
 
-        width = w.get(0)/64/4;
-        height= w.get(0)/64/4;
+        width = w.get(0) / 64 / 4;
+        height = w.get(0) / 64 / 4;
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w.get(0), h.get(0), 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
+        glTexImage2D(GL_TEXTURE_2D, 0, glteximagePixelLayout, w.get(0), h.get(0), 0, glteximagePixelLayout, GL_UNSIGNED_BYTE, imageData);
         glGenerateMipmap(GL_TEXTURE_2D);
         unbind();
         STBImage.stbi_image_free(imageData);

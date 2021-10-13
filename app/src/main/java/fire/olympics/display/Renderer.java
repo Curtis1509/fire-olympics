@@ -36,6 +36,8 @@ public class Renderer {
     private Vector3f cameraPosition = new Vector3f(0, 0, 0);
     private Vector3f cameraAngle = new Vector3f();
 
+    public final Vector4f backgroundColor = new Vector4f();
+
     public Renderer(ShaderProgram program, ShaderProgram programWithTexture, ShaderProgram textShaderProgram, ShaderProgram particleShader) {
         this.program = program;
         this.programWithTexture = programWithTexture;
@@ -108,8 +110,7 @@ public class Renderer {
     }
 
     public void render() {
-        // Set the color.
-        glClearColor(0f, 0f, 0f, 1.0f);
+        glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, backgroundColor.w);
         // Apply the color.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -164,11 +165,14 @@ public class Renderer {
         if (particleShader != null) {
             particleShader.bind();
             glDisable(GL_CULL_FACE);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             particleShader.setUniform("projectionMatrix", projectionMatrix);
             for (ParticleSystem particleSystem : particleSystems) {
                 renderParticleSystem(particleSystem);
             }
             particleShader.unbind();
+            glDisable(GL_BLEND);
             glEnable(GL_CULL_FACE);
         }
     }

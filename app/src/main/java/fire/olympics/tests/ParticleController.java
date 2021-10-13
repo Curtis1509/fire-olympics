@@ -17,7 +17,7 @@ import org.joml.Random;
 public class ParticleController extends Controller {
 
     private static final float MOUSE_SENSITIVITY = 5;
-    ParticleSystem particleSystem = new ParticleSystem(10);
+    ParticleSystem particleSystem = new ParticleSystem(100);
     private boolean mouseEnabled = true;
     private boolean enableFreeCamera = true;
     private Vector3f angle = new Vector3f();
@@ -28,6 +28,7 @@ public class ParticleController extends Controller {
         super(app, window, renderer, loader);
         camera = new FreeCamera(window, renderer, position, angle);
         camera.setEnabled(true);
+        renderer.backgroundColor.set(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
     @Override
@@ -35,7 +36,7 @@ public class ParticleController extends Controller {
         particleSystem.texture = loader.loadTexture("textures", "fire_particle.png");
         particleSystem.randomGenerator = new Random(123);
         particleSystem.position.set(0, 0, -10);
-        particleSystem.debug();
+        particleSystem.placeOnLattice();
         renderer.add(particleSystem);
     }
     

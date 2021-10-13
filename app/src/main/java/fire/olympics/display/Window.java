@@ -177,9 +177,7 @@ public class Window implements AutoCloseable {
         // Extra check to enable MSAA
         glEnable(GL_MULTISAMPLE);
         // Enable v-sync
-//        glfwSwapInterval(1);
-        // Set the clear color
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        // glfwSwapInterval(1);
     }
 
     /**

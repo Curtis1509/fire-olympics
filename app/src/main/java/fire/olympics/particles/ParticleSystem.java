@@ -55,7 +55,7 @@ public class ParticleSystem {
         sizeBuffer[2 * index + 1] = height;
     }
 
-    public void debug() {
+    public void placeOnLattice() {
         float width = 0.5f;
         float height = 0.5f;
         float lifetime = -1.0f;
