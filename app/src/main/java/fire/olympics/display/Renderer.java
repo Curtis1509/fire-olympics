@@ -29,7 +29,7 @@ public class Renderer {
     private ShaderProgram programWithTexture;
     private ShaderProgram textShaderProgram;
     private ShaderProgram particleShader;
-    private Vector3f sunDirection = new Vector3f(5000000, 10000000, 760000); // sun is behind and above camera
+    private Vector3f sunDirection = new Vector3f(50000, 10000, 7600000); // sun is behind and above camera
     private Matrix4f projectionMatrix = new Matrix4f();
     private Matrix4f worldMatrix = new Matrix4f();
     public Matrix4f camera = new Matrix4f();
@@ -37,6 +37,7 @@ public class Renderer {
     private Vector3f cameraAngle = new Vector3f();
 
     public Renderer(ShaderProgram program, ShaderProgram programWithTexture, ShaderProgram textShaderProgram, ShaderProgram particleShader) {
+        System.err.println("SUN DIRECTION: " + sunDirection.normalize());
         this.program = program;
         this.programWithTexture = programWithTexture;
         this.textShaderProgram = textShaderProgram;
