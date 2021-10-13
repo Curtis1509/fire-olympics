@@ -83,6 +83,7 @@ public class GameController extends Controller {
         // sky4 has the smoothest sky that fits in github. export sky5 from blender for the smoothest sky
         objects.add(2, new GameItemGroup("stadium", loader.loadModel(1, "models", "stadium_sky4.obj")));
 //        objects.add(2, new GameItemGroup(loader.loadModel("models", "stadium_sky5.obj")));
+//        objects.add(2, new GameItemGroup("stadium", loader.loadModel(1, "models", "stadium_nosky.obj")));
 
         objects.add(3, new GameItemGroup("ringt", loader.loadModel(1, "models", "ring.obj")));
         objects.add(4, new GameItemGroup("ringtp", loader.loadModel(1, "models", "ring+pole.obj")));

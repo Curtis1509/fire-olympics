@@ -37,7 +37,6 @@ public class Renderer {
     private Vector3f cameraAngle = new Vector3f();
 
     public Renderer(ShaderProgram program, ShaderProgram programWithTexture, ShaderProgram textShaderProgram, ShaderProgram particleShader) {
-        System.err.println("SUN DIRECTION: " + sunDirection.normalize());
         this.program = program;
         this.programWithTexture = programWithTexture;
         this.textShaderProgram = textShaderProgram;
