@@ -29,7 +29,7 @@ public class Renderer {
     private ShaderProgram programWithTexture;
     private ShaderProgram textShaderProgram;
     private ShaderProgram particleShader;
-    private Vector3f sunDirection = new Vector3f(0, 300, 10); // sun is behind and above camera
+    private Vector3f sunDirection = new Vector3f(5000000, 10000000, 760000); // sun is behind and above camera
     private Matrix4f projectionMatrix = new Matrix4f();
     private Matrix4f worldMatrix = new Matrix4f();
     public Matrix4f camera = new Matrix4f();
@@ -170,6 +170,7 @@ public class Renderer {
     private void render(ArrayList<GameItem> objects, Matrix4f worldMatrix, ShaderProgram program) {
         program.setUniform("projectionMatrix", projectionMatrix);
         program.setUniform("sun", sunDirection);
+        program.setUniform("camera_pos", cameraPosition);
 
         // Render each gameItem
         for (GameItem object : objects) {

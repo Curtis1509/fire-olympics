@@ -10,6 +10,7 @@ out vec4 fragColor;
 
 uniform sampler2D texture_sampler;
 uniform vec3 sun;
+uniform vec3 camera_pos;
 
 void main()
 {
@@ -28,13 +29,13 @@ void main()
     vec3 diffuse = diffStrength * tex.rgb;
 
     /* Specular */
-    vec3 reflectDir = reflect(-lightDir, fragNormal);
-    float temp = max(dot(normalize(-fragPos), reflectDir), 0);
-    float spec = temp == 0 && fragShiny == 0 ? 0 : pow(temp, fragShiny);
+    vec3 cameraDir = normalize(camera_pos-fragPos);
+    vec3 reflectDir = normalize(reflect(-lightDir, fragNormal));
+    float temp = max(dot(cameraDir, reflectDir), 0);
+    float spec = temp == 0 && fragShiny == 0 ? 1 : pow(temp, fragShiny);
     vec3 specular = specularStrength * spec * specularColour;
 
-
-    vec3 result =  (ambient + diffuse + specular) * tex.xyz;
+    vec3 result =  (ambient + (diffuse + specular)) * tex.xyz;
 
     fragColor = vec4(result, tex.a);
 }

@@ -9,6 +9,7 @@ in  vec3 fragPos;
 out vec4 fragColor;
 
 uniform vec3 sun;
+uniform vec3 camera_pos;
 
 void main()
 {

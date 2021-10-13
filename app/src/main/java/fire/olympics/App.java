@@ -157,6 +157,7 @@ public class App implements AutoCloseable {
         program.createUniform("projectionMatrix");
         program.createUniform("worldMatrix");
         program.createUniform("sun");
+        program.createUniform("camera_pos");
         program.validate();
 
         ShaderProgram programWithTexture = new ShaderProgram();
@@ -167,6 +168,7 @@ public class App implements AutoCloseable {
         programWithTexture.createUniform("worldMatrix");
         programWithTexture.createUniform("sun");
         programWithTexture.createUniform("texture_sampler");
+        programWithTexture.createUniform("camera_pos");
         programWithTexture.validate();
 
         ShaderProgram textShaderProgram = new ShaderProgram();
