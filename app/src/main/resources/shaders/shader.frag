@@ -13,7 +13,7 @@ uniform vec3 sun;
 void main()
 {
     vec3 lightColour = vec3(1, 1, 1);
-    float ambientStrength = 0.2;
+    float ambientStrength = 0.4;
     float specularStrength = 0.5;
 
     /* Ambient */
