@@ -1,0 +1,24 @@
+# Blender MTL File: 'ring+pole_blue.blend'
+# Material Count: 2
+
+newmtl Material.001
+Ns 654.008175
+Ka 0.900682 0.900682 0.900682
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd -s 0.460000 0.630000 1.000000 ../textures/pole_metal.jpg
+
+newmtl Material.002
+Ns 654.008175
+Ka 0.900682 0.900682 0.900682
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd -s 0.460000 0.630000 1.000000 ../textures/ring_blue.jpg

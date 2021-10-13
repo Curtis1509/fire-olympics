@@ -30,7 +30,7 @@ public class GameController extends Controller {
     private Vector3f position = new Vector3f();
     private ArrayList<GameItemGroup> objects = new ArrayList<>();
     private GameItemGroup arrow;
-    private int numOfPoles = 10;
+    private int numOfPoles = 1; // number of each of the five colours
 
     private ParticleSystem particleSystem = new ParticleSystem(100);
 
@@ -51,6 +51,13 @@ public class GameController extends Controller {
         loader.loadTexture("textures", "stadium_wood.jpeg");
         loader.loadTexture("textures", "stadium_sky.jpg");
         loader.loadTexture("textures", "ring+pole_brushed_metal.jpg");
+        loader.loadTexture("textures", "ring_black.jpg");
+        loader.loadTexture("textures", "ring_blue.jpg");
+        loader.loadTexture("textures", "ring_green.jpg");
+        loader.loadTexture("textures", "ring_red.jpg");
+        loader.loadTexture("textures", "ring_yellow.jpg");
+        loader.loadTexture("textures", "pole_metal.jpg");
+
 
         // adding to ArrayList with indices, to explicitly place objects in order
         // skipping an index, or adding them out of order, will break things!!
@@ -59,19 +66,23 @@ public class GameController extends Controller {
 
         objects.add(1, new GameItemGroup(loader.loadModel("models", "Brazier v2 Textured.obj")));
 
-        // stadium_old has the black sky. sky4 has the smoothest sky that fits in github. export sky5 from blender
-        // for the smoothest sky
-//        objects.add(2, new GameItemGroup(loader.loadModel("models", "stadium_old.obj")));
+        // sky4 has the smoothest sky that fits in github. export sky5 from blender for the smoothest sky
         objects.add(2, new GameItemGroup(loader.loadModel("models", "stadium_sky4.obj")));
 //        objects.add(2, new GameItemGroup(loader.loadModel("models", "stadium_sky5.obj")));
 
         objects.add(3, new GameItemGroup(loader.loadModel("models", "ring.obj")));
+        objects.add(4, new GameItemGroup(loader.loadModel("models", "ring+pole.obj")));
 
         int size = objects.size();
-        //int sizeBeforePoles = size;
-        // Add ring poles to the model loader
-        for (int i = size; i < numOfPoles; i++) {
-            objects.add(i, new GameItemGroup(loader.loadModel("models", "ring+pole.obj")));
+
+        // coloured rings
+        for (int i = 0; i < numOfPoles; i++) {
+            objects.add(new GameItemGroup(loader.loadModel("models", "ring+pole_black.obj")));
+            objects.add(new GameItemGroup(loader.loadModel("models", "ring+pole_blue.obj")));
+            objects.add(new GameItemGroup(loader.loadModel("models", "ring+pole_green.obj")));
+            objects.add(new GameItemGroup(loader.loadModel("models", "ring+pole_red.obj")));
+            objects.add(new GameItemGroup(loader.loadModel("models", "ring+pole_yellow.obj")));
+
         }
 
         // setting initial positions
@@ -80,16 +91,17 @@ public class GameController extends Controller {
         objects.get(2).setPosition(0, -7, 0);
         objects.get(2).setScale(7);
         objects.get(3).setPosition(0, 2, -10);
+        objects.get(4).setPosition(0, -5, -45);
 
         Random r = new Random();
-        int lowX = -100;
-        int highX = 100;
-        int lowY = -15;
-        int highY = -5;
-        int lowZ = -100;
-        int highZ = 100;
+        int lowX = -190;
+        int highX = 190;
+        int lowY = -45;
+        int highY = 25;
+        int lowZ = -110;
+        int highZ = 110;
 
-        // Spawn ring and poles in random positions
+        // randomise positions of coloured rings
         for (int i = size; i < objects.size(); i++) {
             int resultX = r.nextInt(highX - lowX) + lowX;
             int resultY = r.nextInt(highY - lowY) + lowY;
