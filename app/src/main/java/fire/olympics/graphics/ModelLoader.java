@@ -69,7 +69,7 @@ public class ModelLoader implements AutoCloseable {
      * @return A list of game items representing the meshes that were loaded.
      * @throws Exception
      */
-    public ArrayList<GameItem> loadModel(String first, String... more) throws Exception {
+    public ArrayList<GameItem> loadModel(int quantity, String first, String... more) throws Exception {
         Path path = resource(first, more);
         AIScene scene = Assimp.aiImportFile(path.toAbsolutePath().toString(), 0);
         if (scene == null) {
@@ -168,6 +168,7 @@ public class ModelLoader implements AutoCloseable {
 
             newMesh.attachLightingData(ambient, specular, shininess);
 
+            for (int j = 0; j < quantity; j++)
             objects.add(new GameItem(newMesh));
         }
 

@@ -14,12 +14,23 @@ import org.lwjgl.system.MemoryUtil;
 
 public class Texture {
     private int id;
+    private float width;
+    private float height;
+    public String name;
 
     public Texture(int id){
         this.id=id;
     }
 
+    public float getWidth(){
+        return width;
+    }
+    public float getHeight(){
+        return height;
+    }
+
     public Texture(Path path) {
+        name = path.toString();
         System.out.println("Loading texture at : " + path);
         IntBuffer w = MemoryUtil.memAllocInt(1);
         IntBuffer h = MemoryUtil.memAllocInt(1);
@@ -36,6 +47,10 @@ public class Texture {
 
         id = glGenTextures();
         bind();
+
+        width = w.get(0)/64/4;
+        height= w.get(0)/64/4;
+
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w.get(0), h.get(0), 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
         glGenerateMipmap(GL_TEXTURE_2D);
         unbind();

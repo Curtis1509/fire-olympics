@@ -3,6 +3,8 @@ package fire.olympics.display;
 import fire.olympics.graphics.ModelLoader;
 import fire.olympics.App;
 
+import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -10,6 +12,10 @@ import fire.olympics.particles.ParticleSystem;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -25,17 +31,25 @@ public class GameController extends Controller {
     private boolean mouseEnabled = true;
     private boolean enableFreeCamera = true; // Used to determine if camera should be locked to arrow or not
     private boolean keyVPrev = false; // Allows V key to toggle camera type
-//    private float movementSpeed = 5f;
+    private boolean keyOPrev = false;
+    //    private float movementSpeed = 5f;
     private Vector3f angle = new Vector3f();
     private Vector3f position = new Vector3f();
     private ArrayList<GameItemGroup> objects = new ArrayList<>();
+    private static boolean playing = false;
     private GameItemGroup arrow;
     private int numOfPoles = 1; // number of each of the five colours
+    private ArrayList<Path> soundURL = new ArrayList<>();
 
     private ParticleSystem particleSystem = new ParticleSystem(100);
 
-    public GameController(App app, Window window, Renderer renderer, ModelLoader loader) {
+    public GameController(App app, Window window, Renderer renderer, ModelLoader loader, ArrayList<Path> soundURL) {
         super(app, window, renderer, loader);
+        this.soundURL = soundURL;
+    }
+
+    public static boolean isPlaying(){
+        return playing;
     }
 
     @Override
@@ -62,26 +76,26 @@ public class GameController extends Controller {
         // adding to ArrayList with indices, to explicitly place objects in order
         // skipping an index, or adding them out of order, will break things!!
 
-        objects.add(0, new GameItemGroup(loader.loadModel("models", "proto_arrow_textured.obj")));
+        objects.add(0, new GameItemGroup("arrow", loader.loadModel(1, "models", "proto_arrow_textured.obj")));
 
-        objects.add(1, new GameItemGroup(loader.loadModel("models", "Brazier v2 Textured.obj")));
+        objects.add(1, new GameItemGroup("brazier", loader.loadModel(1, "models", "Brazier v2 Textured.obj")));
 
         // sky4 has the smoothest sky that fits in github. export sky5 from blender for the smoothest sky
-        objects.add(2, new GameItemGroup(loader.loadModel("models", "stadium_sky4.obj")));
+        objects.add(2, new GameItemGroup("stadium", loader.loadModel(1, "models", "stadium_sky4.obj")));
 //        objects.add(2, new GameItemGroup(loader.loadModel("models", "stadium_sky5.obj")));
 
-        objects.add(3, new GameItemGroup(loader.loadModel("models", "ring.obj")));
-        objects.add(4, new GameItemGroup(loader.loadModel("models", "ring+pole.obj")));
+        objects.add(3, new GameItemGroup("ringt", loader.loadModel(1, "models", "ring.obj")));
+        objects.add(4, new GameItemGroup("ringtp", loader.loadModel(1, "models", "ring+pole.obj")));
 
         int size = objects.size();
 
         // coloured rings
         for (int i = 0; i < numOfPoles; i++) {
-            objects.add(new GameItemGroup(loader.loadModel("models", "ring+pole_black.obj")));
-            objects.add(new GameItemGroup(loader.loadModel("models", "ring+pole_blue.obj")));
-            objects.add(new GameItemGroup(loader.loadModel("models", "ring+pole_green.obj")));
-            objects.add(new GameItemGroup(loader.loadModel("models", "ring+pole_red.obj")));
-            objects.add(new GameItemGroup(loader.loadModel("models", "ring+pole_yellow.obj")));
+            objects.add(new GameItemGroup("ring", loader.loadModel(1, "models", "ring+pole_black.obj")));
+            objects.add(new GameItemGroup("ring", loader.loadModel(1, "models", "ring+pole_blue.obj")));
+            objects.add(new GameItemGroup("ring", loader.loadModel(1, "models", "ring+pole_green.obj")));
+            objects.add(new GameItemGroup("ring", loader.loadModel(1, "models", "ring+pole_red.obj")));
+            objects.add(new GameItemGroup("ring", loader.loadModel(1, "models", "ring+pole_yellow.obj")));
 
         }
 
@@ -108,10 +122,11 @@ public class GameController extends Controller {
             int resultZ = r.nextInt(highZ - lowZ) + lowZ;
 
             objects.get(i).setPosition(resultX, resultY, -resultZ);
-            objects.get(i).setScale(2);
+            objects.get(i).setScale(3);
         }
 
         for (GameItemGroup object : objects) {
+            if (!(object.getString().equals("ringt") || object.getString().equals("ringtp")))
             for (GameItem item : object.getAll())
                 renderer.add(item);
         }
@@ -132,17 +147,25 @@ public class GameController extends Controller {
     public void update(double timeDelta) {
         checkCollision();
         // Enable or Disable free Camera
-        boolean keyV = window.isKeyDown(GLFW_KEY_V);
-        if (window.checkKeyState(GLFW_KEY_V, keyVPrev) == 1) {
+        boolean keyV = window.isKeyDown(GLFW_KEY_SPACE);
+        if (!FreeCamera.override && window.checkKeyState(GLFW_KEY_SPACE, keyVPrev) == 1) {
             enableFreeCamera = !enableFreeCamera;
+            playing=!playing;
         }
         keyVPrev = keyV;
 
         boolean keyP = window.isKeyDown(GLFW_KEY_P);
-        if(window.checkKeyState(GLFW_KEY_P, keyPPrev) == 1) {
+        if (window.checkKeyState(GLFW_KEY_P, keyPPrev) == 1) {
             System.out.println(freeCamera.position);
         }
         keyPPrev = keyP;
+
+        boolean keyO = window.isKeyDown(GLFW_KEY_O);
+        if (window.checkKeyState(GLFW_KEY_O, keyOPrev) == 1) {
+            FreeCamera.override = !FreeCamera.override;
+            System.out.println("Override set to " + FreeCamera.override);
+        }
+        keyOPrev = keyO;
 
         // Check if freeCamera is enabled
         if (enableFreeCamera) {
@@ -167,29 +190,86 @@ public class GameController extends Controller {
         particleSystem.update(timeDelta);
     }
 
+    public synchronized void playSound(int index) {
+        new Thread(new Runnable() {
+            // The wrapper thread is unnecessary, unless it blocks on the
+            // Clip finishing; see comments.
+
+            public void run() {
+                try {
+                    URL url = soundURL.get(index).toUri().toURL();
+                    AudioInputStream audioIn = AudioSystem.getAudioInputStream(url);
+                    // Get a sound clip resource.
+                    Clip clip = AudioSystem.getClip();
+                    // Open audio clip and load samples from the audio input stream.
+                    clip.open(audioIn);
+                    clip.start();
+                } catch (Exception e) {
+                    System.err.println(e.getMessage());
+                }
+            }
+        }).start();
+    }
+
+    public boolean isInside(float yRot, double width, double height, double objectx, double objecty, double objectz, double playerx, double playery, double playerz) {
+        double r = width / 2;
+        double total = objecty+r+(height/2);
+        double d = Math.sqrt(Math.pow(playerx - (objectx), 2) + Math.pow(playery - (total), 2) + Math.pow(playerz - (objectz), 2));
+        //System.out.println("ox: " + objectx+ " oy: "+total+"  oz: " + objectz+" oa: " + yRot + "arrowx: "+ playerx+ "arrow y: " + arrow.getPosition().y()+" playerz: "+ playerz + "distance: " + d);
+        //System.out.println("radius: " + r + "width: ");
+        float aRot = arrow.getRotation().y;
+        if (aRot < 0)
+            aRot = 360 - (aRot * -1);
+        if (aRot >= 360) {
+            aRot -= 360;
+        }
+       // System.out.println("arrow angle: " + aRot + " ring angle: " + objects.get(3).getRotation().y);
+        float ringRot = yRot;
+        float cutOff = 30;
+        float ringRotPlus90 = ringRot + 90;
+        float ringRotMinus90 = ringRot - 90;
+        if (ringRotMinus90 < 0)
+            ringRotMinus90 = 360 - (-1 * ringRotMinus90);
+        if (ringRot < 360 && ringRotPlus90 > 360) {
+            ringRotPlus90 = 360 - ringRotPlus90;
+        }
+        if (d <= width/2) {
+            System.out.println("yes");
+            if (aRot > ringRotPlus90 - cutOff && aRot < ringRotPlus90 + cutOff) {
+                return false;
+            } else if (aRot > ringRotMinus90 - cutOff && aRot < ringRotMinus90 + cutOff) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
     int collisionTick = 0;
+    int collisionIndex = 6969;
+
 
     public void checkCollision() {
-        // System.out.println("a" + arrow.getPosition().x + " r" +
-        // objects.get(3).getPosition().z);
-        if (collisionTick == 0 && arrow.getPosition().x >= objects.get(3).getPosition().x
-                && arrow.getPosition().x <= objects.get(3).getPosition().x + 4f
-                && arrow.getPosition().y >= objects.get(3).getPosition().y
-                && arrow.getPosition().y <= objects.get(3).getPosition().y + 4f
-                && arrow.getPosition().z >= objects.get(3).getPosition().z
-                && arrow.getPosition().z <= objects.get(3).getPosition().z + 4f) {
-            collisionTick++;
-            App.score++;
-            renderer.updateText(1, "" + App.score);
 
-            System.out.println("COLLIDE");
-        } else if (collisionTick > 0 && (!(arrow.getPosition().x >= objects.get(3).getPosition().x
-                && arrow.getPosition().x <= objects.get(3).getPosition().x + 4f
-                && arrow.getPosition().y >= objects.get(3).getPosition().y
-                && arrow.getPosition().y <= objects.get(3).getPosition().y + 4f
-                && arrow.getPosition().z >= objects.get(3).getPosition().z
-                && arrow.getPosition().z <= objects.get(3).getPosition().z + 4f))) {
+        for (int i = 0; i < objects.size(); i++) {
+            if (objects.get(i).getString().equals("ring")) {
+                // System.out.println("found ring at "+ i);
+                if (collisionTick == 0 && isInside(objects.get(i).getRotation().y, objects.get(3).getWidth(0)*objects.get(i).getScale(), objects.get(i).getHeight(0)*objects.get(i).getScale(), objects.get(i).getPosition().x, objects.get(i).getPosition().y, objects.get(i).getPosition().z, arrow.getPosition().x(), arrow.getPosition().y, arrow.getPosition().z)
+                ) {
+                    //isInside(objects.get(3).getRotation(i).y, objects.get(3).getWidth(0), objects.get(3).getHeight(0), objects.get(3).getPosition(i).x, objects.get(3).getPosition(i).y, objects.get(3).getPosition(i).z, arrow.getPosition().x(), arrow.getPosition().y, arrow.getPosition().z);
+                    collisionTick++;
+                    collisionIndex = i;
+                    System.out.println("COLLIDE");
+                }
+            }
+        }
+        if (collisionIndex != 6969 && collisionTick > 0 && (!(isInside(objects.get(collisionIndex).getRotation().y, objects.get(3).getWidth(0)*objects.get(collisionIndex).getScale(), objects.get(collisionIndex).getHeight(0)*objects.get(collisionIndex).getScale(), objects.get(collisionIndex).getPosition().x, objects.get(collisionIndex).getPosition().y, objects.get(collisionIndex).getPosition().z, arrow.getPosition().x(), arrow.getPosition().y, arrow.getPosition().z)))) {
             collisionTick = 0;
+            collisionIndex = 6969;
+            App.score++;
+            playSound(0);
+            renderer.updateText(2, "" + App.score);
         }
     }
 
@@ -234,12 +314,11 @@ public class GameController extends Controller {
     // Adjust angle of camera to match mouse movement
     @Override
     public void mouseMoved(Vector2f delta) {
-        if (enableFreeCamera) {
+        if (enableFreeCamera && FreeCamera.override) {
             if (!mouseEnabled) {
                 angle.y += delta.x / MOUSE_SENSITIVITY;
                 angle.x += delta.y / MOUSE_SENSITIVITY;
             }
-
             renderer.updateCamera(position, angle);
         }
     }

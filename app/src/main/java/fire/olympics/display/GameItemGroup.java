@@ -16,10 +16,14 @@ import java.util.ArrayList;
 
 public class GameItemGroup {
     private ArrayList<GameItem> group;
-
+    private String id;
     // GameItems should be constructed separately, then "grouped"
-    public GameItemGroup(ArrayList<GameItem> gameItems) { group = gameItems; }
+    public GameItemGroup(String id, ArrayList<GameItem> gameItems) { group = gameItems; this.id=id;}
     public GameItemGroup() {group = new ArrayList<>();}
+
+    public String getString(){
+        return id;
+    }
 
     // returns the number of GameItems in the collection
     public int getCount() { return group.size(); }
@@ -34,6 +38,10 @@ public class GameItemGroup {
 
     // gets the position of the GameItemGroup from the first GameItem
     // All GameItems in the group should have the same position
+    public Vector3f getPosition(int index) {
+        return group.get(index).getPosition();
+    }
+
     public Vector3f getPosition() {
         return group.get(0).getPosition();
     }
@@ -44,10 +52,26 @@ public class GameItemGroup {
             item.setPosition(position);
     }
 
+    public int getSize(){
+        return group.size();
+    }
+
     // sets the position of the GameItemGroup
     public void setPosition(float x, float y, float z) {
         for (GameItem item : group)
             item.setPosition(x,y,z);
+    }
+
+    public float getWidth(int i){
+        return group.get(0).getWidth();
+    }
+    public float getHeight(int i){
+
+        if (id.equals("ring")) {
+            float total =(getPosition().y()+group.get(0).getHeight());
+            //System.out.println(group.get(0).getHeight() + "H : Y" + getPosition().y() + " T" + total);
+        }
+        return group.get(0).getHeight();
     }
 
     public void movePosition(float offsetX, float offsetY, float offsetZ) {
@@ -62,6 +86,10 @@ public class GameItemGroup {
     // All GameItems in the group should have the same rotation
     public Vector3f getRotation() {
         return group.get(0).getRotation();
+    }
+
+    public Vector3f getRotation(int index) {
+        return group.get(index).getRotation();
     }
 
     // rotates the GameItemGroup
