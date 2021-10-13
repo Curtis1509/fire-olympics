@@ -24,6 +24,14 @@ public class GameItem {
         this.mesh = mesh;
     }
 
+    public float getWidth(){
+        //System.out.println(getRotation());
+        return mesh.getWidth();
+    }
+    public float getHeight(){
+        return mesh.getHeight();
+    }
+
     public Vector3f getPosition() {
         return position;
     }

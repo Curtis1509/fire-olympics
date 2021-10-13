@@ -43,7 +43,7 @@ public class VertexArrayObject implements AutoCloseable {
     /**
      * Creates a new vertex buffer object that specifies the sequence of vertices that make the geometric primitive being rendered. For example,
      * suppose a square is being drawn and the vertices are labeled A, B, C, and D.  The data would
-     * be layoud out as follows:
+     * be laid out as follows:
      * 
      * float[] positions = {
      *      A.x, A.y,

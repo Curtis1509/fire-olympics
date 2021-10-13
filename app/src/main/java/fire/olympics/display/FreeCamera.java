@@ -12,6 +12,7 @@ public class FreeCamera {
     Vector3f position;
     Vector3f angle;
     boolean enabled;
+    public static boolean override = false;
 
     public FreeCamera(Window window, Renderer renderer, Vector3f position, Vector3f angle) {
         this.window = window;
@@ -33,27 +34,35 @@ public class FreeCamera {
         float offsetY = 0;
         float offsetZ = 0;
 
-        if (window.isKeyDown(GLFW_KEY_A))
-            offsetX += movementSpeed * timeDelta;
 
-        if (window.isKeyDown(GLFW_KEY_D))
-            offsetX -= movementSpeed * timeDelta;
+        if (window.isKeyDown(GLFW_KEY_A) || !GameController.isPlaying()) {
+            if (override && window.isKeyDown(GLFW_KEY_A))
+                offsetX += movementSpeed * timeDelta;
+            else if (!GameController.isPlaying() && !override) {
+                offsetX += movementSpeed * timeDelta;
+                angle.y += 0.001;
+            }
+        }
+        if (override) {
+            if (window.isKeyDown(GLFW_KEY_D))
+                offsetX -= movementSpeed * timeDelta;
 
-        if (window.isKeyDown(GLFW_KEY_W))
-            offsetZ += movementSpeed * timeDelta;
+            if (window.isKeyDown(GLFW_KEY_W))
+                offsetZ += movementSpeed * timeDelta;
 
-        if (window.isKeyDown(GLFW_KEY_S))
-            offsetZ -= movementSpeed * timeDelta;
+            if (window.isKeyDown(GLFW_KEY_S))
+                offsetZ -= movementSpeed * timeDelta;
 
-        if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL))
-            offsetY += movementSpeed * timeDelta;
+            if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL))
+                offsetY += movementSpeed * timeDelta;
 
-        if (window.isKeyDown(GLFW_KEY_SPACE))
-            offsetY -= movementSpeed * timeDelta;
+            if (window.isKeyDown(GLFW_KEY_SPACE))
+                offsetY -= movementSpeed * timeDelta;
 
-        if (window.isKeyDown(GLFW_KEY_R) && enabled) {
+            if (window.isKeyDown(GLFW_KEY_R) && enabled) {
                 position.zero();
                 angle.zero();
+            }
         }
 
         updateCameraPos(offsetX, offsetY, offsetZ);
@@ -63,15 +72,16 @@ public class FreeCamera {
 
     // Update camera position taking into account camera rotation
     public void updateCameraPos(float offsetX, float offsetY, float offsetZ) {
-        if (offsetZ != 0) {
-            position.x += (float) Math.sin(Math.toRadians(angle.y)) * -1.0f * offsetZ;
-            position.z += (float) Math.cos(Math.toRadians(angle.y)) * offsetZ;
-        }
-        if (offsetX != 0) {
-            position.x += (float) Math.sin(Math.toRadians(angle.y - 90)) * -1.0f * offsetX;
-            position.z += (float) Math.cos(Math.toRadians(angle.y - 90)) * offsetX;
-        }
-        position.y += offsetY;
+            if (offsetZ != 0) {
+                position.x += (float) Math.sin(Math.toRadians(angle.y)) * -1.0f * offsetZ;
+                position.z += (float) Math.cos(Math.toRadians(angle.y)) * offsetZ;
+            }
+            if (offsetX != 0) {
+                position.x += (float) Math.sin(Math.toRadians(angle.y - 90)) * -1.0f * offsetX;
+                position.z += (float) Math.cos(Math.toRadians(angle.y - 90)) * offsetX;
+            }
+            position.y += offsetY;
+
     }
 
     public boolean isEnabled() {

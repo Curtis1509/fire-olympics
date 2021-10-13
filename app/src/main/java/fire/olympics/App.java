@@ -55,9 +55,11 @@ public class App implements AutoCloseable {
      */
     private final Path resourcePath;
     private final ArrayList<Controller> controllers = new ArrayList<>();
+    private ArrayList<Path> soundURL = new ArrayList<>();
 
     public App(Path resourcePath) {
         this.resourcePath = resourcePath;
+        soundURL.add(resource("sounds","ringsound.wav"));
         // Setup an error callback. The default implementation
         // will print the error message in System.err.
         GLFWErrorCallback.createPrint(System.err).set();
@@ -195,17 +197,27 @@ public class App implements AutoCloseable {
 
         GUIText text = new GUIText(fontType, "FIRE OLYMPICS");
         GUIText text2 = new GUIText(fontType, "" + score);
-        text.fontSize = 5.0f;
+        text.fontSize = 8.0f;
         text.isCentered = true;
-        text.color.set(0.0f, 0.5f, 0.5f);
+        text.color.set(1.0f, 0.0f, 0.0f);
+        text.position.y=0.3f;
+
+        GUIText textspace = new GUIText(fontType, "press [space] to play");
+        textspace.fontSize = 3.0f;
+        textspace.isCentered = true;
+        textspace.color.set(1.0f, 0.0f, 0.0f);
+        textspace.position.y=0.65f;
+
         text2.fontSize = 4.0f;
         text2.isCentered = false;
         text2.color.set(1.0f, 0.0f, 0.0f);
         ModelLoader loader = new ModelLoader(resourcePath);
         Renderer renderer = new Renderer(program, programWithTexture, textShaderProgram, particleShader, depthShadowShaderProgram);
-        renderer.addText(text);
-        renderer.addText(text2);
-        GameController controller = new GameController(this, window, renderer, loader);
+        renderer.addText(text,true);
+        renderer.addText(textspace,true);
+        renderer.addText(text2,false);
+
+        GameController controller = new GameController(this, window, renderer, loader, soundURL);
         controllers.add(controller);
 
         window.done();

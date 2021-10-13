@@ -13,9 +13,11 @@ public class TextMesh {
     private int vertexCount = 0;
     private float aspectRatio = 1.0f;
     private String renderedText = null;
+    private boolean menuText;
 
-    public TextMesh(GUIText text) {
+    public TextMesh(GUIText text, boolean menuText) {
         this.text = text;
+        this.menuText=menuText;
         vao = new VertexArrayObject();
         TextMeshData data = text.font.createTextMesh(text, aspectRatio);
         vao.use();
@@ -23,6 +25,14 @@ public class TextMesh {
         vao.bindFloats(data.getTextureCoords(), 1, GL_STATIC_DRAW, 2, GL_FLOAT);
         vao.done();
         vertexCount = data.getVertexCount();
+    }
+
+    public String getText(){
+        return text.value;
+    }
+
+    public boolean isMenuText(){
+        return menuText;
     }
 
     public Texture getFontTexture() {
