@@ -42,6 +42,26 @@ public class Texture {
         STBImage.stbi_image_free(imageData);
     }
 
+    /**
+     * Creates an empty texture.
+     *
+     * @param width Width of the texture
+     * @param height Height of the texture
+     * @param pixelFormat Specifies the format of the pixel data (GL_RGBA, etc.)
+     */
+    public Texture(int width, int height, int pixelFormat) {
+        // Create texture
+        this.id = glGenTextures();
+        // Bind texture
+        glBindTexture(GL_TEXTURE_2D, this.id);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, pixelFormat, GL_FLOAT, (ByteBuffer) null);
+        // Texture Parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    }
+
     public static Texture loadPngTexture(Path path) throws IOException {
 
         //load png file
@@ -95,5 +115,9 @@ public class Texture {
 
     public void close() {
         glDeleteTextures(id);
+    }
+
+    public int getId() {
+        return id;
     }
 }
