@@ -41,8 +41,8 @@ public class App implements AutoCloseable {
 
         try (App app = new App(resourcePath)) {
             // You can technically create two windows by calling this twice.
-            // app.createMainWindow();
-            app.addParticleController();
+            app.createMainWindow();
+            // app.addParticleController();
             app.mainLoop();
         } catch (Exception e) {
             System.out.printf("error: %s%n", e);
@@ -181,7 +181,7 @@ public class App implements AutoCloseable {
         particleShader.load(GL_FRAGMENT_SHADER, resource("shaders", "particle_system.frag"));
         particleShader.link();
         particleShader.createUniform("projectionMatrix");
-        particleShader.createUniform("worldMatrix");
+        particleShader.createUniform("particleSystemMatrix");
         particleShader.createUniform("hotColor");
         particleShader.createUniform("coldColor");
 
@@ -259,7 +259,7 @@ public class App implements AutoCloseable {
             particleShader.load(GL_FRAGMENT_SHADER, resource("shaders", "particle_system.frag"));
             particleShader.link();
             particleShader.createUniform("projectionMatrix");
-            particleShader.createUniform("worldMatrix");
+            particleShader.createUniform("particleSystemMatrix");
             particleShader.createUniform("hotColor");
             particleShader.createUniform("coldColor");
             particleShader.createUniform("cameraLocation");

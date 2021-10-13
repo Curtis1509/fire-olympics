@@ -1,7 +1,5 @@
 #version 330 core
 
-#define M_PI 3.1415926535897932384626433832795
-
 layout (points) in;
 layout (triangle_strip, max_vertices = 4) out;
 
@@ -21,64 +19,37 @@ out GeometryOutput
 } gs_out;
 
 uniform mat4 projectionMatrix;
-uniform mat4 worldMatrix;
+uniform mat4 particleSystemMatrix;
 uniform vec3 cameraLocation;
 uniform mat4 cameraMatrix;
 
+void emitAt(vec4 point, vec2 textureCoordinate) {
+    gs_out.age = gs_in[0].age;
+    gs_out.lifetime = gs_in[0].lifetime;
+    gs_out.textureCoordinate = textureCoordinate;
+    gl_Position = projectionMatrix * cameraMatrix * particleSystemMatrix * point;
+    EmitVertex();
+}
+
 void main()
 {
-    gs_out.age = gs_in[0].age;
-    gs_out.lifetime = gs_in[0].lifetime;
+    vec4 cameraLocationParticleSystem = inverse(particleSystemMatrix) * vec4(-cameraLocation, 1);
+    vec4 p = vec4(gs_in[0].position, 1);
+    vec4 u = vec4(0, 1, 0, 0);
+    vec4 w = vec4(normalize(cross(u.xyz, cameraLocationParticleSystem.xyz - p.xyz)), 0);
 
-    vec4 upDirectionWorldSpace = vec4(0, 1, 0, 0);
-    vec4 upDirectionParticleSystem = inverse(worldMatrix) * upDirectionWorldSpace;
-    vec4 cameraLocationParticleSystem = inverse(worldMatrix) * vec4(cameraLocation, 1);
-    vec4 particlePositionParticleSystem = vec4(gs_in[0].position, 1);
-    vec4 normalToBillboardPlaneFacingCameraParticleSystem  = normalize(cameraLocationParticleSystem - particlePositionParticleSystem);
+    float width = gs_in[0].size.x;
+    float height = gs_in[0].size.y;
 
-    vec4 billboardUpDirectionParticleSystem = upDirectionParticleSystem - dot(normalToBillboardPlaneFacingCameraParticleSystem, upDirectionParticleSystem) * normalToBillboardPlaneFacingCameraParticleSystem;
-    vec3 sideDirectionParticleSystem = cross(upDirectionParticleSystem.xyz, normalToBillboardPlaneFacingCameraParticleSystem.xyz);
+    vec4 v0 = p - width * w/2 - height * u/2;
+    vec4 v1 = p - width * w/2 + height * u/2;
+    vec4 v2 = p + width * w/2 - height * u/2;
+    vec4 v3 = p + width * w/2 + height * u/2;
 
-    mat4 particleSystemToParticleMatrix = mat4(
-        vec4(normalize(sideDirectionParticleSystem), gs_in[0].position.x),
-        vec4(normalize(billboardUpDirectionParticleSystem).xyz, gs_in[0].position.y),
-        vec4(normalize(normalToBillboardPlaneFacingCameraParticleSystem).xyz, gs_in[0].position.z),
-        vec4(0, 0, 0, 1)
-    );
-
-    mat4 particleToParticleSystem = inverse(particleSystemToParticleMatrix);
-
-    float w = gs_in[0].size.x;
-    float h = gs_in[0].size.y;
-
-    vec4 v0 = vec4(-w/2, -h/2, -1, 1);
-    vec4 v1 = vec4(-w/2, h/2, -1, 1);
-    vec4 v2 = vec4(w/2, -h/2, -1, 1);
-    vec4 v3 = vec4(w/2, h/2, -1, 1);
-
-    gs_out.age = gs_in[0].age;
-    gs_out.lifetime = gs_in[0].lifetime;
-    gs_out.textureCoordinate = vec2(0.0, 0.0);
-    gl_Position = projectionMatrix * cameraMatrix * particleToParticleSystem * v0;
-    EmitVertex();
-
-    gs_out.age = gs_in[0].age;
-    gs_out.lifetime = gs_in[0].lifetime;
-    gs_out.textureCoordinate = vec2(0.0, 1.0);
-    gl_Position = projectionMatrix * cameraMatrix * particleToParticleSystem * v1;
-    EmitVertex();
-
-    gs_out.age = gs_in[0].age;
-    gs_out.lifetime = gs_in[0].lifetime;
-    gs_out.textureCoordinate = vec2(1.0, 0.0);
-    gl_Position = projectionMatrix * cameraMatrix * particleToParticleSystem * v2;
-    EmitVertex();
-
-    gs_out.age = gs_in[0].age;
-    gs_out.lifetime = gs_in[0].lifetime;
-    gs_out.textureCoordinate = vec2(1.0, 1.0);
-    gl_Position = projectionMatrix * cameraMatrix * particleToParticleSystem * v3;
-    EmitVertex();
+    emitAt(v0, vec2(0.0, 0.0));
+    emitAt(v1, vec2(0.0, 1.0));
+    emitAt(v2, vec2(1.0, 0.0));
+    emitAt(v3, vec2(1.0, 1.0));
 
     EndPrimitive();
 }

@@ -16,7 +16,7 @@ public class ParticleSystem {
     public final Vector4f hotColor = new Vector4f(1.0f, 0, 0, 1.0f);
     public final Vector4f coldColor = new Vector4f(0, 0, 1, 1);
 
-    public final Vector3f position = new Vector3f(0, 0, -10);
+    public final Vector3f position = new Vector3f(0, 0, 0);
     public final Vector3f rotation = new Vector3f();
     public final float scale = 1.0f;
 
@@ -43,6 +43,43 @@ public class ParticleSystem {
     
     private boolean shouldSpawnParticle(float age, float lifetime) {
         return age >= lifetime && randomGenerator.nextFloat() < 0.45f;
+    }
+
+    private void setParticleParameters(int index, float x, float y, float z, float width, float height, float lifetime, float age) {
+        positionBuffer[3 * index + 0] = x;
+        positionBuffer[3 * index + 1] = y;
+        positionBuffer[3 * index + 2] = z;
+        ageBuffer[index] = age;
+        lifetimeBuffer[index] = lifetime;
+        sizeBuffer[2 * index + 0] = width;
+        sizeBuffer[2 * index + 1] = height;
+    }
+
+    public void debug() {
+        float width = 0.5f;
+        float height = 0.5f;
+        float lifetime = -1.0f;
+        float age = 0.0f;
+        int y = 0;
+        for (int index = 0; index < maximumNumberOfParticles;) {
+            setParticleParameters(index, y, y, y, width, height, lifetime, age);
+            index += 1;
+            for (int x = y; x > 0 && index < maximumNumberOfParticles; x -= 1) {
+                setParticleParameters(index, x-1, y, y, width, height, lifetime, age);
+                index += 1;
+            }
+            for (int z = y; z > 0 && index < maximumNumberOfParticles; z -= 1) {
+                setParticleParameters(index, y, y, z-1, width, height, lifetime, age);
+                index += 1;
+            }
+            y += 1;
+        }
+
+        // Tell OpenGL to use the updated data.
+        vao.updateBuffer(0, positionBuffer);
+        vao.updateBuffer(1, ageBuffer);
+        vao.updateBuffer(2, lifetimeBuffer);
+        vao.updateBuffer(3, sizeBuffer);
     }
 
     public void update(double dt) {
@@ -84,19 +121,8 @@ public class ParticleSystem {
             }
 
             // Write the particle data to the buffer.
-            positionBuffer[3 * i + 0] = x;
-            positionBuffer[3 * i + 1] = y;
-            positionBuffer[3 * i + 2] = z;
-            ageBuffer[i] = age;
-            lifetimeBuffer[i] = lifetime;
-            sizeBuffer[2 * i + 0] = width;
-            sizeBuffer[2 * i + 1] = height;
+            setParticleParameters(i, x, y, z, width, height, lifetime, age);
         }
-
-        positionBuffer[0] = -1.0f;
-        positionBuffer[1] = 0.0f;
-        positionBuffer[3] = 1.0f;
-        positionBuffer[5] = 0.0f;
 
         // Tell OpenGL to use the updated data.
         vao.updateBuffer(0, positionBuffer);

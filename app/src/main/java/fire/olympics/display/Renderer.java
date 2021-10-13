@@ -74,7 +74,6 @@ public class Renderer {
         camera.transform(0.0f, 0.0f, -1.0f, 0.0f, result);
         cameraAngle.set(result.x, result.y, result.z);
         camera.mul(translation);
-        logMatricies();
     }
 
     public void setAspectRatio(float ratio) {
@@ -101,7 +100,7 @@ public class Renderer {
         logMatricies();
     }
 
-    private void logMatricies() {
+    public void logMatricies() {
         System.out.println(String.format("Projection Matrix: %n%s", projectionMatrix));
         System.out.println(String.format("Camera Matrix: %n%s", camera));
         System.out.println(String.format("Camera Position: %n%s", cameraPosition));
@@ -165,14 +164,12 @@ public class Renderer {
         if (particleShader != null) {
             particleShader.bind();
             glDisable(GL_CULL_FACE);
-            glDisable(GL_DEPTH_TEST);
             particleShader.setUniform("projectionMatrix", projectionMatrix);
             for (ParticleSystem particleSystem : particleSystems) {
                 renderParticleSystem(particleSystem);
             }
             particleShader.unbind();
             glEnable(GL_CULL_FACE);
-            glEnable(GL_DEPTH_TEST);
         }
     }
 
@@ -208,7 +205,7 @@ public class Renderer {
                     (float) Math.toRadians(rotation.z))
                 .scale(particleSystem.scale);
         // worldMatrix.mulLocal(camera);
-        particleShader.setUniform("worldMatrix", worldMatrix);
+        particleShader.setUniform("particleSystemMatrix", worldMatrix);
         particleShader.setUniform("hotColor", particleSystem.hotColor);
         particleShader.setUniform("coldColor", particleSystem.coldColor);
         particleShader.setUniform("cameraMatrix", camera);

@@ -17,9 +17,13 @@ uniform sampler2D texture_sampler;
 void main()
 {
     vec4 tex = texture(texture_sampler, fs_in.textureCoordinate);
-    vec4 result = min(1, fs_in.age) * coldColor + (1 - fs_in.age) * hotColor;
-    if (fs_in.lifetime < fs_in.age) {
-        result.w = 0;
+    if (fs_in.lifetime < 0) {
+        fragColor = tex;
+    } else {
+        vec4 result = min(1, fs_in.age) * coldColor + (1 - fs_in.age) * hotColor;
+        if (fs_in.lifetime < fs_in.age) {
+            result.w = 0;
+        }
+        fragColor = tex * result;
     }
-    fragColor = tex * result;
 }
