@@ -34,6 +34,14 @@ public class ModelLoader implements AutoCloseable {
         this.resourcePath = resourcePath;
     }
 
+    /**
+     * Set to true to enable logging. 
+     * 
+     * Do not change the value here. Instead set the value before calling load methods from a 
+     * Controller class.
+     */
+    public boolean enableLogging = false;
+
     private Path resource(String first, String... more) {
         return resourcePath.resolve(Path.of(first, more));
     }
@@ -55,11 +63,15 @@ public class ModelLoader implements AutoCloseable {
      */
     public Texture loadTexture(String first, String... more) {
         Path path = resource(first, more);
-        assert !loadedTextures.containsKey(path.toString());
-        Texture t = new Texture(path);
-        String name = path.toAbsolutePath().toString();
-        loadedTextures.put(name, t);
-        return t;
+        if (!loadedTextures.containsKey(path.toString())) {
+            log("Loading texture at: %s", path);
+            Texture t = new Texture(path);
+            String name = path.toAbsolutePath().toString();
+            loadedTextures.put(name, t);
+            return t;
+        } else {
+            return loadedTextures.get(path.toString());
+        }
     }
 
     /**
@@ -83,7 +95,7 @@ public class ModelLoader implements AutoCloseable {
 
         int numMeshes = scene.mNumMeshes();
         ArrayList<GameItem> objects = new ArrayList<>(numMeshes);
-        System.out.printf("%d mesh(es) in %s%n", numMeshes, path.getFileName());
+        log("%d mesh(es) in %s%n", numMeshes, path.getFileName());
 
         for (int i = 0; i < numMeshes; i++) {
             AIMesh mesh = AIMesh.create(importMeshes.get(i));
@@ -99,7 +111,7 @@ public class ModelLoader implements AutoCloseable {
 
             for (int x = 0; x < mat.mNumProperties(); x++) {
                 AIMaterialProperty prop = AIMaterialProperty.create(mat.mProperties().get(x));
-                System.out.printf("Property %s has index of %d%n", prop.mKey().dataString(), x);
+                log("Property %s has index of %d%n", prop.mKey().dataString(), x);
             }
 
             if (texPath.dataString().isEmpty()) {
@@ -107,7 +119,7 @@ public class ModelLoader implements AutoCloseable {
 
                 AIMaterialProperty diffData = AIMaterialProperty.create(mat.mProperties().get(3));
                 FloatBuffer diffBuffer = diffData.mData().asFloatBuffer();
-                System.out.printf("Material had diffuse data with length of %d%n", diffBuffer.capacity());
+                log("Material had diffuse data with length of %d%n", diffBuffer.capacity());
                 float[] col = { diffBuffer.get(), diffBuffer.get(), diffBuffer.get() };
 
                 for (int x = 0; x < len; x++) {
@@ -120,8 +132,8 @@ public class ModelLoader implements AutoCloseable {
                 Path key = path.getParent().resolve(p).normalize().toAbsolutePath();
                 Texture t = loadedTextures.get(key.toString());
                 if (t == null || !t.imageLoaded()) {
-                    System.out.println("warning: could not find texture " + key);
-                    System.out.println("note: is it loaded?");
+                    warn("warning: could not find texture " + key);
+                    warn("note: is it loaded?");
                 }
 
                 int lenUv = mesh.mNumVertices();
@@ -149,9 +161,9 @@ public class ModelLoader implements AutoCloseable {
             FloatBuffer specBuffer = specData.mData().asFloatBuffer();
             FloatBuffer shinyBuffer = shinyData.mData().asFloatBuffer();
 
-            System.out.printf("Material had ambient data with length of %d%n", ambBuffer.capacity());
-            System.out.printf("Material had specular data with length of %d%n", specBuffer.capacity());
-            System.out.printf("Material had shininess data with length of %d%n", shinyBuffer.capacity());
+            log("Material had ambient data with length of %d%n", ambBuffer.capacity());
+            log("Material had specular data with length of %d%n", specBuffer.capacity());
+            log("Material had shininess data with length of %d%n", shinyBuffer.capacity());
 
             float[] ambColour = { ambBuffer.get(), ambBuffer.get(), ambBuffer.get() };
             float[] specColour = { specBuffer.get(), specBuffer.get(), specBuffer.get() };
@@ -235,5 +247,15 @@ public class ModelLoader implements AutoCloseable {
     private static void error(String error) throws Exception {
         String msg = "ModelLoader: " + error;
         throw new Exception(msg);
+    }
+
+    private void log(String format, Object... parts) {
+        if (enableLogging) {
+            System.out.printf(format, parts);
+        }
+    }
+
+    private void warn(String message) {
+        System.out.println(message);
     }
 }

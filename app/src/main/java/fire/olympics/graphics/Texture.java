@@ -35,7 +35,6 @@ public class Texture {
     }
     public Texture(Path path) {
         name = path.toString();
-        System.out.println("Loading texture at : " + path);
         IntBuffer w = MemoryUtil.memAllocInt(1);
         IntBuffer h = MemoryUtil.memAllocInt(1);
         IntBuffer comp = MemoryUtil.memAllocInt(1);
@@ -59,11 +58,11 @@ public class Texture {
 
         if (imageData == null) {
             id = 0;
-            System.out.printf("Texture: %s%n", STBImage.stbi_failure_reason());
-            return;
+            String reason = String.format("Texture: %s%n", STBImage.stbi_failure_reason());
+            throw new RuntimeException(reason);
         }
 
-        MemoryUsage.record(Texture.class, "Texture(Path)", path.toString(), imageData.capacity());
+        MemoryUsage.record(Texture.class, "Texture(_)", path.toString(), imageData.capacity());
 
         id = glGenTextures();
         bind();

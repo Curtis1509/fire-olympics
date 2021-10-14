@@ -13,6 +13,21 @@ public class MemoryUsage {
         String identifier;
         String method;
         int count;
+
+        String readableTypeName() {
+            return readableClassName(type);
+        }
+
+        public String toString() {
+            String byteCount = humanReadableByteCountBin(count);
+            return String.format("%1$12s %2$s.%3$s %4$s", byteCount, readableTypeName(), method, identifier);
+        }
+    }
+
+    private static <T> String readableClassName(Object type) {
+        Class<?> c = (Class<?>) type;
+        String typeName = c != null ? c.getSimpleName() : type.toString();
+        return typeName;
     }
 
     private static ArrayList<Record> records = new ArrayList<>();
@@ -38,30 +53,31 @@ public class MemoryUsage {
     }
 
     public static void summary() {
-        System.out.println("GPU Memory Usage Summary");
-        HashMap<Object, Integer> counts = new HashMap<>();
+        System.out.printf("%nGPU Memory Usage Summary%n");
+        HashMap<String, Integer> counts = new HashMap<>();
         for (Record r : records) {
-            counts.putIfAbsent(r.type, 0);
-            int count = counts.get(r.type);
-            counts.put(r.type, count + r.count);
+            String key = r.readableTypeName();
+            counts.putIfAbsent(key, 0);
+            int count = counts.get(key);
+            counts.put(key, count + r.count);
         }
 
         for (var e : counts.entrySet()) {
-            System.out.println(String.format("%s: %s", e.getKey().toString(), humanReadableByteCountBin(e.getValue())));
+            System.out.println(String.format("%1$12s %2$s", humanReadableByteCountBin(e.getValue()), e.getKey()));
         }
         printTotal();
     }
 
     private static <T> void printUnsafe(Object type) {
-        System.out.println(type);
+        System.out.printf("%nGPU Memory Usage for: %s%n", readableClassName(type));
         int count = 0;
         for (Record r : records) {
             if (r.type == type) {
-                System.out.println(String.format("%s %s: %s", r.method, r.identifier, humanReadableByteCountBin(r.count)));
+                System.out.println(r);
                 count += r.count;
             }
         }
-        System.out.println(String.format("Memory GPU consumption: %s", humanReadableByteCountBin(count)));
+        System.out.println(String.format("Subtotal   : %s", humanReadableByteCountBin(count)));
         printTotal();
     }
 
@@ -70,7 +86,7 @@ public class MemoryUsage {
         for (Record r : records) {
             count += r.count;
         }
-        System.out.println(String.format("Total GPU memory consumption: %s", humanReadableByteCountBin(count)));
+        System.out.println(String.format("Total usage: %s", humanReadableByteCountBin(count)));
     }
 
     public static <T> void print(Class<T> type) {
