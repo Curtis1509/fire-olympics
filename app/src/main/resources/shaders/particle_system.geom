@@ -33,7 +33,7 @@ void emitAt(vec4 point, vec2 textureCoordinate) {
 
 void main()
 {
-    vec4 cameraLocationParticleSystem = inverse(particleSystemMatrix) * vec4(-cameraLocation, 1);
+    vec4 cameraLocationParticleSystem = inverse(particleSystemMatrix) * vec4(cameraLocation, 1);
     vec4 p = vec4(gs_in[0].position, 1);
     vec4 u = vec4(0, 1, 0, 0);
     vec4 w = vec4(normalize(cross(u.xyz, cameraLocationParticleSystem.xyz - p.xyz)), 0);

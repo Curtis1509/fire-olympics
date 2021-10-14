@@ -21,16 +21,13 @@ import static org.lwjgl.glfw.GLFW.*;
  * result of user interaction?
  */
 public class GameController extends Controller {
-    private static final float MOUSE_SENSITIVITY = 5;
-    private FollowCamera followCamera;
-    private FreeCamera freeCamera;
+    private final FollowCamera followCamera;
+    private final FreeCamera freeCamera;
     private boolean mouseEnabled = true;
-    private boolean enableFreeCamera = true; // Used to determine if camera should be locked to arrow or not
     private boolean keyVPrev = false; // Allows V key to toggle camera type
     private boolean keyOPrev = false;
-    //    private float movementSpeed = 5f;
-    private Vector3f angle = new Vector3f();
-    private Vector3f position = new Vector3f();
+    private boolean keyPPrev = false;
+
     private ArrayList<GameItemGroup> objects = new ArrayList<>();
     private GameItemGroup arrow;
     private Vector3f arrowInitPosition = new Vector3f(-300, 35, 0);
@@ -58,6 +55,7 @@ public class GameController extends Controller {
      */
     private void setIsPlaying(boolean isPlaying) {
         this._playing = isPlaying;
+        freeCamera.isPlaying = isPlaying;
         // Toggle the visibility of text on the screen.
         fireOlympicsText.isHidden = isPlaying;
         pressSpaceToPlayText.isHidden = isPlaying;
@@ -72,6 +70,11 @@ public class GameController extends Controller {
         super(app, window, renderer, loader);
 
         wavPlayer = new WavPlayer(app);
+
+        followCamera = new FollowCamera(window);
+        freeCamera = new FreeCamera(window);
+        freeCamera.isPlaying = this._playing;
+        renderer.camera = freeCamera;
 
         fireOlympicsText = new GUIText(fontType, "FIRE OLYMPICS");
         fireOlympicsText.fontSize = 8.0f;
@@ -119,6 +122,8 @@ public class GameController extends Controller {
         // skipping an index, or adding them out of order, will break things!!
 
         objects.add(0, new GameItemGroup("arrow", loader.loadModel(1, "models", "proto_arrow_textured.obj")));
+        this.arrow = objects.get(0);
+        followCamera.target = arrow;
 
         objects.add(1, new GameItemGroup("brazier", loader.loadModel(1, "models", "Brazier v2 Textured.obj")));
 
@@ -182,24 +187,22 @@ public class GameController extends Controller {
         // renderer.add(particleSystem);
 
         arrow = objects.get(0);
-        followCamera = new FollowCamera(window, arrow);
-
-        freeCamera = new FreeCamera(window, renderer, position, angle);
-
         wavPlayer.playSound(2);
         wavPlayer.playSound(3);
     }
-
-    boolean keyPPrev = false;
 
     @Override
     public void update(double timeDelta) {
         checkCollision();
         // Enable or Disable free Camera
         boolean keyV = window.isKeyDown(GLFW_KEY_SPACE);
-        if (!FreeCamera.override && window.checkKeyState(GLFW_KEY_SPACE, keyVPrev) == 1) {
-            enableFreeCamera = !enableFreeCamera;
+        if (!freeCamera.override && window.checkKeyState(GLFW_KEY_SPACE, keyVPrev) == 1) {
             setIsPlaying(!isPlaying());
+            if (isPlaying()) {
+                renderer.camera = followCamera;
+            } else {
+                renderer.camera = freeCamera;
+            }
         }
         keyVPrev = keyV;
 
@@ -211,31 +214,12 @@ public class GameController extends Controller {
 
         boolean keyO = window.isKeyDown(GLFW_KEY_O);
         if (window.checkKeyState(GLFW_KEY_O, keyOPrev) == 1) {
-            FreeCamera.override = !FreeCamera.override;
-            System.out.println("Override set to " + FreeCamera.override);
+            freeCamera.override = !freeCamera.override;
+            System.out.println("Override set to " + freeCamera.override);
         }
         keyOPrev = keyO;
 
-        // Check if freeCamera is enabled
-        if (enableFreeCamera) {
-            freeCamera.freeCameraControl(timeDelta);
-        } else {
-            followCamera.followCameraControl(timeDelta);
-
-            double arrowSpeed = 25;
-
-            // Move player
-            float dx = (float) ((arrowSpeed * timeDelta) * Math.sin(Math.toRadians(arrow.getRotation().y)));
-            float dz = (float) ((arrowSpeed * timeDelta) * Math.cos(Math.toRadians(arrow.getRotation().y)));
-            arrow.movePosition(dx, 0, dz);
-
-            float dy = (float) ((arrowSpeed * timeDelta) * Math.sin(Math.toRadians(arrow.getRotation().x)));
-            arrow.movePosition(0, -dy, 0);
-
-            followCamera.moveCamera();
-            renderer.camera.updateCamera(followCamera.getPosition().negate(), followCamera.getRotation());
-        }
-
+        renderer.camera.update(timeDelta);
         particleSystem.update(timeDelta);
     }
 
@@ -337,12 +321,8 @@ public class GameController extends Controller {
     // Adjust angle of camera to match mouse movement
     @Override
     public void mouseMoved(Vector2f delta) {
-        if (enableFreeCamera && FreeCamera.override) {
-            if (!mouseEnabled) {
-                angle.y += delta.x / MOUSE_SENSITIVITY;
-                angle.x += delta.y / MOUSE_SENSITIVITY;
-            }
-            renderer.camera.updateCamera(position, angle);
+        if (!mouseEnabled) {
+            freeCamera.mouseMoved(delta);
         }
     }
 }

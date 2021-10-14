@@ -1,28 +1,22 @@
 package fire.olympics.display;
 
-import org.joml.Vector3f;
+import org.joml.Vector2f;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE;
 
-public class FreeCamera {
-    float movementSpeed = 5f;
-    Window window;
-    Renderer renderer;
-    Vector3f position;
-    Vector3f angle;
-    boolean isPlaying = false;
-    public static boolean override = false;
+public class FreeCamera extends Camera {
+    public float mouseSensitivity = 5;
+    public Window window;
+    public boolean isPlaying = false;
+    public boolean override = false;
+    public float movementSpeed = 5f;
 
-    public FreeCamera(Window window, Renderer renderer, Vector3f position, Vector3f angle) {
+    public FreeCamera(Window window) {
         this.window = window;
-        this.renderer = renderer;
-        this.position = position;
-        this.angle = angle;
     }
 
     // Controls for free Camera
-    public void freeCameraControl(double timeDelta) {
+    public void update(double timeDelta) {
         if (window.isKeyDown(GLFW_KEY_LEFT_SHIFT))
             movementSpeed = 35f;
         else if (window.isKeyDown(GLFW_KEY_LEFT_ALT))
@@ -34,53 +28,44 @@ public class FreeCamera {
         float offsetY = 0;
         float offsetZ = 0;
 
+        if (window.isKeyDown(GLFW_KEY_A)) 
+            offsetX += movementSpeed * timeDelta;
 
-        if (window.isKeyDown(GLFW_KEY_A) || !isPlaying) {
-            if (override && window.isKeyDown(GLFW_KEY_A))
-                offsetX += movementSpeed * timeDelta;
-            else if (!isPlaying && !override) {
-                offsetX += movementSpeed * timeDelta;
-                angle.y += 0.001;
-            }
-        }
+        if (window.isKeyDown(GLFW_KEY_D))
+            offsetX -= movementSpeed * timeDelta;
 
-        if (override) {
-            if (window.isKeyDown(GLFW_KEY_D))
-                offsetX -= movementSpeed * timeDelta;
+        if (window.isKeyDown(GLFW_KEY_W))
+            offsetZ += movementSpeed * timeDelta;
 
-            if (window.isKeyDown(GLFW_KEY_W))
-                offsetZ += movementSpeed * timeDelta;
+        if (window.isKeyDown(GLFW_KEY_S))
+            offsetZ -= movementSpeed * timeDelta;
 
-            if (window.isKeyDown(GLFW_KEY_S))
-                offsetZ -= movementSpeed * timeDelta;
+        if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL))
+            offsetY -= movementSpeed * timeDelta;
 
-            if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL))
-                offsetY += movementSpeed * timeDelta;
+        if (window.isKeyDown(GLFW_KEY_SPACE))
+            offsetY += movementSpeed * timeDelta;
 
-            if (window.isKeyDown(GLFW_KEY_SPACE))
-                offsetY -= movementSpeed * timeDelta;
-
-            if (window.isKeyDown(GLFW_KEY_R)) {
-                position.zero();
-                angle.zero();
-            }
+        if (window.isKeyDown(GLFW_KEY_R)) {
+            position.zero();
+            rotation.zero();
         }
 
         updateCameraPos(offsetX, offsetY, offsetZ);
-
-        renderer.camera.updateCamera(position, angle);
     }
 
     // Update camera position taking into account camera rotation
-    public void updateCameraPos(float offsetX, float offsetY, float offsetZ) {
-            if (offsetZ != 0) {
-                position.x += (float) Math.sin(Math.toRadians(angle.y)) * -1.0f * offsetZ;
-                position.z += (float) Math.cos(Math.toRadians(angle.y)) * offsetZ;
-            }
-            if (offsetX != 0) {
-                position.x += (float) Math.sin(Math.toRadians(angle.y - 90)) * -1.0f * offsetX;
-                position.z += (float) Math.cos(Math.toRadians(angle.y - 90)) * offsetX;
-            }
-            position.y += offsetY;
+    private void updateCameraPos(float offsetX, float offsetY, float offsetZ) {
+        position.x -= (float) Math.sin(Math.toRadians(rotation.y)) * offsetZ;
+        position.z -= (float) Math.cos(Math.toRadians(rotation.y)) * offsetZ;
+        position.y += offsetY;
+        position.x += (float) Math.sin(Math.toRadians(rotation.y - 90)) * offsetX;
+        position.z += (float) Math.cos(Math.toRadians(rotation.y - 90)) * offsetX;
+    }
+
+    @Override
+    public void mouseMoved(Vector2f delta) {
+        rotation.y -= delta.x / mouseSensitivity;
+        rotation.x -= delta.y / mouseSensitivity;
     }
 }

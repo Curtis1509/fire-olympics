@@ -31,7 +31,6 @@ public class Renderer {
     private ShaderProgram particleShader;
     private Vector3f sunDirection = new Vector3f(0, 300, 10); // sun is behind and above camera
     private Matrix4f projectionMatrix = new Matrix4f();
-    private Matrix4f worldMatrix = new Matrix4f();
 
     public Camera camera = new Camera();
     public final Vector4f backgroundColor = new Vector4f();
@@ -91,13 +90,13 @@ public class Renderer {
         // Start issueing render commands.
         if (program != null) {
             program.bind();
-            render(gameItemsWithOutTextures, worldMatrix, program);
+            render(gameItemsWithOutTextures, program);
             program.unbind();
         }
 
         if (programWithTexture != null) {
             programWithTexture.bind();
-            render(gameItemsWithTextures, worldMatrix, programWithTexture);
+            render(gameItemsWithTextures, programWithTexture);
             programWithTexture.unbind();
         }
         App.checkError("1");
@@ -129,54 +128,40 @@ public class Renderer {
             glDisable(GL_CULL_FACE);
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glDisable(GL_DEPTH_TEST);
+            glDepthMask(false);
             particleShader.setUniform("projectionMatrix", projectionMatrix);
             for (ParticleSystem particleSystem : particleSystems) {
                 renderParticleSystem(particleSystem);
             }
             particleShader.unbind();
+            glDepthMask(true);
+            glEnable(GL_DEPTH_TEST);
             glDisable(GL_BLEND);
             glEnable(GL_CULL_FACE);
         }
     }
 
-    private void render(ArrayList<GameItem> objects, Matrix4f worldMatrix, ShaderProgram program) {
+    private void render(ArrayList<GameItem> objects, ShaderProgram program) {
         program.setUniform("projectionMatrix", projectionMatrix);
         program.setUniform("sun", sunDirection);
 
         // Render each gameItem
         for (GameItem object : objects) {
             // Set world matrix for this item
-            Vector3f rotation = object.getRotation();
-            worldMatrix
-                    .translation(object.getPosition()).
-                    rotate((float)Math.toRadians(rotation.y),0, 1, 0).
-                    rotate((float)Math.toRadians(rotation.z),0, 0, 1).
-                    rotate((float)Math.toRadians(rotation.x), 1, 0, 0)
-                    .scale(object.getScale());
-            worldMatrix.mulLocal(camera.camera);
-
+            Matrix4f worldMatrix = object.getMatrix();
+            worldMatrix.mulLocal(camera.getMatrix().invertAffine());
             program.setUniform("worldMatrix", worldMatrix);
             object.mesh.render();
         }
     }
 
     private void renderParticleSystem(ParticleSystem particleSystem) {
-        // Set world matrix for this item
-        Vector3f rotation = particleSystem.rotation;
-        worldMatrix
-                .translation(particleSystem.position)
-                .rotateAffineXYZ(
-                    (float) Math.toRadians(rotation.x),
-                    (float) Math.toRadians(rotation.y),
-                    (float) Math.toRadians(rotation.z))
-                .scale(particleSystem.scale);
-        // worldMatrix.mulLocal(camera);
-        particleShader.setUniform("particleSystemMatrix", worldMatrix);
+        particleShader.setUniform("particleSystemMatrix", particleSystem.getMatrix());
         particleShader.setUniform("hotColor", particleSystem.hotColor);
         particleShader.setUniform("coldColor", particleSystem.coldColor);
-        particleShader.setUniform("cameraMatrix", camera.camera);
-        particleShader.setUniform("cameraLocation", camera.cameraPosition);
-        particleShader.setUniform("cameraDirection", camera.cameraAngle);
+        particleShader.setUniform("cameraMatrix", camera.getMatrix().invertAffine());
+        particleShader.setUniform("cameraLocation", camera.getPosition());
         particleSystem.render();
     }
 }

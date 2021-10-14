@@ -1,24 +1,20 @@
 package fire.olympics.particles;
 
 import org.joml.Random;
-import org.joml.Vector3f;
 import org.joml.Vector4f;
 
+import fire.olympics.display.Node;
 import fire.olympics.graphics.Texture;
 import fire.olympics.graphics.VertexArrayObject;
 
 import static org.lwjgl.opengl.GL33C.*;
 
-public class ParticleSystem {
+public class ParticleSystem extends Node {
     public Random randomGenerator = new Random();
     private final VertexArrayObject vao = new VertexArrayObject();
     
     public final Vector4f hotColor = new Vector4f(1.0f, 0, 0, 1.0f);
     public final Vector4f coldColor = new Vector4f(0, 0, 1, 1);
-
-    public final Vector3f position = new Vector3f(0, 0, 0);
-    public final Vector3f rotation = new Vector3f();
-    public final float scale = 1.0f;
 
     public final int maximumNumberOfParticles;
     private final float[] positionBuffer;
@@ -29,6 +25,7 @@ public class ParticleSystem {
     public Texture texture;
 
     public ParticleSystem(int maxNumberOfParicles) {
+        super();
         this.maximumNumberOfParticles = maxNumberOfParicles;
         positionBuffer = new float[3 * maximumNumberOfParticles];
         ageBuffer = new float[maximumNumberOfParticles];

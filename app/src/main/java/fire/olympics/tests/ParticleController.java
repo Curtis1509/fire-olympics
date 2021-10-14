@@ -11,22 +11,16 @@ import fire.olympics.particles.ParticleSystem;
 
 import static org.lwjgl.glfw.GLFW.*;
 import org.joml.Vector2f;
-import org.joml.Vector3f;
 import org.joml.Random;
 
 public class ParticleController extends Controller {
 
-    private static final float MOUSE_SENSITIVITY = 5;
-    ParticleSystem particleSystem = new ParticleSystem(100);
+    private ParticleSystem particleSystem = new ParticleSystem(100);
     private boolean mouseEnabled = true;
-    private boolean enableFreeCamera = true;
-    private Vector3f angle = new Vector3f();
-    private FreeCamera camera;
-    private Vector3f position = new Vector3f();
 
     public ParticleController(App app, Window window, Renderer renderer, ModelLoader loader) {
         super(app, window, renderer, loader);
-        camera = new FreeCamera(window, renderer, position, angle);
+        renderer.camera = new FreeCamera(window);
         renderer.backgroundColor.set(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
@@ -43,7 +37,7 @@ public class ParticleController extends Controller {
     @Override
     public void update(double timeDelta) {
         // particleSystem.update(timeDelta);
-        camera.freeCameraControl(timeDelta);
+        renderer.camera.update(timeDelta);
     }
 
     @Override
@@ -64,13 +58,8 @@ public class ParticleController extends Controller {
     // Adjust angle of camera to match mouse movement
     @Override
     public void mouseMoved(Vector2f delta) {
-        if (enableFreeCamera) {
-            if (!mouseEnabled) {
-                angle.y += delta.x / MOUSE_SENSITIVITY;
-                angle.x += delta.y / MOUSE_SENSITIVITY;
-            }
-
-            renderer.camera.updateCamera(position, angle);
+        if (!mouseEnabled) {
+            renderer.camera.mouseMoved(delta);
         }
     }
 }

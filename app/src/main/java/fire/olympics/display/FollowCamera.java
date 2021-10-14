@@ -1,52 +1,76 @@
 package fire.olympics.display;
 
-import org.joml.Vector3f;
-
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_D;
 
-public class FollowCamera {
-    private final GameItemGroup arrow;
-    private final Vector3f position;
+import org.joml.Vector3f;
+
+public class FollowCamera extends Camera {
     private final Window window;
+    private final float distanceFromTarget = 15;
+
+    public GameItemGroup target;
+
+    private Vector3f position = new Vector3f(0, 0, 0);
+    private Vector3f angle = new Vector3f(0, 0, 0);
 
     private float pitch = 0;
     private float yaw = 0;
 
-    private final float distanceFromArrow = 15;
     private float angleAboveArrow = 0;
     private float angleAroundArrow = 0;
 
     /**
      * Constructor for follow camera
      * @param window Window this camera is in
-     * @param arrow The object to focus the camera on
+     * @param target The object to focus the camera on
      */
-    FollowCamera(Window window, GameItemGroup arrow) {
-        this.arrow = arrow;
+    public FollowCamera(Window window) {
         this.window = window;
-        position = new Vector3f(0, 0, 0);
     }
 
     /**
      * Allows camera to move in relation to arrow
      */
     public void moveCamera() {
-        this.pitch = arrow.getRotation().x + angleAboveArrow;
+        this.pitch = target.getRotation().x + angleAboveArrow;
+        this.yaw = (180 - target.getRotation().y) + angleAroundArrow;
+        angle.set(pitch, yaw, 0);
 
+        // Calculates the position the camera needs to be in to look at the object Using
+        // the objects rotation and position The position is calculated as an offset of
+        // the objects position tasking into account the x and y rotations
         float horizontalDistance = calculateHorizontalDistance();
         float verticalDistance = calculateVerticalDistance();
-        calculateCameraPosition(horizontalDistance, verticalDistance);
+        float theta = target.getRotation().y() + angleAroundArrow;
+        float offsetX = (float) (horizontalDistance * Math.sin(Math.toRadians(theta)));
+        float offsetZ = (float) (horizontalDistance * Math.cos(Math.toRadians(theta)));
+        position.x = target.getPosition().x - offsetX;
+        position.z = target.getPosition().z - offsetZ;
+        position.y = target.getPosition().y + verticalDistance;
+        super.position.set(position);
+        super.rotation.set(angle);
+    }
 
-        this.yaw = (180 - arrow.getRotation().y) + angleAroundArrow;
 
+    @Override
+    public void update(double timeDelta) {
+        processKeyBindings(timeDelta);
+        // double arrowSpeed = 25;
+
+        // Move player
+        // float dx = (float) ((arrowSpeed * timeDelta) * Math.sin(Math.toRadians(target.getRotation().x)));
+        // float dy = (float) ((arrowSpeed * timeDelta) * Math.sin(Math.toRadians(target.getRotation().y)));
+        // float dz = (float) ((arrowSpeed * timeDelta) * Math.cos(Math.toRadians(target.getRotation().z)));
+        // target.movePosition(dx, dy, dz);
+        moveCamera();
     }
 
     /**
      * Allows follow camera control
      * @param timeDelta normalised frame time difference
      */
-    public void followCameraControl(double timeDelta) {
+    private void processKeyBindings(double timeDelta) {
         // Up and Down (Pitch) control
         if (window.isKeyDown(GLFW_KEY_W)) {
             // Lock angle
@@ -55,8 +79,8 @@ public class FollowCamera {
             }
             // Increase arrow x rotation and angle above
             else {
-                arrow.increaseRotX((float) (timeDelta * 25f));
-                increaseAngleAboveObj((float) (-timeDelta * 10f));
+                target.increaseRotX((float) (timeDelta * 25f));
+                angleAboveArrow -= (float)(timeDelta * 10f);
             }
         } else if (window.isKeyDown(GLFW_KEY_S)) {
             // Lock angle
@@ -65,16 +89,16 @@ public class FollowCamera {
             }
             // Decrease arrow x rotation and angle above
             else {
-                arrow.increaseRotX((float) (-timeDelta * 25f));
-                increaseAngleAboveObj((float) (timeDelta * 10f));
+                target.increaseRotX((float) (-timeDelta * 25f));
+                angleAboveArrow += (float)(timeDelta * 10f);
             }
         }
         // If no button press return angle above to baseline
         else {
             if (angleAboveArrow > 0) {
-                increaseAngleAboveObj(((float) (-timeDelta * 5f)));
+                angleAboveArrow -= (float)(timeDelta * 5f);
             } else if (angleAboveArrow < 0) {
-                increaseAngleAboveObj(((float) (timeDelta * 5f)));
+                angleAboveArrow += (float)(timeDelta * 5f);
             }
         }
 
@@ -86,10 +110,10 @@ public class FollowCamera {
             }
             // Increase angle toward left
             else {
-                increaseAngleAroundObj((float) (-timeDelta * 3f));
+                angleAroundArrow -= (float) (timeDelta * 3f);
             }
             // Increase arrow y rotation left
-            arrow.increaseRotY((float) (timeDelta * 50f));
+            target.increaseRotY((float) (timeDelta * 50f));
         } else if (window.isKeyDown(GLFW_KEY_D)) {
             // Lock angle
             if (angleAroundArrow > 7) {
@@ -97,35 +121,19 @@ public class FollowCamera {
             }
             // Increase angle toward Right
             else {
-                increaseAngleAroundObj((float) (timeDelta * 3f));
+                angleAroundArrow += (float) (timeDelta * 3f);
             }
             // Increase arrow y rotation Right
-            arrow.increaseRotY((float) -(timeDelta * 50f));
+            target.increaseRotY((float) -(timeDelta * 50f));
         }
         // If no button press return angle above to baseline
         else {
             if (angleAroundArrow > 0) {
-                increaseAngleAroundObj(((float) (-timeDelta * 10f)));
+                angleAroundArrow -= (float) (timeDelta * 10f);
             } else if (angleAroundArrow < 0) {
-                increaseAngleAroundObj(((float) (timeDelta * 10f)));
+                angleAroundArrow += (float) (timeDelta * 10f);
             }
         }
-    }
-
-    /**
-     * Calculates the position the camera needs to be in to look at the object
-     * Using the objects rotation and position
-     * The position is calculated as an offset of the objects position tasking into account the x and y rotations
-     * @param horizDistance Horizontal distance to arrow
-     * @param verticDistance Vertical distance to arrow
-     */
-    public void calculateCameraPosition(float horizDistance, float verticDistance) {
-        float theta = arrow.getRotation().y() + angleAroundArrow;
-        float offsetX = (float) (horizDistance * Math.sin(Math.toRadians(theta)));
-        float offsetZ = (float) (horizDistance * Math.cos(Math.toRadians(theta)));
-        position.x = arrow.getPosition().x - offsetX;
-        position.z = arrow.getPosition().z - offsetZ;
-        position.y = arrow.getPosition().y + verticDistance;
     }
 
     /**
@@ -134,7 +142,7 @@ public class FollowCamera {
      * @return Horizontal Distance to arrow
      */
     private float calculateHorizontalDistance() {
-        return (float) (distanceFromArrow * Math.cos(Math.toRadians(pitch)));
+        return (float) (distanceFromTarget * Math.cos(Math.toRadians(pitch)));
     }
 
     /**
@@ -143,22 +151,6 @@ public class FollowCamera {
      * @return Vertical Distance to arrow
      */
     private float calculateVerticalDistance() {
-        return (float) (distanceFromArrow * Math.sin(Math.toRadians(pitch)));
-    }
-
-    public void increaseAngleAboveObj(float amount) {
-        angleAboveArrow += amount;
-    }
-
-    public void increaseAngleAroundObj(float amount) {
-        angleAroundArrow += amount;
-    }
-
-    public Vector3f getPosition() {
-        return position;
-    }
-
-    public Vector3f getRotation() {
-        return new Vector3f(pitch, yaw, 0);
+        return (float) (distanceFromTarget * Math.sin(Math.toRadians(pitch)));
     }
 }
