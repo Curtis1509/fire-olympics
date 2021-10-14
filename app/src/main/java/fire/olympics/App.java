@@ -57,11 +57,9 @@ public class App implements AutoCloseable {
 
     private final Path resourcePath;
     private final ArrayList<Controller> controllers = new ArrayList<>();
-    private ArrayList<Path> soundURL = new ArrayList<>();
 
     public App(Path resourcePath) {
         this.resourcePath = resourcePath;
-        soundURL.add(resource("sounds","ringsound.wav"));
         // Setup an error callback. The default implementation
         // will print the error message in System.err.
         GLFWErrorCallback.createPrint(System.err).set();
@@ -212,7 +210,7 @@ public class App implements AutoCloseable {
         renderer.addText(textspace,true);
         renderer.addText(text2,false);
 
-        GameController controller = new GameController(this, window, renderer, loader, soundURL);
+        GameController controller = new GameController(this, window, renderer, loader);
         controllers.add(controller);
 
         window.done();

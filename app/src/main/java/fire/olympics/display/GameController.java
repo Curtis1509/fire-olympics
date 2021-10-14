@@ -1,5 +1,6 @@
 package fire.olympics.display;
 
+import fire.olympics.audio.WavPlayer;
 import fire.olympics.graphics.ModelLoader;
 import fire.olympics.App;
 
@@ -40,12 +41,13 @@ public class GameController extends Controller {
     private GameItemGroup arrow;
     private int numOfPoles = 1; // number of each of the five colours
     private ArrayList<Path> soundURL = new ArrayList<>();
+    private WavPlayer wavPlayer;
 
     private ParticleSystem particleSystem = new ParticleSystem(100);
 
-    public GameController(App app, Window window, Renderer renderer, ModelLoader loader, ArrayList<Path> soundURL) {
+    public GameController(App app, Window window, Renderer renderer, ModelLoader loader) {
         super(app, window, renderer, loader);
-        this.soundURL = soundURL;
+        wavPlayer = new WavPlayer(app);
     }
 
     public static boolean isPlaying(){
@@ -114,14 +116,18 @@ public class GameController extends Controller {
         int highY = 25;
         int lowZ = -110;
         int highZ = 110;
+        int lowR = 0;
+        int highR = 360;
 
         // randomise positions of coloured rings
         for (int i = size; i < objects.size(); i++) {
             int resultX = r.nextInt(highX - lowX) + lowX;
             int resultY = r.nextInt(highY - lowY) + lowY;
             int resultZ = r.nextInt(highZ - lowZ) + lowZ;
+            int resultR = r.nextInt(highR - lowR) + lowR;
 
             objects.get(i).setPosition(resultX, resultY, -resultZ);
+            objects.get(i).setRotation(0, resultR,0);
             objects.get(i).setScale(3);
         }
 
@@ -139,6 +145,8 @@ public class GameController extends Controller {
         followCamera = new FollowCamera(window, arrow);
 
         freeCamera = new FreeCamera(window, renderer, position, angle);
+
+        wavPlayer.playSound(2);
     }
 
     boolean keyPPrev = false;
@@ -190,26 +198,7 @@ public class GameController extends Controller {
         particleSystem.update(timeDelta);
     }
 
-    public synchronized void playSound(int index) {
-        new Thread(new Runnable() {
-            // The wrapper thread is unnecessary, unless it blocks on the
-            // Clip finishing; see comments.
 
-            public void run() {
-                try {
-                    URL url = soundURL.get(index).toUri().toURL();
-                    AudioInputStream audioIn = AudioSystem.getAudioInputStream(url);
-                    // Get a sound clip resource.
-                    Clip clip = AudioSystem.getClip();
-                    // Open audio clip and load samples from the audio input stream.
-                    clip.open(audioIn);
-                    clip.start();
-                } catch (Exception e) {
-                    System.err.println(e.getMessage());
-                }
-            }
-        }).start();
-    }
 
     public boolean isInside(float yRot, double width, double height, double objectx, double objecty, double objectz, double playerx, double playery, double playerz) {
         double r = width / 2;
@@ -268,7 +257,7 @@ public class GameController extends Controller {
             collisionTick = 0;
             collisionIndex = 6969;
             App.score++;
-            playSound(0);
+            wavPlayer.playSound(0);
             renderer.updateText(2, "" + App.score);
         }
     }
