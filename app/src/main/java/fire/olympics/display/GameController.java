@@ -1,22 +1,17 @@
 package fire.olympics.display;
 
+import fire.olympics.App;
 import fire.olympics.audio.WavPlayer;
 import fire.olympics.graphics.ModelLoader;
-import fire.olympics.App;
+import fire.olympics.particles.ParticleSystem;
+import fire.olympics.fontMeshCreator.FontType;
+import fire.olympics.fontMeshCreator.GUIText;
 
-import java.net.URL;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Random;
 
-import fire.olympics.particles.ParticleSystem;
-
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -37,8 +32,6 @@ public class GameController extends Controller {
     private Vector3f angle = new Vector3f();
     private Vector3f position = new Vector3f();
     private ArrayList<GameItemGroup> objects = new ArrayList<>();
-    private static boolean playing = false;
-
     private GameItemGroup arrow;
     private Vector3f arrowInitPosition = new Vector3f(-300, 35, 0);
     private Vector3f arrowInitRotation = new Vector3f(0, 90, 0);
@@ -46,15 +39,59 @@ public class GameController extends Controller {
     private int numOfPoles = 1; // number of each of the five colours
 
     private WavPlayer wavPlayer;
-    private ParticleSystem particleSystem = new ParticleSystem(100);
+    private int score = 0;
 
-    public GameController(App app, Window window, Renderer renderer, ModelLoader loader) {
-        super(app, window, renderer, loader);
-        wavPlayer = new WavPlayer(app);
+    private final ParticleSystem particleSystem = new ParticleSystem(100);
+    private final GUIText fireOlympicsText;
+    private final GUIText scoreText;
+    private final GUIText pressSpaceToPlayText;
+
+    /**
+     * Prefer using isPlaying() and setIsPlaying(_) over reading and writing to this field directly
+     * because of the side effects associated with setting isPlaying.
+     */
+    private boolean _playing = false;
+
+    /**
+     * Set the state of whether the game is in playing mode or not.
+     * @param isPlaying true if the user is controlling the arrow.
+     */
+    private void setIsPlaying(boolean isPlaying) {
+        this._playing = isPlaying;
+        // Toggle the visibility of text on the screen.
+        fireOlympicsText.isHidden = isPlaying;
+        pressSpaceToPlayText.isHidden = isPlaying;
+        scoreText.isHidden = !isPlaying;
     }
 
-    public static boolean isPlaying(){
-        return playing;
+    private boolean isPlaying() {
+        return _playing;
+    }
+
+    public GameController(App app, Window window, Renderer renderer, ModelLoader loader, FontType fontType) {
+        super(app, window, renderer, loader);
+
+        wavPlayer = new WavPlayer(app);
+
+        fireOlympicsText = new GUIText(fontType, "FIRE OLYMPICS");
+        fireOlympicsText.fontSize = 8.0f;
+        fireOlympicsText.isCentered = true;
+        fireOlympicsText.color.set(1.0f, 0.0f, 0.0f);
+        fireOlympicsText.position.y=0.3f;
+        renderer.addText(fireOlympicsText);
+
+        pressSpaceToPlayText = new GUIText(fontType, "press [space] to play");
+        pressSpaceToPlayText.fontSize = 3.0f;
+        pressSpaceToPlayText.isCentered = true;
+        pressSpaceToPlayText.color.set(1.0f, 0.0f, 0.0f);
+        pressSpaceToPlayText.position.y=0.65f;
+        renderer.addText(pressSpaceToPlayText);
+
+        scoreText = new GUIText(fontType, "" + score);
+        scoreText.fontSize = 4.0f;
+        scoreText.isCentered = false;
+        scoreText.color.set(1.0f, 0.0f, 0.0f);
+        renderer.addText(scoreText);
     }
 
     @Override
@@ -87,7 +124,7 @@ public class GameController extends Controller {
 
         // sky4 has the smoothest sky that fits in github. export sky5 from blender for the smoothest sky
         objects.add(2, new GameItemGroup("stadium", loader.loadModel(1, "models", "stadium_sky4.obj")));
-//        objects.add(2, new GameItemGroup(loader.loadModel("models", "stadium_sky5.obj")));
+        // objects.add(2, new GameItemGroup(loader.loadModel("models", "stadium_sky5.obj")));
 
         objects.add(3, new GameItemGroup("ringt", loader.loadModel(1, "models", "ring.obj")));
         objects.add(4, new GameItemGroup("ringtp", loader.loadModel(1, "models", "ring+pole.obj")));
@@ -162,7 +199,7 @@ public class GameController extends Controller {
         boolean keyV = window.isKeyDown(GLFW_KEY_SPACE);
         if (!FreeCamera.override && window.checkKeyState(GLFW_KEY_SPACE, keyVPrev) == 1) {
             enableFreeCamera = !enableFreeCamera;
-            playing=!playing;
+            setIsPlaying(!isPlaying());
         }
         keyVPrev = keyV;
 
@@ -267,24 +304,10 @@ public class GameController extends Controller {
         if (collisionIndex != 6969 && collisionTick > 0 && (!(isInside(objects.get(collisionIndex).getRotation().y, objects.get(3).getWidth(0)*objects.get(collisionIndex).getScale(), objects.get(collisionIndex).getHeight(0)*objects.get(collisionIndex).getScale(), objects.get(collisionIndex).getPosition().x, objects.get(collisionIndex).getPosition().y, objects.get(collisionIndex).getPosition().z, arrow.getPosition().x(), arrow.getPosition().y, arrow.getPosition().z)))) {
             collisionTick = 0;
             collisionIndex = 6969;
-            App.score++;
+            score++;
+            scoreText.value = "" + score;
             wavPlayer.playSound(0);
-            renderer.updateText(2, "" + App.score);
         }
-    }
-
-    @Override
-    public void keyDown(int key, int mods) {
-        System.out.println("key down: " + key);
-
-        if (freeCamera.isEnabled())
-            renderer.camera.updateCamera(position, angle);
-    }
-
-    @Override
-    public void keyUp(int key, int mods) {
-        System.out.println("key up: " + key);
-        super.keyUp(key, mods);
     }
 
     @Override

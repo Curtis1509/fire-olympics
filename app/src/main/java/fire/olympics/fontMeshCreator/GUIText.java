@@ -62,6 +62,11 @@ public class GUIText {
     public boolean isCentered = false;
 
     /**
+     * Determines whether the text is renderer or not.
+     */
+    public boolean isHidden = false;
+
+    /**
      * Creates text that can be rendered in an OpenGL context.
      *
      * @param font  The font to use for rendering the text.

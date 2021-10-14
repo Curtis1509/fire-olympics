@@ -13,11 +13,9 @@ public class TextMesh {
     private int vertexCount = 0;
     private float aspectRatio = 1.0f;
     private String renderedText = null;
-    private boolean menuText;
 
-    public TextMesh(GUIText text, boolean menuText) {
+    public TextMesh(GUIText text) {
         this.text = text;
-        this.menuText=menuText;
         vao = new VertexArrayObject();
         TextMeshData data = text.font.createTextMesh(text, aspectRatio);
         vao.use();
@@ -27,12 +25,8 @@ public class TextMesh {
         vertexCount = data.getVertexCount();
     }
 
-    public String getText(){
-        return text.value;
-    }
-
-    public boolean isMenuText(){
-        return menuText;
+    public boolean isHidden() {
+        return text.isHidden;
     }
 
     public Texture getFontTexture() {
@@ -44,10 +38,6 @@ public class TextMesh {
             this.aspectRatio = aspectRatio;
             updateData();
         }
-    }
-
-    public void updateText(String t){
-        text.value = t;
     }
 
     private void updateData() {

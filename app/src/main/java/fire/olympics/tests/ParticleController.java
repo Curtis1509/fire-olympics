@@ -27,7 +27,6 @@ public class ParticleController extends Controller {
     public ParticleController(App app, Window window, Renderer renderer, ModelLoader loader) {
         super(app, window, renderer, loader);
         camera = new FreeCamera(window, renderer, position, angle);
-        camera.setEnabled(true);
         renderer.backgroundColor.set(1.0f, 1.0f, 1.0f, 1.0f);
     }
 

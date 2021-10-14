@@ -4,7 +4,6 @@
 package fire.olympics;
 
 import fire.olympics.display.*;
-import fire.olympics.fontMeshCreator.GUIText;
 import fire.olympics.fontMeshCreator.FontType;
 import fire.olympics.graphics.ModelLoader;
 import fire.olympics.graphics.ShaderProgram;
@@ -42,8 +41,8 @@ public class App implements AutoCloseable {
         try (App app = new App(resourcePath)) {
             // You can technically create two windows by calling this twice.
             app.createMainWindow();
-            MemoryUsage.print(Texture.class);
             // app.addParticleController();
+            MemoryUsage.print(Texture.class);
             app.mainLoop();
         } catch (Exception e) {
             System.out.printf("error: %s%n", e);
@@ -139,8 +138,6 @@ public class App implements AutoCloseable {
         }
     }
 
-    public static int score = 0;
-
 
     public void createMainWindow() throws Exception {
         System.out.println("LWJGL version: " + Version.getVersion());
@@ -190,34 +187,11 @@ public class App implements AutoCloseable {
 
         Texture texture = Texture.loadPngTexture(resource("fonts", "fontfile.png"));
         FontType fontType = new FontType(resource("fonts", "fontfile.fnt"), texture);
-
-        GUIText text = new GUIText(fontType, "FIRE OLYMPICS");
-        GUIText text2 = new GUIText(fontType, "" + score);
-        text.fontSize = 8.0f;
-        text.isCentered = true;
-        text.color.set(1.0f, 0.0f, 0.0f);
-        text.position.y=0.3f;
-
-        GUIText textspace = new GUIText(fontType, "press [space] to play");
-        textspace.fontSize = 3.0f;
-        textspace.isCentered = true;
-        textspace.color.set(1.0f, 0.0f, 0.0f);
-        textspace.position.y=0.65f;
-
-        text2.fontSize = 4.0f;
-        text2.isCentered = false;
-        text2.color.set(1.0f, 0.0f, 0.0f);
         ModelLoader loader = new ModelLoader(resourcePath);
         Renderer renderer = new Renderer(program, programWithTexture, textShaderProgram, particleShader);
-        renderer.addText(text,true);
-        renderer.addText(textspace,true);
-        renderer.addText(text2,false);
-
-        GameController controller = new GameController(this, window, renderer, loader);
+        GameController controller = new GameController(this, window, renderer, loader, fontType);
         controllers.add(controller);
-
         window.done();
-
         setupController(controller);
     }
 

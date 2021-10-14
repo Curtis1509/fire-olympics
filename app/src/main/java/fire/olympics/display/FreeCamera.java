@@ -11,7 +11,7 @@ public class FreeCamera {
     Renderer renderer;
     Vector3f position;
     Vector3f angle;
-    boolean enabled;
+    boolean isPlaying = false;
     public static boolean override = false;
 
     public FreeCamera(Window window, Renderer renderer, Vector3f position, Vector3f angle) {
@@ -35,14 +35,15 @@ public class FreeCamera {
         float offsetZ = 0;
 
 
-        if (window.isKeyDown(GLFW_KEY_A) || !GameController.isPlaying()) {
+        if (window.isKeyDown(GLFW_KEY_A) || !isPlaying) {
             if (override && window.isKeyDown(GLFW_KEY_A))
                 offsetX += movementSpeed * timeDelta;
-            else if (!GameController.isPlaying() && !override) {
+            else if (!isPlaying && !override) {
                 offsetX += movementSpeed * timeDelta;
                 angle.y += 0.001;
             }
         }
+
         if (override) {
             if (window.isKeyDown(GLFW_KEY_D))
                 offsetX -= movementSpeed * timeDelta;
@@ -59,7 +60,7 @@ public class FreeCamera {
             if (window.isKeyDown(GLFW_KEY_SPACE))
                 offsetY -= movementSpeed * timeDelta;
 
-            if (window.isKeyDown(GLFW_KEY_R) && enabled) {
+            if (window.isKeyDown(GLFW_KEY_R)) {
                 position.zero();
                 angle.zero();
             }
@@ -81,14 +82,5 @@ public class FreeCamera {
                 position.z += (float) Math.cos(Math.toRadians(angle.y - 90)) * offsetX;
             }
             position.y += offsetY;
-
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 }

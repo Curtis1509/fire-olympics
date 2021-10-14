@@ -18,7 +18,7 @@ public class TextController extends Controller {
         text = new GUIText(fontType, "");
         text.fontSize = 2.0f;
         text.color.set(1.0f, 0.5f, 0.5f);
-        renderer.addText(text,false);
+        renderer.addText(text);
     }
 
     @Override

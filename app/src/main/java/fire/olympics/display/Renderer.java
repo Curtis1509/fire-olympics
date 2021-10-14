@@ -56,11 +56,8 @@ public class Renderer {
         particleSystems.add(particleSystem);
     }
 
-    public void addText(GUIText text, boolean menuText) {
-        textMeshes.add(new TextMesh(text,menuText));
-    }
-    public void updateText(int index, String text){
-        textMeshes.get(index).updateText(text);
+    public void addText(GUIText text) {
+        textMeshes.add(new TextMesh(text));
     }
 
     public void setAspectRatio(float ratio) {
@@ -84,7 +81,6 @@ public class Renderer {
 
     private void recalculateProjectionMatrix() {
         projectionMatrix.setPerspective(FOV, aspectRatio, z_near, z_far);
-        System.out.println(String.format("Projection Matrix: %n%s", projectionMatrix));
     }
 
     public void render() {
@@ -114,25 +110,13 @@ public class Renderer {
             glDisable(GL_DEPTH_TEST);
             textShaderProgram.bind();
             for (TextMesh meshText : textMeshes) {
-                if (GameController.isPlaying()) {
-                    if (!meshText.isMenuText()) {
-                        glActiveTexture(GL_TEXTURE0);
-                        meshText.getFontTexture().bind();
-                        textShaderProgram.setUniform("colour", meshText.getColor());
-                        textShaderProgram.setUniform("translation", meshText.getPosition());
-                        meshText.render();
-                        meshText.getFontTexture().unbind();
-                    }
-                } else {
-                    if (meshText.isMenuText() && FreeCamera.override==false) {
-                        glActiveTexture(GL_TEXTURE0);
-                        meshText.getFontTexture().bind();
-                        textShaderProgram.setUniform("colour", meshText.getColor());
-                        textShaderProgram.setUniform("translation", meshText.getPosition());
-                        meshText.render();
-                        meshText.getFontTexture().unbind();
-                    }
-                }
+                if (meshText.isHidden()) continue;
+                glActiveTexture(GL_TEXTURE0);
+                meshText.getFontTexture().bind();
+                textShaderProgram.setUniform("colour", meshText.getColor());
+                textShaderProgram.setUniform("translation", meshText.getPosition());
+                meshText.render();
+                meshText.getFontTexture().unbind();
             }
             textShaderProgram.unbind();
             glDisable(GL_BLEND);
