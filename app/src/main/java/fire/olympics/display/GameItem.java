@@ -37,7 +37,10 @@ public class GameItem {
     }
 
     public void setPosition(Vector3f position) {
-        this.position = position;
+        // setting these one-by-one prevents a bug where updating position with a vector affects speed
+        this.position.x = position.x;
+        this.position.y = position.y;
+        this.position.z = position.z;
     }
 
     public void setPosition(float x, float y, float z) {
@@ -51,7 +54,10 @@ public class GameItem {
     }
 
     public void setRotation(Vector3f rotation) {
-        this.rotation = rotation;
+        // setting these one-by-one prevents a bug where updating position with a vector affects rotation speed
+        this.rotation.x = rotation.x;
+        this.rotation.y = rotation.y;
+        this.rotation.z = rotation.z;
     }
 
     public void setRotation(float x, float y, float z) {

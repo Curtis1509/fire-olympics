@@ -18,11 +18,13 @@ public class WavPlayer {
     public WavPlayer(App app) {
         this.app = app;
         soundURL = new ArrayList<>();
-        //loadSound("ringsound.wav");
-        loadSound("score_glock.wav");
-        loadSound("miss_gamelan.wav");
-        loadSound("theme_30sec.wav");
-//        loadSound("theme_8min.wav");
+        loadSound("score.wav"); // 0
+        loadSound("miss.wav"); // 1
+        loadSound("theme_8min.wav"); // 2
+        loadSound("crowd_8min.wav"); // 3
+        loadSound("fire_loud.wav"); // 4
+        loadSound("boost.wav"); // 5
+        loadSound("crash.wav"); // 6
     }
 
     public void loadSound(String... more) {

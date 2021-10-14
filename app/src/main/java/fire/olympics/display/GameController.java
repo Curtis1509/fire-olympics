@@ -38,11 +38,14 @@ public class GameController extends Controller {
     private Vector3f position = new Vector3f();
     private ArrayList<GameItemGroup> objects = new ArrayList<>();
     private static boolean playing = false;
-    private GameItemGroup arrow;
-    private int numOfPoles = 1; // number of each of the five colours
-    private ArrayList<Path> soundURL = new ArrayList<>();
-    private WavPlayer wavPlayer;
 
+    private GameItemGroup arrow;
+    private Vector3f arrowInitPosition = new Vector3f(-300, 35, 0);
+    private Vector3f arrowInitRotation = new Vector3f(0, 90, 0);
+
+    private int numOfPoles = 1; // number of each of the five colours
+
+    private WavPlayer wavPlayer;
     private ParticleSystem particleSystem = new ParticleSystem(100);
 
     public GameController(App app, Window window, Renderer renderer, ModelLoader loader) {
@@ -102,8 +105,9 @@ public class GameController extends Controller {
         }
 
         // setting initial positions
-        objects.get(0).setPosition(0, 0, 10);
-        objects.get(1).setPosition(0, 5, -10);
+        objects.get(0).setPosition(arrowInitPosition);
+        objects.get(0).setRotation(arrowInitRotation);
+        objects.get(1).setPosition(0, -5, -10);
         objects.get(2).setPosition(0, -7, 0);
         objects.get(2).setScale(7);
         objects.get(3).setPosition(0, 2, -10);
@@ -112,8 +116,8 @@ public class GameController extends Controller {
         Random r = new Random();
         int lowX = -190;
         int highX = 190;
-        int lowY = -45;
-        int highY = 25;
+        int lowY = -35;
+        int highY = -15;
         int lowZ = -110;
         int highZ = 110;
         int lowR = 0;
@@ -147,6 +151,7 @@ public class GameController extends Controller {
         freeCamera = new FreeCamera(window, renderer, position, angle);
 
         wavPlayer.playSound(2);
+        wavPlayer.playSound(3);
     }
 
     boolean keyPPrev = false;
@@ -242,8 +247,9 @@ public class GameController extends Controller {
 
         if (arrow.getPosition().y < -6.8){
             System.out.println("Crashed into the ground!");
-            arrow.setPosition(0,0,0);
-            arrow.setRotation(0,0,0);
+            arrow.setPosition(arrowInitPosition);
+            arrow.setRotation(arrowInitRotation);
+            wavPlayer.playSound(6);
         }
 
         for (int i = 0; i < objects.size(); i++) {
