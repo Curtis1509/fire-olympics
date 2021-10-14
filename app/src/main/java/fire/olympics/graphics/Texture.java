@@ -8,6 +8,8 @@ import java.nio.file.Path;
 import static org.lwjgl.opengl.GL33C.*;
 
 import de.matthiasmann.twl.utils.PNGDecoder;
+import fire.olympics.MemoryUsage;
+
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.*;
 import org.lwjgl.system.MemoryUtil;
@@ -17,6 +19,9 @@ public class Texture {
     private float width;
     private float height;
     public String name;
+    public boolean isRepeatEnabled = false;
+    public float horizontalRepeatFactor = 0;
+    public float verticalRepeatFactor = 0;
 
     public Texture(int id){
         this.id=id;
@@ -28,7 +33,6 @@ public class Texture {
     public float getHeight(){
         return height;
     }
-
     public Texture(Path path) {
         name = path.toString();
         System.out.println("Loading texture at : " + path);
@@ -59,6 +63,8 @@ public class Texture {
             return;
         }
 
+        MemoryUsage.record(imageData.capacity(), "Texture()", path.toString(), Texture.class);
+
         id = glGenTextures();
         bind();
 
@@ -69,6 +75,17 @@ public class Texture {
         glGenerateMipmap(GL_TEXTURE_2D);
         unbind();
         STBImage.stbi_image_free(imageData);
+    }
+
+    public void repeat(float horizontalRepeatFactor, float verticalRepeatFactor) {
+        bind();
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        unbind();
+
+        this.horizontalRepeatFactor = horizontalRepeatFactor;
+        this.verticalRepeatFactor = verticalRepeatFactor;
+        this.isRepeatEnabled = true;
     }
 
     public static Texture loadPngTexture(Path path) throws IOException {
@@ -84,6 +101,8 @@ public class Texture {
 
         //flip the buffer so its ready to read
         buffer.flip();
+
+        MemoryUsage.record(buffer.capacity(), "Texture.loadPngTexture", path.toString(), Texture.class);
 
         //create a texture
         int id = glGenTextures();

@@ -32,10 +32,8 @@ public class Renderer {
     private Vector3f sunDirection = new Vector3f(0, 300, 10); // sun is behind and above camera
     private Matrix4f projectionMatrix = new Matrix4f();
     private Matrix4f worldMatrix = new Matrix4f();
-    public Matrix4f camera = new Matrix4f();
-    private Vector3f cameraPosition = new Vector3f(0, 0, 0);
-    private Vector3f cameraAngle = new Vector3f();
 
+    public Camera camera = new Camera();
     public final Vector4f backgroundColor = new Vector4f();
 
     public Renderer(ShaderProgram program, ShaderProgram programWithTexture, ShaderProgram textShaderProgram, ShaderProgram particleShader) {
@@ -65,19 +63,6 @@ public class Renderer {
         textMeshes.get(index).updateText(text);
     }
 
-    public void updateCamera(Vector3f position, Vector3f angle) {
-        Matrix4f translation = new Matrix4f().translation(position);
-        cameraPosition = position;
-        camera.identity();
-        camera.rotate((float) Math.toRadians(angle.x), new Vector3f(1, 0, 0));
-        camera.rotate((float) Math.toRadians(angle.y), new Vector3f(0, 1, 0));
-        camera.rotate((float) Math.toRadians(angle.z), new Vector3f(0, 0, 1));
-        Vector4f result = new Vector4f();
-        camera.transform(0.0f, 0.0f, -1.0f, 0.0f, result);
-        cameraAngle.set(result.x, result.y, result.z);
-        camera.mul(translation);
-    }
-
     public void setAspectRatio(float ratio) {
         aspectRatio = ratio;
         recalculateProjectionMatrix();
@@ -99,14 +84,7 @@ public class Renderer {
 
     private void recalculateProjectionMatrix() {
         projectionMatrix.setPerspective(FOV, aspectRatio, z_near, z_far);
-        logMatricies();
-    }
-
-    public void logMatricies() {
         System.out.println(String.format("Projection Matrix: %n%s", projectionMatrix));
-        System.out.println(String.format("Camera Matrix: %n%s", camera));
-        System.out.println(String.format("Camera Position: %n%s", cameraPosition));
-        System.out.println(String.format("Camera Angle: %n%s", cameraAngle));
     }
 
     public void render() {
@@ -191,7 +169,7 @@ public class Renderer {
                     rotate((float)Math.toRadians(rotation.z),0, 0, 1).
                     rotate((float)Math.toRadians(rotation.x), 1, 0, 0)
                     .scale(object.getScale());
-            worldMatrix.mulLocal(camera);
+            worldMatrix.mulLocal(camera.camera);
 
             program.setUniform("worldMatrix", worldMatrix);
             object.mesh.render();
@@ -212,9 +190,9 @@ public class Renderer {
         particleShader.setUniform("particleSystemMatrix", worldMatrix);
         particleShader.setUniform("hotColor", particleSystem.hotColor);
         particleShader.setUniform("coldColor", particleSystem.coldColor);
-        particleShader.setUniform("cameraMatrix", camera);
-        particleShader.setUniform("cameraLocation", cameraPosition);
-        particleShader.setUniform("cameraDirection", cameraAngle);
+        particleShader.setUniform("cameraMatrix", camera.camera);
+        particleShader.setUniform("cameraLocation", camera.cameraPosition);
+        particleShader.setUniform("cameraDirection", camera.cameraAngle);
         particleSystem.render();
     }
 }

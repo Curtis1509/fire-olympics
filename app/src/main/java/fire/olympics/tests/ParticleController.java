@@ -71,7 +71,7 @@ public class ParticleController extends Controller {
                 angle.x += delta.y / MOUSE_SENSITIVITY;
             }
 
-            renderer.updateCamera(position, angle);
+            renderer.camera.updateCamera(position, angle);
         }
     }
 }

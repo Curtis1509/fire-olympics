@@ -41,13 +41,16 @@ public class App implements AutoCloseable {
 
         try (App app = new App(resourcePath)) {
             // You can technically create two windows by calling this twice.
-            // app.createMainWindow();
-            app.addParticleController();
+            app.createMainWindow();
+            MemoryUsage.print(Texture.class);
+            // app.addParticleController();
             app.mainLoop();
         } catch (Exception e) {
             System.out.printf("error: %s%n", e);
             e.printStackTrace();
         }
+
+        MemoryUsage.summary();
     }
 
 

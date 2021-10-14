@@ -4,6 +4,8 @@ import static org.lwjgl.opengl.GL33C.*;
 
 import java.util.ArrayList;
 
+import fire.olympics.MemoryUsage;
+
 /**
  * Stores variables needed to free the buffers when a VertexArrayObject is closed.
  */
@@ -78,6 +80,8 @@ public class VertexArrayObject implements AutoCloseable {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, b.gpuId);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer, usage);
         done();
+
+        MemoryUsage.record(buffer.length * Integer.BYTES, "VertexArrayObject.bindElements", "" + b.gpuId, VertexArrayObject.class);
     }
 
     /**
@@ -102,6 +106,8 @@ public class VertexArrayObject implements AutoCloseable {
         glVertexAttribPointer(index, componentCount, componentType, false, 0, 0);
         glBindBuffer(b.type, 0);
         done();
+
+        MemoryUsage.record(buffer.length * Float.BYTES, "VertexArrayObject.bindFloats", "" + b.gpuId, VertexArrayObject.class);
     }
 
     public void updateBuffer(int index, float[] buffer) {
@@ -111,6 +117,7 @@ public class VertexArrayObject implements AutoCloseable {
                 glBindBuffer(b.type, b.gpuId);
                 glBufferSubData(b.type, 0, buffer);
                 done();
+                MemoryUsage.record(buffer.length * Float.BYTES, "VertexArrayObject.updateBuffer", "" + b.gpuId, VertexArrayObject.class);
                 return;
             }
         }
@@ -123,6 +130,7 @@ public class VertexArrayObject implements AutoCloseable {
                 use();
                 glBindBuffer(b.type, b.gpuId);
                 glBufferData(b.type, buffer, GL_STATIC_DRAW);
+                MemoryUsage.record(buffer.length * Float.BYTES, "VertexArrayObject.discardAndBindBuffer", "" + b.gpuId, VertexArrayObject.class);
                 done();
                 return;
             }

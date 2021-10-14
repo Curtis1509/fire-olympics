@@ -61,13 +61,13 @@ public class GameController extends Controller {
     public void load() throws Exception {
         loader.loadTexture("textures", "metal_test.png");
         loader.loadTexture("textures", "wood_test_2.png");
-        loader.loadTexture("textures", "stadium_aluminium.jpg");
+        loader.loadTexture("textures", "stadium_aluminium.jpg").repeat(12000f/1024f, 5000f/1024f);
         loader.loadTexture("textures", "stadium_crowd.jpg");
-        loader.loadTexture("textures", "stadium_grass.jpg");
+        loader.loadTexture("textures", "stadium_grass.jpg").repeat(7000f/550f, 7000f/550f);
         loader.loadTexture("textures", "stadium_sky.jpg");
-        loader.loadTexture("textures", "stadium_track.jpg");
+        loader.loadTexture("textures", "stadium_track.jpg").repeat(7000f/800f, 7000f/557f);
         loader.loadTexture("textures", "stadium_lane.jpg");
-        loader.loadTexture("textures", "stadium_wood.jpeg");
+        loader.loadTexture("textures", "stadium_wood.jpeg").repeat(12000f/474f, 4500f/235f);
         loader.loadTexture("textures", "stadium_sky.jpg");
         loader.loadTexture("textures", "ring+pole_brushed_metal.jpg");
         loader.loadTexture("textures", "ring_black.jpg");
@@ -101,7 +101,6 @@ public class GameController extends Controller {
             objects.add(new GameItemGroup("ring", loader.loadModel(1, "models", "ring+pole_green.obj")));
             objects.add(new GameItemGroup("ring", loader.loadModel(1, "models", "ring+pole_red.obj")));
             objects.add(new GameItemGroup("ring", loader.loadModel(1, "models", "ring+pole_yellow.obj")));
-
         }
 
         // setting initial positions
@@ -197,7 +196,7 @@ public class GameController extends Controller {
             arrow.movePosition(0, -dy, 0);
 
             followCamera.moveCamera();
-            renderer.updateCamera(followCamera.getPosition().negate(), followCamera.getRotation());
+            renderer.camera.updateCamera(followCamera.getPosition().negate(), followCamera.getRotation());
         }
 
         particleSystem.update(timeDelta);
@@ -279,7 +278,7 @@ public class GameController extends Controller {
         System.out.println("key down: " + key);
 
         if (freeCamera.isEnabled())
-            renderer.updateCamera(position, angle);
+            renderer.camera.updateCamera(position, angle);
     }
 
     @Override
@@ -320,7 +319,7 @@ public class GameController extends Controller {
                 angle.y += delta.x / MOUSE_SENSITIVITY;
                 angle.x += delta.y / MOUSE_SENSITIVITY;
             }
-            renderer.updateCamera(position, angle);
+            renderer.camera.updateCamera(position, angle);
         }
     }
 }

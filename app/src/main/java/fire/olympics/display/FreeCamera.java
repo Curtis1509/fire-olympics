@@ -67,7 +67,7 @@ public class FreeCamera {
 
         updateCameraPos(offsetX, offsetY, offsetZ);
 
-        renderer.updateCamera(position, angle);
+        renderer.camera.updateCamera(position, angle);
     }
 
     // Update camera position taking into account camera rotation
