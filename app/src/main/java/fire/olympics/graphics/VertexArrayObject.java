@@ -81,7 +81,7 @@ public class VertexArrayObject implements AutoCloseable {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer, usage);
         done();
 
-        MemoryUsage.record(buffer.length * Integer.BYTES, "VertexArrayObject.bindElements", "" + b.gpuId, VertexArrayObject.class);
+        MemoryUsage.record(VertexArrayObject.class, "bindElements", "" + b.gpuId, buffer.length * Float.BYTES);
     }
 
     /**
@@ -107,7 +107,7 @@ public class VertexArrayObject implements AutoCloseable {
         glBindBuffer(b.type, 0);
         done();
 
-        MemoryUsage.record(buffer.length * Float.BYTES, "VertexArrayObject.bindFloats", "" + b.gpuId, VertexArrayObject.class);
+        MemoryUsage.record(VertexArrayObject.class, "bindFloats", "" + b.gpuId, buffer.length * Float.BYTES);
     }
 
     public void updateBuffer(int index, float[] buffer) {
@@ -117,7 +117,7 @@ public class VertexArrayObject implements AutoCloseable {
                 glBindBuffer(b.type, b.gpuId);
                 glBufferSubData(b.type, 0, buffer);
                 done();
-                MemoryUsage.record(buffer.length * Float.BYTES, "VertexArrayObject.updateBuffer", "" + b.gpuId, VertexArrayObject.class);
+                MemoryUsage.record(VertexArrayObject.class, "updateBuffer", "" + b.gpuId, buffer.length * Float.BYTES);
                 return;
             }
         }
@@ -130,7 +130,7 @@ public class VertexArrayObject implements AutoCloseable {
                 use();
                 glBindBuffer(b.type, b.gpuId);
                 glBufferData(b.type, buffer, GL_STATIC_DRAW);
-                MemoryUsage.record(buffer.length * Float.BYTES, "VertexArrayObject.discardAndBindBuffer", "" + b.gpuId, VertexArrayObject.class);
+                MemoryUsage.record(VertexArrayObject.class, "discardAndBindBuffer", "" + b.gpuId, buffer.length * Float.BYTES);
                 done();
                 return;
             }

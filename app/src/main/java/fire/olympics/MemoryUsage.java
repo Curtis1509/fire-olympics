@@ -10,18 +10,18 @@ public class MemoryUsage {
 
     private static class Record {
         Object type;
-        String instance;
-        String location;
-        int byteCount;
+        String identifier;
+        String method;
+        int count;
     }
 
     private static ArrayList<Record> records = new ArrayList<>();
 
-    public static <T> void record(int bytes, String location, String instance, Class<T> type) {
+    public static <T> void record(Class<T> type, String method, String identifier, int count) {
         Record r = new Record();
-        r.instance = instance;
-        r.location = location;
-        r.byteCount = bytes;
+        r.identifier = identifier;
+        r.method = method;
+        r.count = count;
         r.type = type;
         records.add(r);
     }
@@ -38,11 +38,12 @@ public class MemoryUsage {
     }
 
     public static void summary() {
+        System.out.println("GPU Memory Usage Summary");
         HashMap<Object, Integer> counts = new HashMap<>();
         for (Record r : records) {
             counts.putIfAbsent(r.type, 0);
             int count = counts.get(r.type);
-            counts.put(r.type, count + r.byteCount);
+            counts.put(r.type, count + r.count);
         }
 
         for (var e : counts.entrySet()) {
@@ -56,8 +57,8 @@ public class MemoryUsage {
         int count = 0;
         for (Record r : records) {
             if (r.type == type) {
-                System.out.println(String.format("%s: %s", r.instance, humanReadableByteCountBin(r.byteCount)));
-                count += r.byteCount;
+                System.out.println(String.format("%s %s: %s", r.method, r.identifier, humanReadableByteCountBin(r.count)));
+                count += r.count;
             }
         }
         System.out.println(String.format("Memory GPU consumption: %s", humanReadableByteCountBin(count)));
@@ -67,7 +68,7 @@ public class MemoryUsage {
     private static void printTotal() {
         int count = 0;
         for (Record r : records) {
-            count += r.byteCount;
+            count += r.count;
         }
         System.out.println(String.format("Total GPU memory consumption: %s", humanReadableByteCountBin(count)));
     }

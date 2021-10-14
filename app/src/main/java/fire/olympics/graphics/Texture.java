@@ -63,7 +63,7 @@ public class Texture {
             return;
         }
 
-        MemoryUsage.record(imageData.capacity(), "Texture()", path.toString(), Texture.class);
+        MemoryUsage.record(Texture.class, "Texture(Path)", path.toString(), imageData.capacity());
 
         id = glGenTextures();
         bind();
@@ -102,7 +102,7 @@ public class Texture {
         //flip the buffer so its ready to read
         buffer.flip();
 
-        MemoryUsage.record(buffer.capacity(), "Texture.loadPngTexture", path.toString(), Texture.class);
+        MemoryUsage.record(Texture.class, "loadPngTexture", path.toString(), buffer.capacity());
 
         //create a texture
         int id = glGenTextures();
