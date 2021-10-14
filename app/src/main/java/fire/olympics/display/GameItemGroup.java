@@ -66,11 +66,6 @@ public class GameItemGroup {
         return group.get(0).getWidth();
     }
     public float getHeight(int i){
-
-        if (id.equals("ring")) {
-            float total =(getPosition().y()+group.get(0).getHeight());
-            //System.out.println(group.get(0).getHeight() + "H : Y" + getPosition().y() + " T" + total);
-        }
         return group.get(0).getHeight();
     }
 

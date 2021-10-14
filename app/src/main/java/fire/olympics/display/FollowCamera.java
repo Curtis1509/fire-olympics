@@ -12,7 +12,6 @@ public class FollowCamera {
 
     private float pitch = 0;
     private float yaw = 0;
-    private final float roll = 0;
 
     private final float distanceFromArrow = 15;
     private float angleAboveArrow = 0;

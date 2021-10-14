@@ -25,7 +25,6 @@ public class GameItem {
     }
 
     public float getWidth(){
-        //System.out.println(getRotation());
         return mesh.getWidth();
     }
     public float getHeight(){
