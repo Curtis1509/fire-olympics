@@ -137,7 +137,7 @@ public class Renderer {
                         meshText.getFontTexture().unbind();
                     }
                 } else {
-                    if (meshText.isMenuText()) {
+                    if (meshText.isMenuText() && FreeCamera.override==false) {
                         glActiveTexture(GL_TEXTURE0);
                         meshText.getFontTexture().bind();
                         textShaderProgram.setUniform("colour", meshText.getColor());

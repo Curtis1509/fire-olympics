@@ -103,7 +103,7 @@ public class GameController extends Controller {
 
         // setting initial positions
         objects.get(0).setPosition(0, 0, 10);
-        objects.get(1).setPosition(0, -3, -10);
+        objects.get(1).setPosition(0, 5, -10);
         objects.get(2).setPosition(0, -7, 0);
         objects.get(2).setScale(7);
         objects.get(3).setPosition(0, 2, -10);
@@ -223,7 +223,6 @@ public class GameController extends Controller {
             ringRotPlus90 = 360 - ringRotPlus90;
         }
         if (d <= width/2) {
-            System.out.println("yes");
             if (aRot > ringRotPlus90 - cutOff && aRot < ringRotPlus90 + cutOff) {
                 return false;
             } else if (aRot > ringRotMinus90 - cutOff && aRot < ringRotMinus90 + cutOff) {
@@ -241,6 +240,12 @@ public class GameController extends Controller {
 
     public void checkCollision() {
 
+        if (arrow.getPosition().y < -6.8){
+            System.out.println("Crashed into the ground!");
+            arrow.setPosition(0,0,0);
+            arrow.setRotation(0,0,0);
+        }
+
         for (int i = 0; i < objects.size(); i++) {
             if (objects.get(i).getString().equals("ring")) {
                 // System.out.println("found ring at "+ i);
@@ -253,6 +258,7 @@ public class GameController extends Controller {
                 }
             }
         }
+
         if (collisionIndex != 6969 && collisionTick > 0 && (!(isInside(objects.get(collisionIndex).getRotation().y, objects.get(3).getWidth(0)*objects.get(collisionIndex).getScale(), objects.get(collisionIndex).getHeight(0)*objects.get(collisionIndex).getScale(), objects.get(collisionIndex).getPosition().x, objects.get(collisionIndex).getPosition().y, objects.get(collisionIndex).getPosition().z, arrow.getPosition().x(), arrow.getPosition().y, arrow.getPosition().z)))) {
             collisionTick = 0;
             collisionIndex = 6969;
