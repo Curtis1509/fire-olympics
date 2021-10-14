@@ -6,9 +6,11 @@ in  vec3 specularColour;
 in  vec3 fragNormal;
 in  float fragShiny;
 in  vec3 fragPos;
+in vec4 lightWorldMatrixPos;
 out vec4 fragColor;
 
 uniform vec3 sun;
+uniform sampler2D shadowMap;
 
 void main()
 {

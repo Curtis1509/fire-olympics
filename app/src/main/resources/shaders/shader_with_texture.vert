@@ -13,19 +13,25 @@ out vec3 specularColour;
 out vec3 fragNormal;
 out vec3 fragPos;
 out float fragShiny;
+out vec4 lightWorldMatrixPos;
 
 uniform mat4 projectionMatrix;
 uniform mat4 worldMatrix;
+uniform mat4 lightWorldMatrix;
+uniform mat4 orthoProjectionMatrix;
 
 void main()
 {
     vec4 worldPosition = worldMatrix * vec4(position, 1);
     gl_Position = projectionMatrix * worldPosition;
     fragPos = worldPosition.xyz;
+    fragNormal = normalize(worldMatrix * vec4(normal, 0.0)).xyz;
+    lightWorldMatrixPos = orthoProjectionMatrix * lightWorldMatrix * vec4(position, 1);
+
     outTexCoord = inColour;
     ambientColour = ambient;
     specularColour = specular;
     fragShiny = shininess;
-    fragNormal = normalize(worldMatrix * vec4(normal, 0.0)).xyz;
+
 
 }

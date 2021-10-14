@@ -6,10 +6,26 @@ in  vec3 specularColour;
 in  vec3 fragNormal;
 in  vec3 fragPos;
 in  float fragShiny;
+in vec4 lightWorldMatrixPos;
 out vec4 fragColor;
 
 uniform sampler2D texture_sampler;
+uniform sampler2D shadowMap;
 uniform vec3 sun;
+
+float calcShadow() {
+    float shadowFactor = 1.0;
+    vec3 projCoords = lightWorldMatrixPos.xyz;
+
+    projCoords = projCoords * 0.5 + 0.5;
+    float bias = 0.05;
+
+    if (projCoords.z-bias < texture(shadowMap, projCoords.xy).r) {
+        shadowFactor = 0;
+    }
+
+    return 1 - shadowFactor;
+}
 
 void main()
 {
@@ -33,8 +49,8 @@ void main()
     float spec = temp == 0 && fragShiny == 0 ? 0 : pow(temp, fragShiny);
     vec3 specular = specularStrength * spec * specularColour;
 
+    float shadow = calcShadow();
 
-    vec3 result =  (ambient + diffuse + specular) * tex.xyz;
-
+    vec3 result =  (ambient + ((diffuse + specular) * shadow)) * tex.xyz;
     fragColor = vec4(result, tex.a);
 }

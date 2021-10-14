@@ -13,9 +13,12 @@ out vec3 specularColour;
 out vec3 fragNormal;
 out float fragShiny;
 out vec3 fragPos;
+out vec4 lightWorldMatrixPos;
 
 uniform mat4 projectionMatrix;
 uniform mat4 worldMatrix;
+uniform mat4 lightWorldMatrix;
+uniform mat4 orthoProjectionMatrix;
 
 void main()
 {

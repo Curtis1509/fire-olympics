@@ -31,7 +31,7 @@ public class Renderer {
     private ShaderProgram textShaderProgram;
     private ShaderProgram particleShader;
     private ShaderProgram depthShadowShaderProgram;
-    private Vector3f sunDirection = new Vector3f(0, 300, 10); // sun is behind and above camera
+    private Vector3f sunDirection = new Vector3f(0, 0, 300); // sun is behind and above camera
     private Matrix4f projectionMatrix = new Matrix4f();
     private Matrix4f orthoProjectionMatrix = new Matrix4f();
     private Matrix4f worldMatrix = new Matrix4f();
@@ -112,22 +112,24 @@ public class Renderer {
         // Apply the color.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-//        if (depthShadowShaderProgram != null) {
-//            renderDepthMap(window, ob);
-//            window.updateViewPort(this);
-//        }
-
         // Start issueing render commands.
-        if (program != null) {
+        if (program != null && depthShadowShaderProgram != null) {
+
+            renderDepthMap(window, gameItemsWithOutTextures);
+            window.updateViewPort(this);
+
             program.bind();
-            render(gameItemsWithOutTextures, worldMatrix, program);
+            render(gameItemsWithOutTextures, program);
             program.unbind();
         }
 
         if (programWithTexture != null) {
+
+            renderDepthMap(window, gameItemsWithTextures);
+            window.updateViewPort(this);
+
             programWithTexture.bind();
-            render(gameItemsWithTextures, worldMatrix, programWithTexture);
+            render(gameItemsWithTextures, programWithTexture);
             programWithTexture.unbind();
         }
         App.checkError("1");
@@ -179,23 +181,16 @@ public class Renderer {
         }
     }
 
-    private void render(ArrayList<GameItem> objects, Matrix4f worldMatrix, ShaderProgram program) {
+    private void render(ArrayList<GameItem> objects, ShaderProgram program) {
         program.setUniform("projectionMatrix", projectionMatrix);
+        program.setUniform("orthoProjectionMatrix", orthoProjectionMatrix);
         program.setUniform("sun", sunDirection);
+        program.setUniform("depthMap", shadowMap.getDepthMapTexture().getId());
 
         // Render each gameItem
         for (GameItem object : objects) {
-            // Set world matrix for this item
-            Vector3f rotation = object.getRotation();
-            worldMatrix
-                    .translation(object.getPosition()).
-                    rotate((float)Math.toRadians(rotation.y),0, 1, 0).
-                    rotate((float)Math.toRadians(rotation.z),0, 0, 1).
-                    rotate((float)Math.toRadians(rotation.x), 1, 0, 0)
-                    .scale(object.getScale());
-            worldMatrix.mulLocal(camera);
-
-            program.setUniform("worldMatrix", worldMatrix);
+            program.setUniform("worldMatrix", buildWorldMatrix(object, camera));
+            program.setUniform("lightWorldMatrix", buildWorldMatrix(object, lightViewMatrix));
             object.mesh.render();
         }
     }
@@ -241,21 +236,31 @@ public class Renderer {
 
 
         orthoProjectionMatrix.identity();
-        orthoProjectionMatrix.setOrtho(-35.0f, 35.0f, -35.0f, 35.0f, 0.1f, 75.0f);
+        orthoProjectionMatrix.setOrtho(-35.0f, 35.0f, -35.0f, 35.0f, 300f, 0.1f);
 
         depthShadowShaderProgram.setUniform("orthoProjectionMatrix", orthoProjectionMatrix);
         // Render each gameItem
         for (GameItem object : objects) {
             // Set world matrix for this item
-            Vector3f rotation = object.getRotation();
-
-            // TODO render gameObjects to shadowMap
-
-            program.setUniform("worldMatrix", worldMatrix);
+            depthShadowShaderProgram.setUniform("worldMatrix", buildWorldMatrix(object, lightViewMatrix));
             object.mesh.render();
         }
 
         depthShadowShaderProgram.unbind();
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    private Matrix4f buildWorldMatrix(GameItem object, Matrix4f viewMatrix) {
+        Vector3f rotation = object.getRotation();
+        worldMatrix.identity();
+        worldMatrix
+                .translation(object.getPosition()).
+                rotate((float)Math.toRadians(rotation.y),0, 1, 0).
+                rotate((float)Math.toRadians(rotation.z),0, 0, 1).
+                rotate((float)Math.toRadians(rotation.x), 1, 0, 0)
+                .scale(object.getScale());
+        worldMatrix.mulLocal(viewMatrix);
+
+        return worldMatrix;
     }
 }
