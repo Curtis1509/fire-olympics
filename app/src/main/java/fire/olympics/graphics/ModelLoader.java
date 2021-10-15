@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Loads meshs and their textures from the file system.
+ * Loads meshes and their textures from the file system.
  * 
  * Note: An instance of a model loader owns the textures that are loaded
  * but does not (currently) own the meshes that are loaded. 
@@ -43,7 +43,7 @@ public class ModelLoader implements AutoCloseable {
     public boolean enableLogging = false;
 
     private Path resource(String first, String... more) {
-        return resourcePath.resolve(Path.of(first, more));
+        return resourcePath.resolve(Path.of(first, more)).toAbsolutePath();
     }
 
     /**
@@ -83,7 +83,7 @@ public class ModelLoader implements AutoCloseable {
      */
     public Node loadModel(String first, String... more) throws Exception {
         Path path = resource(first, more);
-        AIScene scene = Assimp.aiImportFile(path.toAbsolutePath().toString(), 0);
+        AIScene scene = Assimp.aiImportFile(path.toString(), 0);
         if (scene == null) {
             error(String.format("File %s could not be loaded.", path.getFileName()));
         }
@@ -128,8 +128,7 @@ public class ModelLoader implements AutoCloseable {
 
                 newMesh.attachMaterial(diffuse);
             } else {
-                Path p = Path.of(texPath.dataString());
-                Path key = path.getParent().resolve(p).normalize().toAbsolutePath();
+                Path key = resource(texPath.dataString());
                 Texture t = loadedTextures.get(key.toString());
                 if (t == null || !t.imageLoaded()) {
                     warn("warning: could not find texture " + key);

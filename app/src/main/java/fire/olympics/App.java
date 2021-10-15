@@ -264,7 +264,7 @@ public class App implements AutoCloseable {
      * @param more A file or directory.
      */
     public Path resource(String first, String... more) {
-        return resourcePath.resolve(Path.of(first, more));
+        return resourcePath.resolve(Path.of(first, more)).toAbsolutePath();
     }
 
     @Override

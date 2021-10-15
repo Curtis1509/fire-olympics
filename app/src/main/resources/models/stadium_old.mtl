@@ -10,7 +10,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd -s 0.005000 0.100000 1.000000 ../textures/stadium_crowd.jpg
+map_Kd -s 0.005000 0.100000 1.000000 textures/stadium_crowd.jpg
 
 newmtl Grass_Material
 Ns 225.000000
@@ -21,7 +21,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd -s 0.020000 0.020000 1.000000 ../textures/stadium_grass.jpg
+map_Kd -s 0.020000 0.020000 1.000000 textures/stadium_grass.jpg
 
 newmtl Roof_Material
 Ns 401.982660
@@ -32,7 +32,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd -s 0.220000 0.220000 1.000000 ../textures/stadium_aluminium.jpg
+map_Kd -s 0.220000 0.220000 1.000000 textures/stadium_aluminium.jpg
 
 newmtl Sky.001
 Ns 225.000000
@@ -43,7 +43,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd ../textures/stadium_sky.jpg
+map_Kd textures/stadium_sky.jpg
 
 newmtl Stadium_Material
 Ns 32.372180
@@ -54,7 +54,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd -s 0.005000 0.005000 1.000000 ../textures/stadium_wood.jpeg
+map_Kd -s 0.005000 0.005000 1.000000 textures/stadium_wood.jpeg
 
 newmtl Track_Material
 Ns 225.000000
@@ -65,4 +65,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd -s 0.010000 0.010000 1.000000 ../textures/stadium_track.jpg
+map_Kd -s 0.010000 0.010000 1.000000 textures/stadium_track.jpg

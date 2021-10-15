@@ -10,7 +10,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 3
-map_Kd -s 0.460000 0.630000 1.000000 ../textures/pole_metal.jpg
+map_Kd -s 0.460000 0.630000 1.000000 textures/pole_metal.jpg
 
 newmtl Material.002
 Ns 654.008175
@@ -21,4 +21,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 3
-map_Kd -s 0.460000 0.630000 1.000000 ../textures/ring_red.jpg
+map_Kd -s 0.460000 0.630000 1.000000 textures/ring_red.jpg
