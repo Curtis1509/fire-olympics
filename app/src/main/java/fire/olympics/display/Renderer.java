@@ -1,5 +1,6 @@
 package fire.olympics.display;
 
+import fire.olympics.graphics.DepthMapper;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -28,6 +29,7 @@ public class Renderer {
     private ShaderProgram particleShader;
     private Vector3f sunDirection = new Vector3f(0, 300, 10); // sun is behind and above camera
     private Matrix4f projectionMatrix = new Matrix4f();
+    private final DepthMapper mapper;
 
     public Camera camera = new Camera();
     public final Vector4f backgroundColor = new Vector4f();
@@ -37,6 +39,7 @@ public class Renderer {
         this.programWithTexture = programWithTexture;
         this.textShaderProgram = textShaderProgram;
         this.particleShader = particleShader;
+        this.mapper = new DepthMapper(sunDirection, true);
     }
 
     public void add(Node tree) {
@@ -74,10 +77,16 @@ public class Renderer {
         projectionMatrix.setPerspective(FOV, aspectRatio, z_near, z_far);
     }
 
-    public void render() {
+    public void render(int windowWidth, int windowHeight) {
+        mapper.ComputeDepthMap(gameItems, windowWidth, windowHeight);
+
         glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, backgroundColor.w);
         // Apply the color.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, mapper.getDepthMap());
+        glActiveTexture(GL_TEXTURE0);
 
         for (Node child : gameItems) {
             render(child);
@@ -93,28 +102,29 @@ public class Renderer {
     }
 
     private void render(Node node) {
-        if (node instanceof GameItem) {
-            GameItem gameItem = (GameItem) node;
-            if (gameItem != null) {
-                Matrix4f worldMatrix = node.getMatrix();
-                worldMatrix.mulLocal(camera.getMatrix().invertAffine());
-                if (gameItem.mesh.hasTexture()) {
-                    programWithTexture.bind();
-                    programWithTexture.setUniform("projectionMatrix", projectionMatrix);
-                    programWithTexture.setUniform("sun", sunDirection);
-                    programWithTexture.setUniform("worldMatrix", worldMatrix);
-                } else {
-                    program.bind();
-                    program.setUniform("projectionMatrix", projectionMatrix);
-                    program.setUniform("sun", sunDirection);
-                    program.setUniform("worldMatrix", worldMatrix);
-                }
-                gameItem.mesh.render();
-                if (gameItem.mesh.hasTexture()) {
-                    programWithTexture.unbind();
-                } else {
-                    program.unbind();
-                }
+        if (node instanceof GameItem gameItem) {
+            Matrix4f viewProjectionMatrix = new Matrix4f();
+            projectionMatrix.mul(camera.getMatrix().invertAffine(), viewProjectionMatrix);
+            Matrix4f worldMatrix = node.getMatrix();
+
+            if (gameItem.mesh.hasTexture()) {
+                programWithTexture.bind();
+                programWithTexture.setUniform("projectionMatrix", viewProjectionMatrix);
+                programWithTexture.setUniform("sun", sunDirection);
+                programWithTexture.setUniform("worldMatrix", worldMatrix);
+                programWithTexture.setUniform("lightSpace", mapper.getLightSpaceMatrix());
+            } else {
+                program.bind();
+                program.setUniform("projectionMatrix", viewProjectionMatrix);
+                program.setUniform("sun", sunDirection);
+                program.setUniform("worldMatrix", worldMatrix);
+                program.setUniform("lightSpace", mapper.getLightSpaceMatrix());
+            }
+            gameItem.mesh.render();
+            if (gameItem.mesh.hasTexture()) {
+                programWithTexture.unbind();
+            } else {
+                program.unbind();
             }
         }
 

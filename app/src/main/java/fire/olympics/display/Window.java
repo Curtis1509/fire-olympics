@@ -223,7 +223,7 @@ public class Window implements AutoCloseable {
                 resized = false;
                 renderer.setAspectRatio(aspectRatio());
             }
-            renderer.render();
+            renderer.render(width, height);
             glfwSwapBuffers(windowId);
             done();
         }

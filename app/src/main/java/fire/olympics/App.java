@@ -34,12 +34,12 @@ public class App implements AutoCloseable {
             System.out.println("warning: not running on main thread!");
         }
 
-        Path resourcePath = Path.of("app", "src", "main", "resources");
+        resourcePath = Path.of("app", "src", "main", "resources");
         if (!Files.exists(resourcePath)) {
             resourcePath = Path.of("app").relativize(resourcePath);
         }
 
-        try (App app = new App(resourcePath)) {
+        try (App app = new App()) {
             // You can technically create two windows by calling this twice.
             app.createMainWindow();
             // app.addParticleController();
@@ -58,11 +58,10 @@ public class App implements AutoCloseable {
      * A path relative to the current working directory that points to the resources directory.
      */
 
-    private final Path resourcePath;
+    private static Path resourcePath;
     private final ArrayList<Controller> controllers = new ArrayList<>();
 
-    public App(Path resourcePath) {
-        this.resourcePath = resourcePath;
+    public App() {
         // Setup an error callback. The default implementation
         // will print the error message in System.err.
         GLFWErrorCallback.createPrint(System.err).set();
@@ -156,7 +155,12 @@ public class App implements AutoCloseable {
         program.createUniform("projectionMatrix");
         program.createUniform("worldMatrix");
         program.createUniform("sun");
+        program.createUniform("lightSpace");
+        program.createUniform("depthMap");
         program.validate();
+        program.bind();
+        program.setUniform("depthMap", 1);
+        program.unbind();
 
         ShaderProgram programWithTexture = new ShaderProgram();
         programWithTexture.load(GL_VERTEX_SHADER, resource("shaders", "shader_with_texture.vert"));
@@ -165,8 +169,14 @@ public class App implements AutoCloseable {
         programWithTexture.createUniform("projectionMatrix");
         programWithTexture.createUniform("worldMatrix");
         programWithTexture.createUniform("sun");
+        programWithTexture.createUniform("lightSpace");
         programWithTexture.createUniform("texture_sampler");
+        programWithTexture.createUniform("depthMap");
         programWithTexture.validate();
+        programWithTexture.bind();
+        programWithTexture.setUniform("texture_sampler", 0);
+        programWithTexture.setUniform("depthMap", 1);
+        programWithTexture.unbind();
 
         ShaderProgram textShaderProgram = new ShaderProgram();
         textShaderProgram.load(GL_VERTEX_SHADER, resource("shaders", "shader_for_text.vert"));
@@ -263,7 +273,7 @@ public class App implements AutoCloseable {
      * @param first A file or directory.
      * @param more A file or directory.
      */
-    public Path resource(String first, String... more) {
+    public static Path resource(String first, String... more) {
         return resourcePath.resolve(Path.of(first, more)).toAbsolutePath();
     }
 
