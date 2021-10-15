@@ -4,14 +4,14 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_D;
 
 import fire.olympics.display.Camera;
-import fire.olympics.display.GameItemGroup;
+import fire.olympics.display.Node;
 import fire.olympics.display.Window;
 
 public class FollowCamera extends Camera {
     private final Window window;
     private final float distanceFromTarget = 15;
 
-    public GameItemGroup target;
+    public Node target;
     public float arrowSpeed = 25.0f;
 
     private float angleAboveArrow = 0;
@@ -30,7 +30,6 @@ public class FollowCamera extends Camera {
      * Allows camera to move in relation to arrow
      */
     private void moveCamera() {
-        System.out.printf("%.3f, %.3f%n", angleAboveArrow, angleAroundArrow);
         float pitch = target.getRotation().x + angleAboveArrow;
         float yaw = (180 - target.getRotation().y) + angleAroundArrow;
 
@@ -60,7 +59,7 @@ public class FollowCamera extends Camera {
         float dx = (float) ((arrowSpeed * timeDelta) * Math.sin(Math.toRadians(target.getRotation().y)));
         float dy = (float) ((arrowSpeed * timeDelta) * Math.sin(Math.toRadians(target.getRotation().x)));
         float dz = (float) ((arrowSpeed * timeDelta) * Math.cos(Math.toRadians(target.getRotation().y)));
-        target.movePosition(dx, -dy, dz);
+        target.position.add(dx, -dy, dz);
         moveCamera();
     }
 
@@ -74,7 +73,7 @@ public class FollowCamera extends Camera {
             }
             // Increase arrow x rotation and angle above
             else {
-                target.increaseRotX((float) (timeDelta * 25f));
+                target.rotation.x += (float) (timeDelta * 25f);
                 angleAboveArrow -= (float)(timeDelta * 10f);
             }
         } else if (window.isKeyDown(GLFW_KEY_S)) {
@@ -84,7 +83,7 @@ public class FollowCamera extends Camera {
             }
             // Decrease arrow x rotation and angle above
             else {
-                target.increaseRotX((float) (-timeDelta * 25f));
+                target.rotation.x += (float) (-timeDelta * 25f);
                 angleAboveArrow += (float)(timeDelta * 10f);
             }
         }
@@ -108,7 +107,7 @@ public class FollowCamera extends Camera {
                 angleAroundArrow -= (float) (timeDelta * 3f);
             }
             // Increase arrow y rotation left
-            target.increaseRotY((float) (timeDelta * 50f));
+            target.rotation.y += (float) (timeDelta * 50f);
         } else if (window.isKeyDown(GLFW_KEY_D)) {
             // Lock angle
             if (angleAroundArrow > 7) {
@@ -119,7 +118,7 @@ public class FollowCamera extends Camera {
                 angleAroundArrow += (float) (timeDelta * 3f);
             }
             // Increase arrow y rotation Right
-            target.increaseRotY((float) -(timeDelta * 50f));
+            target.rotation.y += (float) -(timeDelta * 50f);
         }
         // If no button press return angle above to baseline
         else {

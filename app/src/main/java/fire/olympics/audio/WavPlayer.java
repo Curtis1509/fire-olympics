@@ -13,6 +13,7 @@ public class WavPlayer {
 
     private App app;
     private ArrayList<Path> soundURL;
+    public boolean enabled = true;
 
     public WavPlayer(App app) {
         this.app = app;
@@ -31,6 +32,7 @@ public class WavPlayer {
     }
 
     public synchronized void playSound(int index) {
+        if (!enabled) return;
         new Thread(new Runnable() {
             // The wrapper thread is unnecessary, unless it blocks on the
             // Clip finishing; see comments.

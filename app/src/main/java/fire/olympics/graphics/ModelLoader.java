@@ -1,13 +1,13 @@
 package fire.olympics.graphics;
 
 import fire.olympics.display.GameItem;
+import fire.olympics.display.Node;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.assimp.*;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.file.*;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -81,7 +81,7 @@ public class ModelLoader implements AutoCloseable {
      * @return A list of game items representing the meshes that were loaded.
      * @throws Exception
      */
-    public ArrayList<GameItem> loadModel(int quantity, String first, String... more) throws Exception {
+    public Node loadModel(String first, String... more) throws Exception {
         Path path = resource(first, more);
         AIScene scene = Assimp.aiImportFile(path.toAbsolutePath().toString(), 0);
         if (scene == null) {
@@ -94,7 +94,7 @@ public class ModelLoader implements AutoCloseable {
         }
 
         int numMeshes = scene.mNumMeshes();
-        ArrayList<GameItem> objects = new ArrayList<>(numMeshes);
+        Node parent = new Node();
         log("%d mesh(es) in %s%n", numMeshes, path.getFileName());
 
         for (int i = 0; i < numMeshes; i++) {
@@ -180,12 +180,11 @@ public class ModelLoader implements AutoCloseable {
 
             newMesh.attachLightingData(ambient, specular, shininess);
 
-            for (int j = 0; j < quantity; j++)
-            objects.add(new GameItem(newMesh));
+            parent.addChild(new GameItem(newMesh));
         }
 
         Assimp.aiReleaseImport(scene);
-        return objects;
+        return parent;
     }
 
     private static float[] convertPositions(AIMesh mesh) {

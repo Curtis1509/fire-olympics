@@ -4,7 +4,6 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-import fire.olympics.App;
 import fire.olympics.graphics.TextMesh;
 import fire.olympics.fontMeshCreator.GUIText;
 import fire.olympics.particles.ParticleSystem;
@@ -18,9 +17,7 @@ public class Renderer {
     private float FOV = (float) Math.toRadians(60.0f);
     private float z_near = 0.01f;
     private float z_far = 2000f;
-    private final ArrayList<GameItem> gameItems = new ArrayList<>();
-    private final ArrayList<GameItem> gameItemsWithTextures = new ArrayList<>();
-    private final ArrayList<GameItem> gameItemsWithOutTextures = new ArrayList<>();
+    private final ArrayList<Node> gameItems = new ArrayList<>();
     private final ArrayList<TextMesh> textMeshes = new ArrayList<>();
     private final ArrayList<ParticleSystem> particleSystems = new ArrayList<>();
 
@@ -42,13 +39,8 @@ public class Renderer {
         this.particleShader = particleShader;
     }
 
-    public void add(GameItem tree) {
+    public void add(Node tree) {
         gameItems.add(tree);
-        if (!tree.mesh.hasTexture()) {
-            gameItemsWithOutTextures.add(tree);
-        } else {
-            gameItemsWithTextures.add(tree);
-        }
     }
 
     public void add(ParticleSystem particleSystem) {
@@ -87,81 +79,92 @@ public class Renderer {
         // Apply the color.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Start issueing render commands.
-        if (program != null) {
-            program.bind();
-            render(gameItemsWithOutTextures, program);
-            program.unbind();
+        for (Node child : gameItems) {
+            render(child);
         }
-
-        if (programWithTexture != null) {
-            programWithTexture.bind();
-            render(gameItemsWithTextures, programWithTexture);
-            programWithTexture.unbind();
-        }
-        App.checkError("1");
-
 
         if (textShaderProgram != null) {
-            glDisable(GL_CULL_FACE);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glDisable(GL_DEPTH_TEST);
-            textShaderProgram.bind();
-            for (TextMesh meshText : textMeshes) {
-                if (meshText.isHidden()) continue;
-                glActiveTexture(GL_TEXTURE0);
-                meshText.getFontTexture().bind();
-                textShaderProgram.setUniform("colour", meshText.getColor());
-                textShaderProgram.setUniform("translation", meshText.getPosition());
-                meshText.render();
-                meshText.getFontTexture().unbind();
-            }
-            textShaderProgram.unbind();
-            glDisable(GL_BLEND);
-            glEnable(GL_DEPTH_TEST);
-            glEnable(GL_CULL_FACE);
+            renderText();
         }
 
         if (particleShader != null) {
-            particleShader.bind();
-            glDisable(GL_CULL_FACE);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glDisable(GL_DEPTH_TEST);
-            glDepthMask(false);
-            particleShader.setUniform("projectionMatrix", projectionMatrix);
-            for (ParticleSystem particleSystem : particleSystems) {
-                renderParticleSystem(particleSystem);
+            renderParticleSystems();
+        }
+    }
+
+    private void render(Node node) {
+        if (node instanceof GameItem) {
+            GameItem gameItem = (GameItem) node;
+            if (gameItem != null) {
+                Matrix4f worldMatrix = node.getMatrix();
+                worldMatrix.mulLocal(camera.getMatrix().invertAffine());
+                if (gameItem.mesh.hasTexture()) {
+                    programWithTexture.bind();
+                    programWithTexture.setUniform("projectionMatrix", projectionMatrix);
+                    programWithTexture.setUniform("sun", sunDirection);
+                    programWithTexture.setUniform("worldMatrix", worldMatrix);
+                } else {
+                    program.bind();
+                    program.setUniform("projectionMatrix", projectionMatrix);
+                    program.setUniform("sun", sunDirection);
+                    program.setUniform("worldMatrix", worldMatrix);
+                }
+                gameItem.mesh.render();
+                if (gameItem.mesh.hasTexture()) {
+                    programWithTexture.unbind();
+                } else {
+                    program.unbind();
+                }
             }
-            particleShader.unbind();
-            glDepthMask(true);
-            glEnable(GL_DEPTH_TEST);
-            glDisable(GL_BLEND);
-            glEnable(GL_CULL_FACE);
+        }
+
+        for (Node child : node.children) {
+            render(child);
         }
     }
 
-    private void render(ArrayList<GameItem> objects, ShaderProgram program) {
-        program.setUniform("projectionMatrix", projectionMatrix);
-        program.setUniform("sun", sunDirection);
-
-        // Render each gameItem
-        for (GameItem object : objects) {
-            // Set world matrix for this item
-            Matrix4f worldMatrix = object.getMatrix();
-            worldMatrix.mulLocal(camera.getMatrix().invertAffine());
-            program.setUniform("worldMatrix", worldMatrix);
-            object.mesh.render();
+    private void renderText() {
+        glDisable(GL_CULL_FACE);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDisable(GL_DEPTH_TEST);
+        textShaderProgram.bind();
+        for (TextMesh meshText : textMeshes) {
+            if (meshText.isHidden())
+                continue;
+            glActiveTexture(GL_TEXTURE0);
+            meshText.getFontTexture().bind();
+            textShaderProgram.setUniform("colour", meshText.getColor());
+            textShaderProgram.setUniform("translation", meshText.getPosition());
+            meshText.render();
+            meshText.getFontTexture().unbind();
         }
+        textShaderProgram.unbind();
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
     }
 
-    private void renderParticleSystem(ParticleSystem particleSystem) {
-        particleShader.setUniform("particleSystemMatrix", particleSystem.getMatrix());
-        particleShader.setUniform("hotColor", particleSystem.hotColor);
-        particleShader.setUniform("coldColor", particleSystem.coldColor);
-        particleShader.setUniform("cameraMatrix", camera.getMatrix().invertAffine());
-        particleShader.setUniform("cameraLocation", camera.getPosition());
-        particleSystem.render();
+    private void renderParticleSystems() {
+        particleShader.bind();
+        glDisable(GL_CULL_FACE);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDisable(GL_DEPTH_TEST);
+        glDepthMask(false);
+        particleShader.setUniform("projectionMatrix", projectionMatrix);
+        for (ParticleSystem particleSystem : particleSystems) {
+            particleShader.setUniform("particleSystemMatrix", particleSystem.getMatrix());
+            particleShader.setUniform("hotColor", particleSystem.hotColor);
+            particleShader.setUniform("coldColor", particleSystem.coldColor);
+            particleShader.setUniform("cameraMatrix", camera.getMatrix().invertAffine());
+            particleShader.setUniform("cameraLocation", camera.position);
+            particleSystem.render();
+        }
+        particleShader.unbind();
+        glDepthMask(true);
+        glEnable(GL_DEPTH_TEST);
+        glDisable(GL_BLEND);
+        glEnable(GL_CULL_FACE);
     }
 }

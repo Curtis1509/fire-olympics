@@ -3,8 +3,7 @@ package fire.olympics.game;
 import fire.olympics.App;
 import fire.olympics.audio.WavPlayer;
 import fire.olympics.display.Controller;
-import fire.olympics.display.GameItem;
-import fire.olympics.display.GameItemGroup;
+import fire.olympics.display.Node;
 import fire.olympics.display.Renderer;
 import fire.olympics.display.Window;
 import fire.olympics.graphics.ModelLoader;
@@ -33,20 +32,24 @@ public class GameController extends Controller {
     private boolean keyOPrev = false;
     private boolean keyPPrev = false;
 
-    private ArrayList<GameItemGroup> objects = new ArrayList<>();
-    private GameItemGroup arrow;
-    private Vector3f arrowInitPosition = new Vector3f(-300, 35, 0);
-    private Vector3f arrowInitRotation = new Vector3f(0, 90, 0);
+    private Node arrow;
+    private final Vector3f arrowInitPosition = new Vector3f(-300, 35, 0);
+    private final Vector3f arrowInitRotation = new Vector3f(0, 90, 0);
 
-    private int numOfPoles = 1; // number of each of the five colours
-
-    private WavPlayer wavPlayer;
+    private final WavPlayer wavPlayer;
     private int score = 0;
+
+    private int collisionTick = 0;
+    private Node collidedObject;
+    private Node ring;
+    private Node ringWithPole;
 
     private final ParticleSystem particleSystem = new ParticleSystem(100);
     private final GUIText fireOlympicsText;
     private final GUIText scoreText;
     private final GUIText pressSpaceToPlayText;
+
+    private final ArrayList<Node> children = new ArrayList<>();
 
     /**
      * Prefer using isPlaying() and setIsPlaying(_) over reading and writing to this field directly
@@ -75,6 +78,7 @@ public class GameController extends Controller {
         super(app, window, renderer, loader);
 
         wavPlayer = new WavPlayer(app);
+        wavPlayer.enabled = false;
 
         followCamera = new FollowCamera(window);
         freeCamera = new FreeCamera(window);
@@ -122,42 +126,74 @@ public class GameController extends Controller {
         loader.loadTexture("textures", "ring_yellow.jpg");
         loader.loadTexture("textures", "pole_metal.jpg");
 
-
-        // adding to ArrayList with indices, to explicitly place objects in order
-        // skipping an index, or adding them out of order, will break things!!
-
-        objects.add(0, new GameItemGroup("arrow", loader.loadModel(1, "models", "proto_arrow_textured.obj")));
-        this.arrow = objects.get(0);
+        arrow = loader.loadModel("models", "proto_arrow_textured.obj");
+        arrow.name = "arrow";
+        arrow.position.set(arrowInitPosition);
+        arrow.rotation.set(arrowInitRotation);
         followCamera.target = arrow;
+        add(arrow);
 
-        objects.add(1, new GameItemGroup("brazier", loader.loadModel(1, "models", "Brazier v2 Textured.obj")));
+        Node brazier = loader.loadModel("models", "Brazier v2 Textured.obj");
+        brazier.name = "brazier";
+        brazier.position.set(0, 0, -10);
+        add(brazier);
 
         // sky4 has the smoothest sky that fits in github. export sky5 from blender for the smoothest sky
-        objects.add(2, new GameItemGroup("stadium", loader.loadModel(1, "models", "stadium_sky4.obj")));
-        // objects.add(2, new GameItemGroup(loader.loadModel("models", "stadium_sky5.obj")));
+        // Index 2
+        Node stadium = loader.loadModel("models", "stadium_sky4.obj");
+        stadium.name = "stadium";
+        stadium.scale = 7.0f;
+        add(stadium);
 
-        objects.add(3, new GameItemGroup("ringt", loader.loadModel(1, "models", "ring.obj")));
-        objects.add(4, new GameItemGroup("ringtp", loader.loadModel(1, "models", "ring+pole.obj")));
+        // Index 3
+        ring = loader.loadModel("models", "ring.obj");
+        ring.name = "ringt";
+        ring.position.set(0, 2, -10);
 
-        int size = objects.size();
+        // Index 4
+        ringWithPole = loader.loadModel("models", "ring+pole.obj");
+        ringWithPole.name = "ringtp"; 
+        ringWithPole.position.set(0, -5, -45);
 
-        // coloured rings
-        for (int i = 0; i < numOfPoles; i++) {
-            objects.add(new GameItemGroup("ring", loader.loadModel(1, "models", "ring+pole_black.obj")));
-            objects.add(new GameItemGroup("ring", loader.loadModel(1, "models", "ring+pole_blue.obj")));
-            objects.add(new GameItemGroup("ring", loader.loadModel(1, "models", "ring+pole_green.obj")));
-            objects.add(new GameItemGroup("ring", loader.loadModel(1, "models", "ring+pole_red.obj")));
-            objects.add(new GameItemGroup("ring", loader.loadModel(1, "models", "ring+pole_yellow.obj")));
+        addRings(1);
+
+        // for (GameItemGroup object : objects) {
+        //     if (!(object.getString().equals("ringt") || object.getString().equals("ringtp")))
+        //     for (GameItem item : object.getAll())
+        //         renderer.add(item);
+        // }
+
+        // Particle effects are disabled at the moment because they are buggy.
+        // particleSystem.texture = loader.loadTexture("textures", "fire_particle.png");
+        // renderer.add(particleSystem);
+
+        wavPlayer.playSound(2);
+        wavPlayer.playSound(3);
+    }
+
+
+    private void add(Node node) {
+        children.add(node);
+        renderer.add(node);
+    }
+
+    private void addRings(int numOfPoles) throws Exception {
+
+        // Load Rings
+        // Surely there was a better way of doing this with a Stream?
+        String[] names = new String[] {
+            "ring+pole_black.obj",
+            "ring+pole_blue.obj",
+            "ring+pole_green.obj",
+            "ring+pole_red.obj",
+            "ring+pole_yellow.obj"
+        };
+        Node[] rings = new Node[names.length];
+        for (int i = 0; i < names.length; i += 1) {
+            rings[i] = loader.loadModel("models", names[i]);
         }
 
-        // setting initial positions
-        objects.get(0).setPosition(arrowInitPosition);
-        objects.get(0).setRotation(arrowInitRotation);
-        objects.get(1).setPosition(0, -5, -10);
-        objects.get(2).setPosition(0, -7, 0);
-        objects.get(2).setScale(7);
-        objects.get(3).setPosition(0, 2, -10);
-        objects.get(4).setPosition(0, -5, -45);
+        // Setting initial positions
 
         Random r = new Random();
         int lowX = -190;
@@ -169,31 +205,21 @@ public class GameController extends Controller {
         int lowR = 0;
         int highR = 360;
 
-        // randomise positions of coloured rings
-        for (int i = size; i < objects.size(); i++) {
+        // Randomise positions of coloured rings
+        for (int i = 0; i < numOfPoles; i++) {
             int resultX = r.nextInt(highX - lowX) + lowX;
             int resultY = r.nextInt(highY - lowY) + lowY;
             int resultZ = r.nextInt(highZ - lowZ) + lowZ;
             int resultR = r.nextInt(highR - lowR) + lowR;
 
-            objects.get(i).setPosition(resultX, resultY, -resultZ);
-            objects.get(i).setRotation(0, resultR,0);
-            objects.get(i).setScale(3);
+            Node ring = (Node) rings[i % rings.length].clone();
+
+            ring.name = "ring";
+            ring.position.set(resultX, resultY, -resultZ);
+            ring.rotation.set(0, resultR, 0);
+            ring.scale = 3.0f;
+            add(ring);
         }
-
-        for (GameItemGroup object : objects) {
-            if (!(object.getString().equals("ringt") || object.getString().equals("ringtp")))
-            for (GameItem item : object.getAll())
-                renderer.add(item);
-        }
-
-        // Particle effects are disabled at the moment because they are buggy.
-        // particleSystem.texture = loader.loadTexture("textures", "fire_particle.png");
-        // renderer.add(particleSystem);
-
-        arrow = objects.get(0);
-        wavPlayer.playSound(2);
-        wavPlayer.playSound(3);
     }
 
     @Override
@@ -264,10 +290,6 @@ public class GameController extends Controller {
         return false;
     }
 
-    int collisionTick = 0;
-    int collisionIndex = 6969;
-
-
     public void checkCollision() {
 
         if (arrow.getPosition().y < -6.8){
@@ -277,22 +299,32 @@ public class GameController extends Controller {
             wavPlayer.playSound(6);
         }
 
-        for (int i = 0; i < objects.size(); i++) {
-            if (objects.get(i).getString().equals("ring")) {
+        for (Node child : children) {
+            if (child.getString().equals("ring")) {
                 // System.out.println("found ring at "+ i);
-                if (collisionTick == 0 && isInside(objects.get(i).getRotation().y, objects.get(3).getWidth(0)*objects.get(i).getScale(), objects.get(i).getHeight(0)*objects.get(i).getScale(), objects.get(i).getPosition().x, objects.get(i).getPosition().y, objects.get(i).getPosition().z, arrow.getPosition().x(), arrow.getPosition().y, arrow.getPosition().z)
+                if (collisionTick == 0 && isInside(
+                        child.getRotation().y,
+                        arrow.getWidth(0) * child.getScale(),
+                        child.getHeight(0) * child.getScale(), 
+                        child.getPosition().x, child.getPosition().y, child.getPosition().z, 
+                        arrow.getPosition().x(), arrow.getPosition().y, arrow.getPosition().z)
                 ) {
-                    //isInside(objects.get(3).getRotation(i).y, objects.get(3).getWidth(0), objects.get(3).getHeight(0), objects.get(3).getPosition(i).x, objects.get(3).getPosition(i).y, objects.get(3).getPosition(i).z, arrow.getPosition().x(), arrow.getPosition().y, arrow.getPosition().z);
                     collisionTick++;
-                    collisionIndex = i;
+                    collidedObject = child;
                     System.out.println("COLLIDE");
                 }
             }
         }
 
-        if (collisionIndex != 6969 && collisionTick > 0 && (!(isInside(objects.get(collisionIndex).getRotation().y, objects.get(3).getWidth(0)*objects.get(collisionIndex).getScale(), objects.get(collisionIndex).getHeight(0)*objects.get(collisionIndex).getScale(), objects.get(collisionIndex).getPosition().x, objects.get(collisionIndex).getPosition().y, objects.get(collisionIndex).getPosition().z, arrow.getPosition().x(), arrow.getPosition().y, arrow.getPosition().z)))) {
+        if (collidedObject != null && collisionTick > 0
+                && (!(isInside(collidedObject.getRotation().y,
+                        arrow.getWidth(0) * collidedObject.getScale(),
+                        collidedObject.getHeight(0) * collidedObject.getScale(),
+                        collidedObject.getPosition().x, collidedObject.getPosition().y,
+                        collidedObject.getPosition().z, arrow.getPosition().x(), arrow.getPosition().y,
+                        arrow.getPosition().z)))) {
             collisionTick = 0;
-            collisionIndex = 6969;
+            collidedObject = null;
             score++;
             scoreText.value = "" + score;
             wavPlayer.playSound(0);
