@@ -28,10 +28,6 @@ public class GameController extends Controller {
     private final FollowCamera followCamera;
     private final FreeCamera freeCamera;
     private final PanningCamera panningCamera = new PanningCamera();
-    private boolean mouseEnabled = true;
-    private boolean keyVPrev = false; // Allows V key to toggle camera type
-    private boolean keyOPrev = false;
-    private boolean keyPPrev = false;
 
     private Node arrow;
     private final Vector3f arrowInitPosition = new Vector3f(-300, 35, 0);
@@ -49,6 +45,7 @@ public class GameController extends Controller {
     private final GUIText fireOlympicsText;
     private final GUIText scoreText;
     private final GUIText pressSpaceToPlayText;
+    private final GUIText helpText;
 
     private final ArrayList<Node> children = new ArrayList<>();
 
@@ -64,11 +61,11 @@ public class GameController extends Controller {
      */
     private void setIsPlaying(boolean isPlaying) {
         this._playing = isPlaying;
-        freeCamera.isPlaying = isPlaying;
         // Toggle the visibility of text on the screen.
         fireOlympicsText.isHidden = isPlaying;
         pressSpaceToPlayText.isHidden = isPlaying;
         scoreText.isHidden = !isPlaying;
+        helpText.isHidden = isPlaying;
     }
 
     private boolean isPlaying() {
@@ -83,9 +80,6 @@ public class GameController extends Controller {
 
         followCamera = new FollowCamera(window);
         freeCamera = new FreeCamera(window);
-        freeCamera.isPlaying = this._playing;
-        freeCamera.position.y += 10f;
-        panningCamera.position.y += 10f;
         renderer.camera = panningCamera;
 
         add(followCamera);
@@ -102,7 +96,7 @@ public class GameController extends Controller {
         pressSpaceToPlayText = new GUIText(fontType, "press [space] to play");
         pressSpaceToPlayText.fontSize = 3.0f;
         pressSpaceToPlayText.isCentered = true;
-        pressSpaceToPlayText.color.set(1.0f, 0.0f, 0.0f);
+        pressSpaceToPlayText.color.set(1.0f, 1.0f, 1.0f);
         pressSpaceToPlayText.position.y=0.65f;
         renderer.addText(pressSpaceToPlayText);
 
@@ -110,7 +104,15 @@ public class GameController extends Controller {
         scoreText.fontSize = 4.0f;
         scoreText.isCentered = false;
         scoreText.color.set(1.0f, 0.0f, 0.0f);
+        scoreText.isHidden = true;
         renderer.addText(scoreText);
+
+        helpText = new GUIText(fontType, "Press f for free roam.");
+        helpText.fontSize = 1.5f;
+        helpText.isCentered = true;
+        helpText.color.set(1.0f, 1.0f, 1.0f);
+        helpText.position.y = 0.75f;
+        renderer.addText(helpText);
     }
 
     @Override
@@ -150,6 +152,7 @@ public class GameController extends Controller {
         Node stadium = loader.loadModel("models", "stadium_sky4.obj");
         stadium.name = "stadium";
         stadium.scale = 7.0f;
+        stadium.position.y -= 10;
         add(stadium);
 
         // Index 3
@@ -164,15 +167,9 @@ public class GameController extends Controller {
 
         addRings(5);
 
-        // for (GameItemGroup object : objects) {
-        //     if (!(object.getString().equals("ringt") || object.getString().equals("ringtp")))
-        //     for (GameItem item : object.getAll())
-        //         renderer.add(item);
-        // }
-
         // Particle effects are disabled at the moment because they are buggy.
-        // particleSystem.texture = loader.loadTexture("textures", "fire_particle.png");
-        // renderer.add(particleSystem);
+        particleSystem.texture = loader.loadTexture("textures", "fire_particle.png");
+        renderer.add(particleSystem);
 
         wavPlayer.playSound(2);
         wavPlayer.playSound(3);
@@ -232,36 +229,60 @@ public class GameController extends Controller {
     @Override
     public void update(double timeDelta) {
         checkCollision();
-        // Enable or Disable free Camera
-        boolean keyV = window.isKeyDown(GLFW_KEY_SPACE);
-        if (!freeCamera.override && window.checkKeyState(GLFW_KEY_SPACE, keyVPrev) == 1) {
-            setIsPlaying(!isPlaying());
-            if (isPlaying()) {
-                renderer.camera = followCamera;
-            } else {
-                renderer.camera = panningCamera;
-            }
-        }
-        keyVPrev = keyV;
-
-        boolean keyP = window.isKeyDown(GLFW_KEY_P);
-        if (window.checkKeyState(GLFW_KEY_P, keyPPrev) == 1) {
-            System.out.println(freeCamera.position);
-        }
-        keyPPrev = keyP;
-
-        boolean keyO = window.isKeyDown(GLFW_KEY_O);
-        if (window.checkKeyState(GLFW_KEY_O, keyOPrev) == 1) {
-            freeCamera.override = !freeCamera.override;
-            System.out.println("Override set to " + freeCamera.override);
-        }
-        keyOPrev = keyO;
-
         renderer.camera.update(timeDelta);
         particleSystem.update(timeDelta);
     }
 
+    @Override
+    public void keyUp(int key, int mods) {
+        super.keyUp(key, mods);
+        switch (key) {
+            case GLFW_KEY_F:
+                if (isInFreeCameraMode()) {
+                    leaveFreeRoamMode();
+                } else {
+                    enterFreeRoamMode();
+                }
+                break;
+            case GLFW_KEY_SPACE:
+                if (!isInFreeCameraMode()) {
+                    togglePlayingMode();
+                }
+            case GLFW_KEY_P:
+                System.out.println(renderer.camera.position);
+            default:
+                break;
+        }
+    }
 
+    private void togglePlayingMode() {
+        setIsPlaying(!isPlaying());
+        if (isPlaying()) {
+            renderer.camera = followCamera;
+        } else {
+            renderer.camera = panningCamera;
+        }
+    }
+
+    private boolean isInFreeCameraMode() {
+        return renderer.camera == freeCamera;
+    }
+
+    private void enterFreeRoamMode() {
+        renderer.camera = freeCamera;
+        setIsPlaying(false);
+        this.fireOlympicsText.isHidden = true;
+        this.scoreText.isHidden = true;
+        this.pressSpaceToPlayText.isHidden = true;
+        this.helpText.isHidden = true;
+        window.disableCursor();
+    }
+
+    private void leaveFreeRoamMode() {
+        setIsPlaying(false);
+        renderer.camera = panningCamera;
+        window.restoreCursor();
+    }
 
     public boolean isInside(float yRot, double width, double height, double objectx, double objecty, double objectz, double playerx, double playery, double playerz) {
         double r = width / 2;
@@ -338,34 +359,10 @@ public class GameController extends Controller {
         }
     }
 
-    @Override
-    public void mouseDown(Vector2f position, int button) {
-        System.out.printf("mouse down: %s; position: %4.2f, %4.2f%n",
-                button == GLFW_MOUSE_BUTTON_LEFT ? "left" : (button == GLFW_MOUSE_BUTTON_RIGHT ? "right" : "middle"),
-                position.x, position.y);
-    }
-
-    @Override
-    public void mouseUp(Vector2f position, int button) {
-        System.out.printf("mouse up: %s; position: %4.2f, %4.2f%n",
-                button == GLFW_MOUSE_BUTTON_LEFT ? "left" : (button == GLFW_MOUSE_BUTTON_RIGHT ? "right" : "middle"),
-                position.x, position.y);
-
-        if (button == GLFW_MOUSE_BUTTON_LEFT) {
-            if (mouseEnabled) {
-                window.disableCursor();
-            } else {
-                window.restoreCursor();
-            }
-
-            mouseEnabled = !mouseEnabled;
-        }
-    }
-
     // Adjust angle of camera to match mouse movement
     @Override
     public void mouseMoved(Vector2f delta) {
-        if (!mouseEnabled) {
+        if (isInFreeCameraMode()) {
             freeCamera.mouseMoved(delta);
         }
     }

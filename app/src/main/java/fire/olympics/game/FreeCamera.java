@@ -10,8 +10,6 @@ import static org.lwjgl.glfw.GLFW.*;
 public class FreeCamera extends Camera {
     public float mouseSensitivity = 5;
     public Window window;
-    public boolean isPlaying = false;
-    public boolean override = false;
     public float movementSpeed = 5f;
 
     public FreeCamera(Window window) {
