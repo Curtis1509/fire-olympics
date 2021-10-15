@@ -7,8 +7,8 @@ import fire.olympics.display.*;
 import fire.olympics.fontMeshCreator.FontType;
 import fire.olympics.game.GameController;
 import fire.olympics.graphics.ModelLoader;
-import fire.olympics.graphics.ShaderProgram;
 import fire.olympics.graphics.Texture;
+import fire.olympics.graphics.ShaderLoader;
 
 import fire.olympics.tests.TextController;
 import fire.olympics.tests.ParticleController;
@@ -149,59 +149,12 @@ public class App implements AutoCloseable {
         window.use();
         System.out.println(window.openGlVersion());
 
-        ShaderProgram program = new ShaderProgram();
-        program.load(GL_VERTEX_SHADER, resource("shaders", "shader.vert"));
-        program.load(GL_FRAGMENT_SHADER, resource("shaders", "shader.frag"));
-        program.link();
-        program.createUniform("projectionMatrix");
-        program.createUniform("worldMatrix");
-        program.createUniform("sun");
-        program.createUniform("lightSpace");
-        program.createUniform("depthMap");
-        program.validate();
-        program.bind();
-        program.setUniform("depthMap", 1);
-        program.unbind();
-
-        ShaderProgram programWithTexture = new ShaderProgram();
-        programWithTexture.load(GL_VERTEX_SHADER, resource("shaders", "shader_with_texture.vert"));
-        programWithTexture.load(GL_FRAGMENT_SHADER, resource("shaders", "shader_with_texture.frag"));
-        programWithTexture.link();
-        programWithTexture.createUniform("projectionMatrix");
-        programWithTexture.createUniform("worldMatrix");
-        programWithTexture.createUniform("sun");
-        programWithTexture.createUniform("lightSpace");
-        programWithTexture.createUniform("texture_sampler");
-        programWithTexture.createUniform("depthMap");
-        programWithTexture.validate();
-        programWithTexture.bind();
-        programWithTexture.setUniform("texture_sampler", 0);
-        programWithTexture.setUniform("depthMap", 1);
-        programWithTexture.unbind();
-
-        ShaderProgram textShaderProgram = new ShaderProgram();
-        textShaderProgram.load(GL_VERTEX_SHADER, resource("shaders", "shader_for_text.vert"));
-        textShaderProgram.load(GL_FRAGMENT_SHADER, resource("shaders", "shader_for_text.frag"));
-        textShaderProgram.link();
-        textShaderProgram.createUniform("colour");
-        textShaderProgram.createUniform("translation");
-        textShaderProgram.validate();
-
-        ShaderProgram particleShader = new ShaderProgram();
-        particleShader.load(GL_VERTEX_SHADER, resource("shaders", "particle_system.vert"));
-        particleShader.load(GL_GEOMETRY_SHADER, resource("shaders", "particle_system.geom"));
-        particleShader.load(GL_FRAGMENT_SHADER, resource("shaders", "particle_system.frag"));
-        particleShader.link();
-        particleShader.createUniform("projectionMatrix");
-        particleShader.createUniform("particleSystemMatrix");
-        particleShader.createUniform("hotColor");
-        particleShader.createUniform("coldColor");
-
         Texture texture = Texture.loadPngTexture(resource("fonts", "fontfile.png"));
         FontType fontType = new FontType(resource("fonts", "fontfile.fnt"), texture);
         ModelLoader loader = new ModelLoader(resourcePath);
-        Renderer renderer = new Renderer(program, programWithTexture, textShaderProgram, particleShader);
-        GameController controller = new GameController(this, window, renderer, loader, fontType, fileReader.read(resource("data","ringlocations.txt").toString()));
+        ShaderLoader shaderLoader = new ShaderLoader(resourcePath);
+        Renderer renderer = new Renderer(shaderLoader);
+        GameController controller = new GameController(this, window, renderer, loader, fontType, fileReader.read(resource("data", "ringlocations.txt").toString()));
         controllers.add(controller);
         window.done();
         setupController(controller);
@@ -212,20 +165,11 @@ public class App implements AutoCloseable {
         window.init();
         window.use();
         try {
-            ShaderProgram textShaderProgram = new ShaderProgram();
-            textShaderProgram.load(GL_VERTEX_SHADER, resource("shaders", "shader_for_text.vert"));
-            textShaderProgram.load(GL_FRAGMENT_SHADER, resource("shaders", "shader_for_text.frag"));
-            textShaderProgram.link();
-            textShaderProgram.createUniform("colour");
-            textShaderProgram.createUniform("translation");
-            textShaderProgram.validate();
-            
             ModelLoader loader = new ModelLoader(resourcePath);
-            Renderer renderer = new Renderer(null, null, textShaderProgram, null);
-
             Texture texture = Texture.loadPngTexture(resource("fonts", "fontfile.png"));
             FontType fontType = new FontType(resource("fonts", "fontfile.fnt"), texture);
-
+            ShaderLoader shaderLoader = new ShaderLoader(resourcePath);
+            Renderer renderer = new Renderer(shaderLoader);
             TextController controller = new TextController(this, window, renderer, loader, fontType);
             controllers.add(controller);
             setupController(controller);
@@ -242,22 +186,9 @@ public class App implements AutoCloseable {
         window.init();
         window.use();
         try {
-            ShaderProgram particleShader = new ShaderProgram();
-            particleShader.load(GL_VERTEX_SHADER, resource("shaders", "particle_system.vert"));
-            particleShader.load(GL_GEOMETRY_SHADER, resource("shaders", "particle_system.geom"));
-            particleShader.load(GL_FRAGMENT_SHADER, resource("shaders", "particle_system.frag"));
-            particleShader.link();
-            particleShader.createUniform("projectionMatrix");
-            particleShader.createUniform("particleSystemMatrix");
-            particleShader.createUniform("hotColor");
-            particleShader.createUniform("coldColor");
-            particleShader.createUniform("cameraLocation");
-            particleShader.createUniform("cameraMatrix");
-            particleShader.createUniform("cameraDirection");
-
             ModelLoader loader = new ModelLoader(resourcePath);
-            Renderer renderer = new Renderer(null, null, null, particleShader);
-
+            ShaderLoader shaderLoader = new ShaderLoader(resourcePath);
+            Renderer renderer = new Renderer(shaderLoader);
             ParticleController controller = new ParticleController(this, window, renderer, loader);
             controllers.add(controller);
             setupController(controller);

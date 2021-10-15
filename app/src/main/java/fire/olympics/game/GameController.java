@@ -13,7 +13,7 @@ import fire.olympics.fontMeshCreator.FontType;
 import fire.olympics.fontMeshCreator.GUIText;
 
 import java.util.ArrayList;
-import java.util.Random;
+import org.joml.Random;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -42,7 +42,7 @@ public class GameController extends Controller {
     private Node ring;
     private Node ringWithPole;
 
-    private final ParticleSystem particleSystem = new ParticleSystem(100);
+    private final ParticleSystem particleSystem = new ParticleSystem(10);
     private final GUIText fireOlympicsText;
     private final GUIText scoreText;
     private final GUIText pressSpaceToPlayText;
@@ -159,6 +159,7 @@ public class GameController extends Controller {
         Node brazier = loader.loadModel("models", "Brazier v2 Textured.obj");
         brazier.name = "brazier";
         brazier.position.set(0, 0, -10);
+        brazier.scale = 5.0f;
         add(brazier);
 
         // sky4 has the smoothest sky that fits in github. export sky5 from blender for the smoothest sky
@@ -183,6 +184,9 @@ public class GameController extends Controller {
 
         // Particle effects are disabled at the moment because they are buggy.
         particleSystem.texture = loader.loadTexture("textures", "fire_particle.png");
+        particleSystem.randomGenerator = new Random(123);
+        particleSystem.position.set(brazier.position);
+        particleSystem.placeOnLattice();
         renderer.add(particleSystem);
 
         wavPlayer.playSound(2);
@@ -291,6 +295,7 @@ public class GameController extends Controller {
                 if (!isInFreeCameraMode()) {
                     togglePlayingMode();
                 }
+                break;
             case GLFW_KEY_P:
                 System.out.println(renderer.camera.position);
             default:

@@ -40,7 +40,7 @@ public class Mesh {
 
     public void attachMaterial(Texture t, float[] uv) {
         texture = t;
-        if (texture.isRepeatEnabled) {
+        if (texture != null && texture.isRepeatEnabled) {
             scaleTextureCoordinates(uv);
         }
         vao.bindFloats(uv, DIFFUSE, GL_STATIC_DRAW, 2, GL_FLOAT);

@@ -6,9 +6,11 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import fire.olympics.graphics.TextMesh;
+import fire.olympics.App;
 import fire.olympics.fontMeshCreator.GUIText;
 import fire.olympics.particles.ParticleSystem;
 import fire.olympics.graphics.ShaderProgram;
+import fire.olympics.graphics.ShaderLoader;
 
 import static org.lwjgl.opengl.GL33C.*;
 
@@ -34,11 +36,11 @@ public class Renderer {
     public Camera camera = new Camera();
     public final Vector4f backgroundColor = new Vector4f();
 
-    public Renderer(ShaderProgram program, ShaderProgram programWithTexture, ShaderProgram textShaderProgram, ShaderProgram particleShader) {
-        this.program = program;
-        this.programWithTexture = programWithTexture;
-        this.textShaderProgram = textShaderProgram;
-        this.particleShader = particleShader;
+    public Renderer(ShaderLoader loader) throws Exception {
+        this.program = loader.createPlainShader();
+        this.programWithTexture = loader.createTexturedShader();
+        this.textShaderProgram = loader.createTextShader();
+        this.particleShader = loader.createParticleShader();
         this.mapper = new DepthMapper(sunDirection, true);
     }
 
@@ -79,7 +81,7 @@ public class Renderer {
 
     public void render(int windowWidth, int windowHeight) {
         mapper.ComputeDepthMap(gameItems, windowWidth, windowHeight);
-
+        App.checkError("");
         glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, backgroundColor.w);
         // Apply the color.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
