@@ -1,7 +1,6 @@
 package fire.olympics.audio;
 
 import fire.olympics.App;
-import fire.olympics.display.GameController;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -52,7 +51,7 @@ public class WavPlayer {
         }).start();
     }
 
-    private synchronized void testSound(int index) {
+    public synchronized void testSound(int index) {
         new Thread(new Runnable() {
             // The wrapper thread is unnecessary, unless it blocks on the
             // Clip finishing; see comments.
