@@ -10,7 +10,7 @@ import static org.lwjgl.glfw.GLFW.*;
 public class FreeCamera extends Camera {
     public float mouseSensitivity = 5;
     public Window window;
-    public float movementSpeed = 5f;
+    public float movementSpeed = 35f;
 
     public FreeCamera(Window window) {
         this.window = window;
@@ -19,11 +19,11 @@ public class FreeCamera extends Camera {
     // Controls for free Camera
     public void update(double timeDelta) {
         if (window.isKeyDown(GLFW_KEY_LEFT_SHIFT))
-            movementSpeed = 35f;
+            movementSpeed = 60f;
         else if (window.isKeyDown(GLFW_KEY_LEFT_ALT))
             movementSpeed = 2f;
         else
-            movementSpeed = 5f;
+            movementSpeed = 35f;
 
         float offsetX = 0;
         float offsetY = 0;

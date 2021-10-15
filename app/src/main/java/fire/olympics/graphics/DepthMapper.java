@@ -13,7 +13,7 @@ import static org.lwjgl.opengl.GL33C.*;
 
 
 public class DepthMapper {
-    private static final int MAP_RES_X = 2048, MAP_RES_Y = 2048;
+    private static final int MAP_RES_X = 8192, MAP_RES_Y = 8192;
     private final float near = 0.1f, far = 5000;
     private final int depthFBO, depthTex;
     private final ShaderProgram program;
@@ -64,7 +64,7 @@ public class DepthMapper {
 
         // Compute light space
         if(directional)
-            lightSpace.setOrthoSymmetric(300, 300, near, far);
+            lightSpace.setOrthoSymmetric(1500, 1500, near, far);
         else
             lightSpace.setPerspective((float)Math.PI / 3f,MAP_RES_X / (float) MAP_RES_Y, near, far);
 
