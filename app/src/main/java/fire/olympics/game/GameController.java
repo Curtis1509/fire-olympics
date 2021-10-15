@@ -216,7 +216,7 @@ public class GameController extends Controller {
             int resultZ = r.nextInt(highZ - lowZ) + lowZ;
             int resultR = r.nextInt(highR - lowR) + lowR;
 
-            Node ring = (Node) rings[i % rings.length].clone();
+            Node ring = rings[i % rings.length].clone();
 
             ring.name = "ring";
             ring.position.set(resultX, resultY, -resultZ);

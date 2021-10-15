@@ -67,8 +67,8 @@ public class Texture {
         id = glGenTextures();
         bind();
 
-        width = w.get(0) / 64 / 4;
-        height = w.get(0) / 64 / 4;
+        width = w.get(0) / 64.0f / 4;
+        height = w.get(0) / 64.0f / 4;
 
         glTexImage2D(GL_TEXTURE_2D, 0, glteximagePixelLayout, w.get(0), h.get(0), 0, glteximagePixelLayout, GL_UNSIGNED_BYTE, imageData);
         glGenerateMipmap(GL_TEXTURE_2D);
