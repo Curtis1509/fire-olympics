@@ -5,6 +5,7 @@ package fire.olympics;
 
 import fire.olympics.display.*;
 import fire.olympics.fontMeshCreator.FontType;
+import fire.olympics.game.GameController;
 import fire.olympics.graphics.ModelLoader;
 import fire.olympics.graphics.ShaderProgram;
 import fire.olympics.graphics.Texture;

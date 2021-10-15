@@ -1,6 +1,9 @@
-package fire.olympics.display;
+package fire.olympics.game;
 
 import org.joml.Vector2f;
+
+import fire.olympics.display.Camera;
+import fire.olympics.display.Window;
 
 import static org.lwjgl.glfw.GLFW.*;
 

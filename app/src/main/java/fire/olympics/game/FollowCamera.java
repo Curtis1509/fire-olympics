@@ -1,7 +1,11 @@
-package fire.olympics.display;
+package fire.olympics.game;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_D;
+
+import fire.olympics.display.Camera;
+import fire.olympics.display.GameItemGroup;
+import fire.olympics.display.Window;
 
 public class FollowCamera extends Camera {
     private final Window window;

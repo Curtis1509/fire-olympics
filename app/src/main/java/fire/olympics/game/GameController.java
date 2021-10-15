@@ -1,7 +1,12 @@
-package fire.olympics.display;
+package fire.olympics.game;
 
 import fire.olympics.App;
 import fire.olympics.audio.WavPlayer;
+import fire.olympics.display.Controller;
+import fire.olympics.display.GameItem;
+import fire.olympics.display.GameItemGroup;
+import fire.olympics.display.Renderer;
+import fire.olympics.display.Window;
 import fire.olympics.graphics.ModelLoader;
 import fire.olympics.particles.ParticleSystem;
 import fire.olympics.fontMeshCreator.FontType;

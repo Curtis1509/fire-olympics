@@ -2,9 +2,9 @@ package fire.olympics.tests;
 
 import fire.olympics.App;
 import fire.olympics.display.Controller;
-import fire.olympics.display.FreeCamera;
 import fire.olympics.display.Renderer;
 import fire.olympics.display.Window;
+import fire.olympics.game.FreeCamera;
 import fire.olympics.graphics.ModelLoader;
 
 import fire.olympics.particles.ParticleSystem;
