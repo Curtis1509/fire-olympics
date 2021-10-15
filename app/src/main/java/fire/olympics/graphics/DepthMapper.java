@@ -13,7 +13,7 @@ import static org.lwjgl.opengl.GL33C.*;
 
 
 public class DepthMapper {
-    private static final int MAP_RES_X = 1024, MAP_RES_Y = 1024;
+    private static final int MAP_RES_X = 2048, MAP_RES_Y = 2048;
     private final float near = 0.1f, far = 5000;
     private final int depthFBO, depthTex;
     private final ShaderProgram program;

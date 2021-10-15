@@ -13,6 +13,7 @@ uniform sampler2D depthMap;
 vec3 lightColour = vec3(1, 1, 1);
 float ambientStrength = 0.2;
 float specularStrength = 0.5;
+float shadowBias = 0.0005;
 
 vec3 lightDir;
 vec3 norm;
@@ -33,8 +34,9 @@ float specCalc() {
 float shadowCalc() {
     vec3 proj = posLightSpace.xyz / posLightSpace.w;
     proj = (proj * 0.5) + 0.5;
+
     float closestDepth = texture(depthMap, proj.xy).r;
-    float currentDepth = proj.z;
+    float currentDepth = proj.z - shadowBias;
     return currentDepth > closestDepth ? 1 : 0;
 }
 
