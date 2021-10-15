@@ -27,6 +27,7 @@ import static org.lwjgl.glfw.GLFW.*;
 public class GameController extends Controller {
     private final FollowCamera followCamera;
     private final FreeCamera freeCamera;
+    private final PanningCamera panningCamera = new PanningCamera();
     private boolean mouseEnabled = true;
     private boolean keyVPrev = false; // Allows V key to toggle camera type
     private boolean keyOPrev = false;
@@ -83,7 +84,13 @@ public class GameController extends Controller {
         followCamera = new FollowCamera(window);
         freeCamera = new FreeCamera(window);
         freeCamera.isPlaying = this._playing;
-        renderer.camera = freeCamera;
+        freeCamera.position.y += 10f;
+        panningCamera.position.y += 10f;
+        renderer.camera = panningCamera;
+
+        add(followCamera);
+        add(freeCamera);
+        add(panningCamera);
 
         fireOlympicsText = new GUIText(fontType, "FIRE OLYMPICS");
         fireOlympicsText.fontSize = 8.0f;
@@ -155,7 +162,7 @@ public class GameController extends Controller {
         ringWithPole.name = "ringtp"; 
         ringWithPole.position.set(0, -5, -45);
 
-        addRings(1);
+        addRings(5);
 
         // for (GameItemGroup object : objects) {
         //     if (!(object.getString().equals("ringt") || object.getString().equals("ringtp")))
@@ -232,7 +239,7 @@ public class GameController extends Controller {
             if (isPlaying()) {
                 renderer.camera = followCamera;
             } else {
-                renderer.camera = freeCamera;
+                renderer.camera = panningCamera;
             }
         }
         keyVPrev = keyV;
@@ -300,8 +307,8 @@ public class GameController extends Controller {
         }
 
         for (Node child : children) {
-            if (child.getString().equals("ring")) {
-                // System.out.println("found ring at "+ i);
+            String name = child.name;
+            if (name != null && name.equals("ring")) {
                 if (collisionTick == 0 && isInside(
                         child.getRotation().y,
                         arrow.getWidth(0) * child.getScale(),
