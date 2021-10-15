@@ -58,9 +58,9 @@ public class ParticleController extends Controller {
 
         particleSystem.texture = loader.loadTexture("textures", "fire_particle.png");
         particleSystem.randomGenerator = new Random(123);
-        particleSystem.position.set(0, 0, -10);
+        // particleSystem.position.set(0, 0, -10);
         particleSystem.placeOnLattice();
-        renderer.add(particleSystem);
+        arrow.addChild(particleSystem);
     }
     
 

@@ -48,10 +48,6 @@ public class Renderer {
         gameItems.add(tree);
     }
 
-    public void add(ParticleSystem particleSystem) {
-        particleSystems.add(particleSystem);
-    }
-
     public void addText(GUIText text) {
         textMeshes.add(new TextMesh(text));
     }
@@ -97,10 +93,6 @@ public class Renderer {
         if (textShaderProgram != null) {
             renderText();
         }
-
-        if (particleShader != null) {
-            renderParticleSystems();
-        }
     }
 
     private void render(Node node) {
@@ -128,6 +120,9 @@ public class Renderer {
             } else {
                 program.unbind();
             }
+        } else if (node instanceof ParticleSystem) {
+            ParticleSystem particleSystem = (ParticleSystem) node;
+            renderParticleSystem(particleSystem);
         }
 
         for (Node child : node.children) {
@@ -157,7 +152,7 @@ public class Renderer {
         glEnable(GL_CULL_FACE);
     }
 
-    private void renderParticleSystems() {
+    private void renderParticleSystem(ParticleSystem particleSystem) {
         particleShader.bind();
         glDisable(GL_CULL_FACE);
         glEnable(GL_BLEND);
@@ -165,14 +160,12 @@ public class Renderer {
         glDisable(GL_DEPTH_TEST);
         glDepthMask(false);
         particleShader.setUniform("projectionMatrix", projectionMatrix);
-        for (ParticleSystem particleSystem : particleSystems) {
-            particleShader.setUniform("particleSystemMatrix", particleSystem.getMatrix());
-            particleShader.setUniform("hotColor", particleSystem.hotColor);
-            particleShader.setUniform("coldColor", particleSystem.coldColor);
-            particleShader.setUniform("cameraMatrix", camera.getMatrix().invertAffine());
-            particleShader.setUniform("cameraLocation", camera.position);
-            particleSystem.render();
-        }
+        particleShader.setUniform("particleSystemMatrix", particleSystem.getMatrix());
+        particleShader.setUniform("hotColor", particleSystem.hotColor);
+        particleShader.setUniform("coldColor", particleSystem.coldColor);
+        particleShader.setUniform("cameraMatrix", camera.getMatrix().invertAffine());
+        particleShader.setUniform("cameraLocation", camera.position);
+        particleSystem.render();
         particleShader.unbind();
         glDepthMask(true);
         glEnable(GL_DEPTH_TEST);
