@@ -14,7 +14,7 @@ import static org.lwjgl.opengl.GL33C.*;
 
 public class DepthMapper {
     private static final int MAP_RES_X = 1024, MAP_RES_Y = 1024;
-    private final float near = 50, far = 500;
+    private final float near = 0.1f, far = 5000;
     private final int depthFBO, depthTex;
     private final ShaderProgram program;
     private final Matrix4f lightSpace;
@@ -94,12 +94,8 @@ public class DepthMapper {
 
         program.setUniform("lightSpace", lightSpace);
 
-        for(Node node : list) {
-            if(node instanceof GameItem item) {
-                program.setUniform("worldMat", item.getMatrix());
-                item.mesh.render();
-            }
-        }
+        for(Node node : list)
+            render(node);
 
         // Reset cull face to back for rendering
         glCullFace(GL_BACK);
@@ -107,6 +103,16 @@ public class DepthMapper {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glViewport(0, 0, windowWidth, windowHeight);
         program.unbind();
+    }
+
+    private void render(Node node) {
+        if(node instanceof GameItem item) {
+            program.setUniform("worldMat", item.getMatrix());
+            item.mesh.render();
+        }
+
+        for(Node child : node.children)
+            render(child);
     }
 
     public int getDepthMap() {
