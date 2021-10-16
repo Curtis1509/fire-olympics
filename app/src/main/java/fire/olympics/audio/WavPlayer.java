@@ -51,8 +51,11 @@ public class WavPlayer {
                     // Open audio clip and load samples from the audio input stream.
                     clip.open(audioIn);
                     clip.start();
-                    while(clip.getMicrosecondLength() != clip.getMicrosecondPosition())
+                    while(playing.get(index))
                     {
+                        if (clip.getMicrosecondLength() == clip.getMicrosecondPosition()){
+                            playing.set(index, false);
+                        }
                     }
                     playing.set(index,false);
                     clip.stop();

@@ -60,6 +60,7 @@ public class App implements AutoCloseable {
 
     private static Path resourcePath;
     private final ArrayList<Controller> controllers = new ArrayList<>();
+    private FileReader fileReader = new FileReader();
 
     public App() {
         // Setup an error callback. The default implementation
@@ -200,7 +201,7 @@ public class App implements AutoCloseable {
         FontType fontType = new FontType(resource("fonts", "fontfile.fnt"), texture);
         ModelLoader loader = new ModelLoader(resourcePath);
         Renderer renderer = new Renderer(program, programWithTexture, textShaderProgram, particleShader);
-        GameController controller = new GameController(this, window, renderer, loader, fontType);
+        GameController controller = new GameController(this, window, renderer, loader, fontType, fileReader.read(resource("data","ringlocations.txt").toString()));
         controllers.add(controller);
         window.done();
         setupController(controller);

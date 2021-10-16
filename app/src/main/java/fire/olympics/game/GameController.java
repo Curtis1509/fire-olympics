@@ -1,6 +1,7 @@
 package fire.olympics.game;
 
 import fire.olympics.App;
+import fire.olympics.FileReader;
 import fire.olympics.audio.WavPlayer;
 import fire.olympics.display.Controller;
 import fire.olympics.display.Node;
@@ -33,7 +34,7 @@ public class GameController extends Controller {
     private final Vector3f arrowInitPosition = new Vector3f(-300, 35, 0);
     private final Vector3f arrowInitRotation = new Vector3f(0, 90, 0);
 
-    private final WavPlayer wavPlayer;
+    public static WavPlayer wavPlayer;
     private int score = 0;
 
     private int collisionTick = 0;
@@ -46,6 +47,8 @@ public class GameController extends Controller {
     private final GUIText scoreText;
     private final GUIText pressSpaceToPlayText;
     private final GUIText helpText;
+    private final GUIText boostText;
+    private String ringLocations;
 
     private final ArrayList<Node> children = new ArrayList<>();
 
@@ -57,6 +60,7 @@ public class GameController extends Controller {
 
     /**
      * Set the state of whether the game is in playing mode or not.
+     *
      * @param isPlaying true if the user is controlling the arrow.
      */
     private void setIsPlaying(boolean isPlaying) {
@@ -66,17 +70,18 @@ public class GameController extends Controller {
         pressSpaceToPlayText.isHidden = isPlaying;
         scoreText.isHidden = !isPlaying;
         helpText.isHidden = isPlaying;
+        boostText.isHidden = !isPlaying;
     }
 
     private boolean isPlaying() {
         return _playing;
     }
 
-    public GameController(App app, Window window, Renderer renderer, ModelLoader loader, FontType fontType) {
+    public GameController(App app, Window window, Renderer renderer, ModelLoader loader, FontType fontType, String ringLocations) {
         super(app, window, renderer, loader);
-
+        this.ringLocations = ringLocations;
         wavPlayer = new WavPlayer(app);
-        wavPlayer.enabled = false;
+        wavPlayer.enabled = true;
 
         followCamera = new FollowCamera(window);
         freeCamera = new FreeCamera(window);
@@ -90,14 +95,14 @@ public class GameController extends Controller {
         fireOlympicsText.fontSize = 8.0f;
         fireOlympicsText.isCentered = true;
         fireOlympicsText.color.set(1.0f, 0.0f, 0.0f);
-        fireOlympicsText.position.y=0.3f;
+        fireOlympicsText.position.y = 0.3f;
         renderer.addText(fireOlympicsText);
 
         pressSpaceToPlayText = new GUIText(fontType, "press [space] to play");
         pressSpaceToPlayText.fontSize = 3.0f;
         pressSpaceToPlayText.isCentered = true;
         pressSpaceToPlayText.color.set(1.0f, 1.0f, 1.0f);
-        pressSpaceToPlayText.position.y=0.65f;
+        pressSpaceToPlayText.position.y = 0.65f;
         renderer.addText(pressSpaceToPlayText);
 
         scoreText = new GUIText(fontType, "" + score);
@@ -113,19 +118,28 @@ public class GameController extends Controller {
         helpText.color.set(1.0f, 1.0f, 1.0f);
         helpText.position.y = 0.75f;
         renderer.addText(helpText);
+
+        boostText = new GUIText(fontType, "Press Shift to Booooooost!");
+        boostText.fontSize = 1.5f;
+        boostText.isCentered = true;
+        boostText.isHidden = true;
+        boostText.color.set(1.0f, 0f, 0f);
+        boostText.position.y = 0.95f;
+        boostText.position.x = 0f;
+        renderer.addText(boostText);
     }
 
     @Override
     public void load() throws Exception {
         loader.loadTexture("textures", "metal_test.png");
         loader.loadTexture("textures", "wood_test_2.png");
-        loader.loadTexture("textures", "stadium_aluminium.jpg").repeat(12000f/1024f, 5000f/1024f);
+        loader.loadTexture("textures", "stadium_aluminium.jpg").repeat(12000f / 1024f, 5000f / 1024f);
         loader.loadTexture("textures", "stadium_crowd.jpg");
-        loader.loadTexture("textures", "stadium_grass.jpg").repeat(7000f/550f, 7000f/550f);
+        loader.loadTexture("textures", "stadium_grass.jpg").repeat(7000f / 550f, 7000f / 550f);
         loader.loadTexture("textures", "stadium_sky.jpg");
-        loader.loadTexture("textures", "stadium_track.jpg").repeat(7000f/800f, 7000f/557f);
+        loader.loadTexture("textures", "stadium_track.jpg").repeat(7000f / 800f, 7000f / 557f);
         loader.loadTexture("textures", "stadium_lane.jpg");
-        loader.loadTexture("textures", "stadium_wood.jpeg").repeat(12000f/474f, 4500f/235f);
+        loader.loadTexture("textures", "stadium_wood.jpeg").repeat(12000f / 474f, 4500f / 235f);
         loader.loadTexture("textures", "stadium_sky.jpg");
         loader.loadTexture("textures", "ring+pole_brushed_metal.jpg");
         loader.loadTexture("textures", "ring_black.jpg");
@@ -162,10 +176,10 @@ public class GameController extends Controller {
 
         // Index 4
         ringWithPole = loader.loadModel("models", "ring+pole.obj");
-        ringWithPole.name = "ringtp"; 
+        ringWithPole.name = "ringtp";
         ringWithPole.position.set(0, -5, -45);
 
-        addRings(5);
+        addRings(5, ringLocations);
 
         // Particle effects are disabled at the moment because they are buggy.
         particleSystem.texture = loader.loadTexture("textures", "fire_particle.png");
@@ -181,16 +195,17 @@ public class GameController extends Controller {
         renderer.add(node);
     }
 
-    private void addRings(int numOfPoles) throws Exception {
+    private void addRings(int numOfPoles, String inputData) throws Exception {
 
+        // System.out.println(inputData);
         // Load Rings
         // Surely there was a better way of doing this with a Stream?
-        String[] names = new String[] {
-            "ring+pole_black.obj",
-            "ring+pole_blue.obj",
-            "ring+pole_green.obj",
-            "ring+pole_red.obj",
-            "ring+pole_yellow.obj"
+        String[] names = new String[]{
+                "ring+pole_black.obj",
+                "ring+pole_blue.obj",
+                "ring+pole_green.obj",
+                "ring+pole_red.obj",
+                "ring+pole_yellow.obj"
         };
         Node[] rings = new Node[names.length];
         for (int i = 0; i < names.length; i += 1) {
@@ -210,21 +225,49 @@ public class GameController extends Controller {
         int highR = 360;
 
         // Randomise positions of coloured rings
+        Random random = new Random();
+        String dataIn = inputData;
+        String[] data = dataIn.split(" ");
+        int index = 1;
+        boolean EOF = false;
+        System.out.println("---------------------------\nLoading Rings\n-------------------------");
         for (int i = 0; i < numOfPoles; i++) {
-            int resultX = r.nextInt(highX - lowX) + lowX;
-            int resultY = r.nextInt(highY - lowY) + lowY;
-            int resultZ = r.nextInt(highZ - lowZ) + lowZ;
-            int resultR = r.nextInt(highR - lowR) + lowR;
-
-            Node ring = rings[i % rings.length].clone();
-
-            ring.name = "ring";
-            ring.position.set(resultX, resultY, -resultZ);
-            ring.rotation.set(0, resultR, 0);
-            ring.scale = 3.0f;
-            add(ring);
+            System.out.println("Trying ring");
+            if (data[index].equals("ring" + (i))) {
+                System.out.println("Found ring");
+                int counter = 0;
+                index++;
+                while (true) {
+                    if (!EOF && !data[index].contains("ring")) {
+                        counter++;
+                        index += 4;
+                        if (data[index].equals("EOF"))
+                            EOF = true;
+                    } else {
+                        break;
+                    }
+                }
+                int selection = random.nextInt(counter);
+                if (selection == 0)
+                    selection += 1;
+                selection = index - (selection * 4);
+                int x = Integer.parseInt(data[selection]);
+                //int y = Integer.parseInt(data[selection + 1]);
+                int y = random.nextInt(45);
+                y = y * -1;
+                int z = Integer.parseInt(data[selection + 2]);
+                int a = Integer.parseInt(data[selection + 3]);
+                System.out.println("selecting: " + x + " " + y + " " + z + " " + a);
+                Node ring = rings[i % rings.length].clone();
+                ring.name = "ring";
+                ring.position.set(x, y, z);
+                ring.rotation.set(0, a, 0);
+                ring.scale = 3.0f;
+                add(ring);
+            }
         }
     }
+
 
     @Override
     public void update(double timeDelta) {
@@ -286,7 +329,7 @@ public class GameController extends Controller {
 
     public boolean isInside(float yRot, double width, double height, double objectx, double objecty, double objectz, double playerx, double playery, double playerz) {
         double r = width / 2;
-        double total = objecty+r+(height/2);
+        double total = objecty + r + (height / 2);
         double d = Math.sqrt(Math.pow(playerx - (objectx), 2) + Math.pow(playery - (total), 2) + Math.pow(playerz - (objectz), 2));
         //System.out.println("ox: " + objectx+ " oy: "+total+"  oz: " + objectz+" oa: " + yRot + "arrowx: "+ playerx+ "arrow y: " + arrow.getPosition().y()+" playerz: "+ playerz + "distance: " + d);
         //System.out.println("radius: " + r + "width: ");
@@ -296,7 +339,7 @@ public class GameController extends Controller {
         if (aRot >= 360) {
             aRot -= 360;
         }
-       // System.out.println("arrow angle: " + aRot + " ring angle: " + objects.get(3).getRotation().y);
+        // System.out.println("arrow angle: " + aRot + " ring angle: " + objects.get(3).getRotation().y);
         float ringRot = yRot;
         float cutOff = 30;
         float ringRotPlus90 = ringRot + 90;
@@ -306,7 +349,7 @@ public class GameController extends Controller {
         if (ringRot < 360 && ringRotPlus90 > 360) {
             ringRotPlus90 = 360 - ringRotPlus90;
         }
-        if (d <= width/2) {
+        if (d <= width / 2) {
             if (aRot > ringRotPlus90 - cutOff && aRot < ringRotPlus90 + cutOff) {
                 return false;
             } else if (aRot > ringRotMinus90 - cutOff && aRot < ringRotMinus90 + cutOff) {
@@ -320,7 +363,7 @@ public class GameController extends Controller {
 
     public void checkCollision() {
 
-        if (arrow.getPosition().y < -6.8){
+        if (arrow.getPosition().y < -6.8) {
             System.out.println("Crashed into the ground!");
             arrow.setPosition(arrowInitPosition);
             arrow.setRotation(arrowInitRotation);
@@ -333,8 +376,8 @@ public class GameController extends Controller {
                 if (collisionTick == 0 && isInside(
                         child.getRotation().y,
                         arrow.getWidth(0) * child.getScale(),
-                        child.getHeight(0) * child.getScale(), 
-                        child.getPosition().x, child.getPosition().y, child.getPosition().z, 
+                        child.getHeight(0) * child.getScale(),
+                        child.getPosition().x, child.getPosition().y, child.getPosition().z,
                         arrow.getPosition().x(), arrow.getPosition().y, arrow.getPosition().z)
                 ) {
                     collisionTick++;
@@ -346,11 +389,11 @@ public class GameController extends Controller {
 
         if (collidedObject != null && collisionTick > 0
                 && (!(isInside(collidedObject.getRotation().y,
-                        arrow.getWidth(0) * collidedObject.getScale(),
-                        collidedObject.getHeight(0) * collidedObject.getScale(),
-                        collidedObject.getPosition().x, collidedObject.getPosition().y,
-                        collidedObject.getPosition().z, arrow.getPosition().x(), arrow.getPosition().y,
-                        arrow.getPosition().z)))) {
+                arrow.getWidth(0) * collidedObject.getScale(),
+                collidedObject.getHeight(0) * collidedObject.getScale(),
+                collidedObject.getPosition().x, collidedObject.getPosition().y,
+                collidedObject.getPosition().z, arrow.getPosition().x(), arrow.getPosition().y,
+                arrow.getPosition().z)))) {
             collisionTick = 0;
             collidedObject = null;
             score++;
