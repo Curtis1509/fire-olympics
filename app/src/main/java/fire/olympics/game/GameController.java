@@ -34,7 +34,7 @@ public class GameController extends Controller {
     private final Vector3f arrowInitPosition = new Vector3f(-300, 35, 0);
     private final Vector3f arrowInitRotation = new Vector3f(0, 90, 0);
 
-    public static WavPlayer wavPlayer;
+    private WavPlayer wavPlayer;
     private int score = 0;
 
     private int collisionTick = 0;
@@ -280,6 +280,21 @@ public class GameController extends Controller {
     }
 
     @Override
+    public void keyDown(int key, int mods) {
+        super.keyDown(key, mods);
+        switch (key) {
+            case GLFW_KEY_LEFT_SHIFT:
+                if (isPlaying() && !wavPlayer.isPlaying(5)) {
+                    wavPlayer.playSound(5);
+                    followCamera.arrowSpeed *= 2;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
     public void keyUp(int key, int mods) {
         super.keyUp(key, mods);
         switch (key) {
@@ -293,6 +308,12 @@ public class GameController extends Controller {
             case GLFW_KEY_SPACE:
                 if (!isInFreeCameraMode()) {
                     togglePlayingMode();
+                }
+                break;
+            case GLFW_KEY_LEFT_SHIFT:
+                if (isPlaying()) {
+                    followCamera.arrowSpeed /= 2;
+                    wavPlayer.stopSound(5);
                 }
                 break;
             case GLFW_KEY_P:

@@ -47,14 +47,6 @@ public class FollowCamera extends Camera {
         rotation.set(-pitch, -yaw, 0);
     }
 
-
-    public void boost(){
-        arrowSpeed*=2;
-    }
-    public void stopBoost(){
-        arrowSpeed/=2;
-    }
-
     /**
      * Allows follow camera control
      * @param timeDelta normalised frame time difference
@@ -70,19 +62,8 @@ public class FollowCamera extends Camera {
         moveCamera();
     }
 
-    boolean spacePressed = false;
-
     private void processKeyBindings(double timeDelta) {
         // Up and Down (Pitch) control
-        if (!spacePressed && window.isKeyDown(GLFW_KEY_LEFT_SHIFT) && !GameController.wavPlayer.isPlaying(5)){
-            GameController.wavPlayer.playSound(5);
-            arrowSpeed*=2;
-            spacePressed = true;
-        } else if (spacePressed && !window.isKeyDown(GLFW_KEY_LEFT_SHIFT)){
-            GameController.wavPlayer.stopSound(5);
-            arrowSpeed/=2;
-            spacePressed = false;
-        }
         if (window.isKeyDown(GLFW_KEY_W)) {
             // Lock angle
             if (angleAboveArrow < -15) {
