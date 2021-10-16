@@ -108,6 +108,7 @@ public class App implements AutoCloseable {
             if (closedWindows.size() > 0) {
                 for (Window window : closedWindows) {
                     window.close();
+                    controllers.stream().filter(c -> c.window == window).forEach(c -> c.windowDidClose());
                     controllers.removeIf(c -> c.window == window);
                 }
                 closedWindows.clear();

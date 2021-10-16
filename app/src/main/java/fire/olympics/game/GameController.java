@@ -421,4 +421,9 @@ public class GameController extends Controller {
             freeCamera.mouseMoved(delta);
         }
     }
+
+    @Override
+    public void windowDidClose() {
+        wavPlayer.stopAll();
+    }
 }

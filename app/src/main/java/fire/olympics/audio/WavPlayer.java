@@ -72,4 +72,9 @@ public class WavPlayer {
         return false;
     }
 
+    public void stopAll() {
+        for (int i = 0; i < playing.size(); i += 1) {
+            playing.set(i, false);
+        }
+    }
 }

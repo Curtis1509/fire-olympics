@@ -39,6 +39,10 @@ public class Controller {
 
     }
 
+    public void windowDidClose() {
+
+    }
+
     public void keyUp(int key, int mods) {
         if (key == GLFW_KEY_ESCAPE) {
                 window.setShouldClose(true);
