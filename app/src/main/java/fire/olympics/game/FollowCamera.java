@@ -87,11 +87,7 @@ public class FollowCamera extends Camera {
         }
         // If no button press return angle above to baseline
         else {
-            if (angleAboveArrow > 0) {
-                angleAboveArrow -= (float)(timeDelta * 5f);
-            } else if (angleAboveArrow < 0) {
-                angleAboveArrow += (float)(timeDelta * 5f);
-            }
+            angleAboveArrow = reduceAngle(angleAboveArrow, timeDelta, 5.0f);
         }
 
         // Left and Right (Yaw) control
@@ -120,11 +116,25 @@ public class FollowCamera extends Camera {
         }
         // If no button press return angle above to baseline
         else {
-            if (angleAroundArrow > 0) {
-                angleAroundArrow -= (float) (timeDelta * 10f);
-            } else if (angleAroundArrow < 0) {
-                angleAroundArrow += (float) (timeDelta * 10f);
-            }
+            angleAroundArrow = reduceAngle(angleAroundArrow, timeDelta, 10.0f);
+        }
+    }
+
+    /**
+     * Reduces currentAngle to zero by an amount propertional to both timeDelta and scaleFactor in a
+     * numerically stable manner (to prevent camera shaking around the zero angle).
+     * @param currentAngle The current angle along a particular axis.
+     * @param timeDelta The amount of time in seconds since the last reduction.
+     * @param speed The speed at which the angle returns to zero.
+     * @return
+     */
+    private float reduceAngle(float currentAngle, double timeDelta, float speed) {
+        // If dx is too big then we will overshoot zero.
+        float dx = (float) timeDelta * speed;
+        if (currentAngle > 0) {
+            return (float) Math.max(currentAngle - dx, 0);
+        } else {
+            return (float) Math.min(currentAngle + dx, 0);
         }
     }
 }
