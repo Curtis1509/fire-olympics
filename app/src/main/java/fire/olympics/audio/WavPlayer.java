@@ -13,9 +13,9 @@ public class WavPlayer {
     private static String[] sounds = new String[] {
         "score.wav",        // 0
         "miss.wav",         // 1
-        "theme_8min.wav",   // 2
-        "crowd_8min.wav",   // 3
-        "fire_loud.wav",    // 4
+        "theme.wav",        // 2
+        "crowd.wav",        // 3
+        "fire.wav",         // 4
         "boost.wav",        // 5
         "crash.wav",        // 6
     };
