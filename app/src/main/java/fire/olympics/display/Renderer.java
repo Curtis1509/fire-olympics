@@ -22,15 +22,14 @@ public class Renderer {
     private float z_far = 2000f;
     private final ArrayList<Node> gameItems = new ArrayList<>();
     private final ArrayList<TextMesh> textMeshes = new ArrayList<>();
-    private final ArrayList<ParticleSystem> particleSystems = new ArrayList<>();
 
     private float aspectRatio = 1.0f;
-    private ShaderProgram program;
-    private ShaderProgram programWithTexture;
-    private ShaderProgram textShaderProgram;
-    private ShaderProgram particleShader;
-    private Vector3f sunDirection = new Vector3f(0, 300, 10); // sun is behind and above camera
-    private Matrix4f projectionMatrix = new Matrix4f();
+    private final ShaderProgram program;
+    private final ShaderProgram programWithTexture;
+    private final ShaderProgram textShaderProgram;
+    private final ShaderProgram particleShader;
+    private final Vector3f sunDirection = new Vector3f(0, 300, 10); // sun is behind and above camera
+    private final Matrix4f projectionMatrix = new Matrix4f();
     private final DepthMapper mapper;
 
     public Camera camera = new Camera();
@@ -41,7 +40,7 @@ public class Renderer {
         this.programWithTexture = loader.createTexturedShader();
         this.textShaderProgram = loader.createTextShader();
         this.particleShader = loader.createParticleShader();
-        this.mapper = new DepthMapper(sunDirection, true);
+        this.mapper = new DepthMapper(loader.createDepthShader(), sunDirection, true);
     }
 
     public void add(Node tree) {

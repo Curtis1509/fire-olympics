@@ -1,7 +1,6 @@
 package fire.olympics.game;
 
 import fire.olympics.App;
-import fire.olympics.FileReader;
 import fire.olympics.audio.WavPlayer;
 import fire.olympics.display.Controller;
 import fire.olympics.display.Node;
@@ -214,18 +213,6 @@ public class GameController extends Controller {
         for (int i = 0; i < names.length; i += 1) {
             rings[i] = loader.loadModel("models", names[i]);
         }
-
-        // Setting initial positions
-
-        Random r = new Random();
-        int lowX = -190;
-        int highX = 190;
-        int lowY = -35;
-        int highY = -15;
-        int lowZ = -110;
-        int highZ = 110;
-        int lowR = 0;
-        int highR = 360;
 
         // Randomise positions of coloured rings
         Random random = new Random();

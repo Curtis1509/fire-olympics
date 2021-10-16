@@ -1,12 +1,10 @@
 package fire.olympics.graphics;
 
-import fire.olympics.App;
 import fire.olympics.display.GameItem;
 import fire.olympics.display.Node;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import java.nio.IntBuffer;
-import java.nio.file.Path;
 import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL33C.*;
@@ -16,30 +14,16 @@ public class DepthMapper {
     private static final int MAP_RES_X = 8192, MAP_RES_Y = 8192;
     private final float near = 0.1f, far = 5000;
     private final int depthFBO, depthTex;
-    private final ShaderProgram program;
     private final Matrix4f lightSpace;
+    private final ShaderProgram program;
 
-    public DepthMapper(Vector3f light, boolean directional) {
+    public DepthMapper(ShaderProgram program, Vector3f light, boolean directional) {
         this.depthFBO = glGenFramebuffers();
         this.depthTex = glGenTextures();
-        this.program = new ShaderProgram();
+        this.program = program;
         this.lightSpace = new Matrix4f();
 
         // Setup shader program
-        Path vert = App.resource("shaders", "depth.vert");
-        Path frag = App.resource("shaders", "depth.frag");
-
-        try {
-            program.load(GL_VERTEX_SHADER, vert);
-            program.load(GL_FRAGMENT_SHADER, frag);
-            program.link();
-            program.validate();
-
-            program.createUniform("lightSpace");
-            program.createUniform("worldMat");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         // Setup depth map texture
         glBindTexture(GL_TEXTURE_2D, depthTex);

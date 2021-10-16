@@ -74,6 +74,21 @@ public class ShaderLoader {
         return particleShader;
     }
 
+    public ShaderProgram createDepthShader() throws Exception {
+        Path vert = resource("shaders", "depth.vert");
+        Path frag = resource("shaders", "depth.frag");
+        ShaderProgram program = new ShaderProgram();
+        program.load(GL_VERTEX_SHADER, vert);
+        program.load(GL_FRAGMENT_SHADER, frag);
+        program.link();
+        program.validate();
+
+        program.createUniform("lightSpace");
+        program.createUniform("worldMat");
+
+        return program;
+    }
+
     private Path resource(String first, String... more) {
         return resourcePath.resolve(Path.of(first, more));
     }
