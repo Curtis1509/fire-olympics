@@ -17,6 +17,8 @@ public class FollowCamera extends Camera {
     private float angleAboveArrow = 0;
     private float angleAroundArrow = 0;
 
+    private Node sky = null;
+
     /**
      * Constructor for follow camera
      * @param window Window this camera is in
@@ -59,6 +61,9 @@ public class FollowCamera extends Camera {
         float dy = (float) ((arrowSpeed * timeDelta) * Math.sin(Math.toRadians(target.getRotation().x)));
         float dz = (float) ((arrowSpeed * timeDelta) * Math.cos(Math.toRadians(target.getRotation().y)));
         target.position.add(dx, -dy, dz);
+        if (sky != null) {
+            sky.position.add(dx,0,dz);
+        }
         moveCamera();
     }
 
@@ -136,5 +141,9 @@ public class FollowCamera extends Camera {
         } else {
             return (float) Math.min(currentAngle + dx, 0);
         }
+    }
+
+    private void setSky(Node sky) {
+        this.sky = sky;
     }
 }
