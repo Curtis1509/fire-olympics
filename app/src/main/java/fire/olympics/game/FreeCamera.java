@@ -1,5 +1,6 @@
 package fire.olympics.game;
 
+import fire.olympics.audio.WavPlayer;
 import org.joml.Vector2f;
 
 import fire.olympics.display.Camera;
@@ -17,6 +18,10 @@ public class FreeCamera extends Camera {
 
     public FreeCamera(Window window) {
         this.window = window;
+    }
+    public FreeCamera(Window window, GameController gameController) {
+        this.window = window;
+        this.gameController = gameController;
     }
 
     // Controls for free Camera
@@ -65,6 +70,8 @@ public class FreeCamera extends Camera {
         position.y += offsetY;
         position.x += (float) Math.sin(Math.toRadians(rotation.y - 90)) * offsetX;
         position.z += (float) Math.cos(Math.toRadians(rotation.y - 90)) * offsetX;
+
+        volumeUpdate(position);
     }
 
     @Override

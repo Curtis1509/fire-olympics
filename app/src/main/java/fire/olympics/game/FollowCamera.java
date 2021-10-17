@@ -7,10 +7,10 @@ import fire.olympics.audio.WavPlayer;
 import fire.olympics.display.Camera;
 import fire.olympics.display.Node;
 import fire.olympics.display.Window;
+import org.joml.Vector3f;
 
 public class FollowCamera extends Camera {
     private final Window window;
-    private final GameController gameController; // only needed for audio volume updates
     private final float distanceFromTarget = 15;
 
     public Node target;
@@ -73,12 +73,12 @@ public class FollowCamera extends Camera {
 
         moveCamera();
 
-        if (gameController != null) {
-            // update crowd, fire volumes based on distance
-            // TODO: fix the 'lag', perhaps calculate distances from the tip of the arrow?
-            WavPlayer.setVolume(4,6f - ((float)Math.sqrt(gameController.arrowToBrazierDistance()) * 1.5f));
-            WavPlayer.setVolume(3,0f - ((float)Math.sqrt(gameController.arrowToCrowdDistance()) * 0.5f));
-        }
+        // update crowd, fire volumes based on distance
+        Vector3f arrowTip = new Vector3f(position.x + (float) ((arrowSpeed * 1.3) * Math.sin(Math.toRadians(target.getRotation().y))),
+                position.y + (float) ((arrowSpeed * 1.3) * Math.sin(Math.toRadians(target.getRotation().x))),
+                position.z + (float) ((arrowSpeed * 1.3) * Math.cos(Math.toRadians(target.getRotation().y))));
+        volumeUpdate(arrowTip);
+
     }
 
     private void processKeyBindings(double timeDelta) {

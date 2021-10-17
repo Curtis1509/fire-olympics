@@ -11,8 +11,6 @@ public class PanningCamera extends Camera {
     // Tracks which quadrant the camera is currently located in.
     private int stage = 0;
 
-    private GameController gameController; // used for audio volume calculations only
-
     /**
      * The speed of the camera measured in units (meters?) per second.
      */
@@ -88,11 +86,7 @@ public class PanningCamera extends Camera {
                 break;
         }
         stage = stage % 4;
-
-        if (gameController != null) {
-            WavPlayer.setVolume(4,6f - ((float)Math.sqrt(gameController.pointToBrazierDistance(position)) * 1.5f));
-            WavPlayer.setVolume(3,0f - ((float)Math.sqrt(gameController.pointToCrowdDistance(position)) * 0.5f));
-        }
+        volumeUpdate(position);
     }
 
     private void log(String format, Object... args) {

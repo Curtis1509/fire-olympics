@@ -18,6 +18,7 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import static org.joml.Vector3f.distance;
+import static org.joml.Vector2f.distance;
 import static org.lwjgl.glfw.GLFW.*;
 
 /**
@@ -88,7 +89,7 @@ public class GameController extends Controller {
         wavPlayer.enabled = true;
 
         followCamera = new FollowCamera(window, this);
-        freeCamera = new FreeCamera(window);
+        freeCamera = new FreeCamera(window, this);
         panningCamera.setGameController(this);
         renderer.camera = panningCamera;
 
@@ -167,7 +168,6 @@ public class GameController extends Controller {
         sky.rotation.y = 180;
         renderer.addSky(sky);
         followCamera.setSky(sky);
-        // TODO: new shader for sky
 
         arrow = loader.loadModel("models", "proto_arrow_textured.obj");
         arrow.name = "arrow";
@@ -456,6 +456,8 @@ public class GameController extends Controller {
             arrow.rotation.set(arrowInitRotation);
             sky.position.set(skyInitPosition);
             wavPlayer.playSound(6, false);
+            score = 0;
+            scoreText.value = "" + score;
         }
 
         for (Node child : children) {
@@ -504,13 +506,11 @@ public class GameController extends Controller {
 
     public float pointToCrowdDistance(Vector3f point) { // used for calculating sound
         // TODO: use distance between point and line formulas instead
-        return Math.min(vectorPointDistance(point,435f, 25f, 280f),
-                Math.min(vectorPointDistance(point,350f, 25f, -280f),
-                Math.min(vectorPointDistance(point,-350f, 25f, 280f),
-                Math.min(vectorPointDistance(point, -350f, 25f, -280f),
-                Math.min(vectorPointDistance(point, 0f, 25f, 300f),
-                vectorPointDistance(point, 0f, 25f, -300f
-                ))))));
+        return Math.min(distance(point.x,point.y,380f,25f),
+                Math.min(distance(point.x, point.y, -380f, 25f),
+                 Math.min(distance(point.y,point.z,25f,240f),
+                  Math.min(distance(point.y,point.z,25f,-240f),
+                   100f))));
     }
 
     private float vectorPointDistance(Vector3f p0, Vector3f p1) {
@@ -518,7 +518,7 @@ public class GameController extends Controller {
         return distance(p0.x, p0.y, p0.z, p1.x, p1.y, p1.z);
     }
 
-    private float vectorPointDistance(Vector3f p0, float x, float y, float z) {
+    private float vectorPointDistance2D(Vector3f p0, float x, float y, float z) {
         // this exists because the vector3f distance formula takes coordinates not vectors
         return distance(p0.x, p0.y, p0.z, x, y, z);
     }
