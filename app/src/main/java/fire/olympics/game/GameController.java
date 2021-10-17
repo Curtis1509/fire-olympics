@@ -154,7 +154,6 @@ public class GameController extends Controller {
         loader.loadTexture("textures", "ring_yellow.jpg").repeat(3f,1f);
         loader.loadTexture("textures", "pole_metal.jpg").repeat(1f,9f);
 
-        // sky4 has the smoothest sky that fits in github. export sky5 from blender for the smoothest sky
         Node stadium = loader.loadModel("models", "stadium_nosky.obj");
         stadium.name = "stadium";
         stadium.scale = 7.0f;
@@ -166,7 +165,7 @@ public class GameController extends Controller {
         sky.scale = 10.0f;
         sky.position.set(skyInitPosition);
         sky.rotation.y = 180;
-        add(sky);
+        renderer.addSky(sky);
         followCamera.setSky(sky);
         // TODO: new shader for sky
 

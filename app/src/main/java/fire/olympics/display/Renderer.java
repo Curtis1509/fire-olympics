@@ -21,6 +21,7 @@ public class Renderer {
     private float z_near = 0.01f;
     private float z_far = 3000f;
     private final ArrayList<Node> gameItems = new ArrayList<>();
+    private Node sky;
     private final ArrayList<TextMesh> textMeshes = new ArrayList<>();
 
     private float aspectRatio = 1.0f;
@@ -28,6 +29,7 @@ public class Renderer {
     private final ShaderProgram programWithTexture;
     private final ShaderProgram textShaderProgram;
     private final ShaderProgram particleShader;
+    private final ShaderProgram skyShader;
     private final Vector3f sunDirection = new Vector3f(0, 300, 10); // sun is behind and above camera
     private final Matrix4f projectionMatrix = new Matrix4f();
     private final DepthMapper mapper;
@@ -40,6 +42,7 @@ public class Renderer {
         this.programWithTexture = loader.createTexturedShader();
         this.textShaderProgram = loader.createTextShader();
         this.particleShader = loader.createParticleShader();
+        this.skyShader = loader.createSkyShader();
         this.mapper = new DepthMapper(loader.createDepthShader(), sunDirection, true);
     }
 
@@ -50,6 +53,8 @@ public class Renderer {
     public void addText(GUIText text) {
         textMeshes.add(new TextMesh(text));
     }
+
+    public void addSky(Node sky) {this.sky = sky;}
 
     public void setAspectRatio(float ratio) {
         aspectRatio = ratio;
@@ -93,18 +98,29 @@ public class Renderer {
             render(child);
         }
 
+        if (sky != null) render(sky);
+
         if (textShaderProgram != null) {
             renderText();
         }
     }
 
-    private void render(Node node) {
+    private void render(Node node) {render(node, false);}
+
+    private void render(Node node, boolean isSky) {
         if (node instanceof GameItem gameItem) {
             Matrix4f viewProjectionMatrix = new Matrix4f();
             projectionMatrix.mul(camera.getMatrix().invertAffine(), viewProjectionMatrix);
             Matrix4f worldMatrix = node.getMatrix();
 
-            if (gameItem.mesh.hasTexture()) {
+            if (isSky) {
+                skyShader.bind();
+                skyShader.setUniform("projectionMatrix", viewProjectionMatrix);
+                skyShader.setUniform("sun", sunDirection);
+                skyShader.setUniform("worldMatrix", worldMatrix);
+                skyShader.setUniform("lightSpace", mapper.getLightSpaceMatrix());
+            }
+            else if (gameItem.mesh.hasTexture()) {
                 programWithTexture.bind();
                 programWithTexture.setUniform("projectionMatrix", viewProjectionMatrix);
                 programWithTexture.setUniform("sun", sunDirection);

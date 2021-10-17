@@ -47,6 +47,25 @@ public class ShaderLoader {
         return programWithTexture;
     }
 
+    public ShaderProgram createSkyShader() throws Exception {
+        ShaderProgram programWithTexture = new ShaderProgram();
+        programWithTexture.load(GL_VERTEX_SHADER, resource("shaders", "shader_for_sky.vert"));
+        programWithTexture.load(GL_FRAGMENT_SHADER, resource("shaders", "shader_for_sky.frag"));
+        programWithTexture.link();
+        programWithTexture.createUniform("projectionMatrix");
+        programWithTexture.createUniform("worldMatrix");
+        programWithTexture.createUniform("sun");
+        programWithTexture.createUniform("lightSpace");
+        programWithTexture.createUniform("texture_sampler");
+        programWithTexture.createUniform("depthMap");
+        programWithTexture.validate();
+        programWithTexture.bind();
+        programWithTexture.setUniform("texture_sampler", 0);
+        programWithTexture.setUniform("depthMap", 1);
+        programWithTexture.unbind();
+        return programWithTexture;
+    }
+
     public ShaderProgram createTextShader() throws Exception {
         ShaderProgram textShaderProgram = new ShaderProgram();
         textShaderProgram.load(GL_VERTEX_SHADER, resource("shaders", "shader_for_text.vert"));
