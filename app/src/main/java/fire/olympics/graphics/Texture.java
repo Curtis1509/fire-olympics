@@ -60,6 +60,8 @@ public class Texture {
         this.height = height.get(0) / 64.0f / 4;
 
         glTexImage2D(GL_TEXTURE_2D, 0, glteximagePixelLayout, width.get(0), height.get(0), 0, glteximagePixelLayout, GL_UNSIGNED_BYTE, imageData);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glGenerateMipmap(GL_TEXTURE_2D);
         unbind();
         STBImage.stbi_image_free(imageData);
