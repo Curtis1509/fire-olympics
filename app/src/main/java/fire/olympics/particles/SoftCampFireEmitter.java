@@ -8,11 +8,11 @@ import org.joml.Random;
 public class SoftCampFireEmitter extends ParticleSystem {
 
     public Random random = new Random();
-    public float radius = 5.0f;
+    public float endRadius = 2.0f;
+    public float startRadius = 1.0f;
 
     public SoftCampFireEmitter(int maxNumberOfParicles) {
         super(maxNumberOfParicles);
-        speed = 1.0f;
 
         Vector3f position = new Vector3f();
         Vector4f color = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -24,18 +24,21 @@ public class SoftCampFireEmitter extends ParticleSystem {
 
     protected void updateParticle(int index, float deltaTime, Vector3f position, Vector4f color, Vector2f size) {
         if (position.equals(0, 0, 0)) {
-            placeOnSphere(1.0f, position);
+            placeOnSphere(startRadius, position);
         }
-        if (position.distanceSquared(0, 0, 0) < radius * radius) {
-            Vector3f dp = new Vector3f();
-            position.normalize(dp);
+        if (position.distanceSquared(0, 0, 0) < endRadius * endRadius) {
+            Vector3f dp = new Vector3f(position);
+            dp.x = dp.x / 2;
+            dp.y = 1;
+            dp.z = dp.z / 2;
+            dp.normalize();
             dp.mul(speed * deltaTime);
             position.add(dp);
         } else {
-            placeOnSphere(1.0f, position);
+            placeOnSphere(startRadius, position);
         }
 
-        color.set(1.0f, 1.0f, 1.0f, 1.0f);
+        color.set(1.0f, 1.0f, 1.0f, 1.0f - position.distance(0, 0, 0) / endRadius);
         size.set(0.5f, 0.5f);
     }
 

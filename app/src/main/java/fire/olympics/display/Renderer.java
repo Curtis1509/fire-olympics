@@ -158,6 +158,7 @@ public class Renderer {
     private void renderParticleSystem(ParticleSystem particleSystem) {
         particleShader.bind();
         glDisable(GL_CULL_FACE);
+        glEnable(GL_BLEND);
         Matrix4f viewProjectionMatrix = new Matrix4f();
         viewProjectionMatrix.identity();
         viewProjectionMatrix.mul(projectionMatrix);
@@ -169,6 +170,7 @@ public class Renderer {
         particleShader.setUniform("cameraLocation", position);
         particleSystem.render();
         particleShader.unbind();
+        glDisable(GL_BLEND);
         glEnable(GL_CULL_FACE);
     }
 }

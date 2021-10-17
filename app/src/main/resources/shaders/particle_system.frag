@@ -17,7 +17,7 @@ void main()
     // covered by a translucent particle. In this case, we discard the texel to prevent it from
     // covering other parts of particles that are not translucent. See here for more details:
     // https://www.khronos.org/opengl/wiki/Transparency_Sorting
-    if (tex.a < 0.5) {
+    if (tex.a < 0.001) {
         discard;
     }
     fragColor = tex * fs_in.color;

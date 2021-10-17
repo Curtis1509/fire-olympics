@@ -42,7 +42,7 @@ public class GameController extends Controller {
     private Node ring;
     private Node ringWithPole;
 
-    private final SoftCampFireEmitter brazierFire = new SoftCampFireEmitter(10);
+    private final SoftCampFireEmitter brazierFire = new SoftCampFireEmitter(100);
     private final GUIText fireOlympicsText;
     private final GUIText scoreText;
     private final GUIText pressSpaceToPlayText;
@@ -158,9 +158,14 @@ public class GameController extends Controller {
 
         Node brazier = loader.loadModel("models", "Brazier v2 Textured.obj");
         brazier.name = "brazier";
-        brazier.position.set(0, 0, -10);
+        brazier.position.set(0, -3, -10);
         brazier.scale = 5.0f;
         add(brazier);
+
+        brazierFire.texture = loader.loadTexture("textures", "fire_particle.png");
+        brazierFire.placeOnLattice();
+        brazierFire.position.y = 2.0f;
+        brazier.addChild(brazierFire);
 
         // sky4 has the smoothest sky that fits in github. export sky5 from blender for the smoothest sky
         // Index 2
@@ -187,11 +192,6 @@ public class GameController extends Controller {
         ringWithPole.position.set(0, -5, -45);
 
         addRings(5, ringLocations);
-
-        // Particle effects are disabled at the moment because they are buggy.
-        brazierFire.texture = loader.loadTexture("textures", "fire_particle.png");
-        brazierFire.placeOnLattice();
-        brazier.addChild(brazierFire);
 
         wavPlayer.playSound(2, true);
         wavPlayer.playSound(3, true);

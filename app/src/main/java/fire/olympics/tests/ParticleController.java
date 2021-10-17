@@ -49,9 +49,9 @@ public class ParticleController extends Controller {
 
         Node arrow = loader.loadModel("models", "proto_arrow_textured.obj");
         arrow.name = "arrow";
-        arrow.position.z -= 10;
+        arrow.position.z = 20;
         arrow.rotation.y = 90;
-        // renderer.add(arrow);
+        renderer.add(arrow);
 
         Node stadium = loader.loadModel("models", "stadium_sky4.obj");
         stadium.name = "stadium";
@@ -65,26 +65,13 @@ public class ParticleController extends Controller {
         brazier.scale = 5.0f;
         renderer.add(brazier);
 
-        fireEmitter.enabled = false;
+        fireEmitter.position.y = 2;
         fireEmitter.texture = loader.loadTexture("textures", "fire_particle.png");
         brazier.addChild(fireEmitter);
 
         particleSystem.texture = loader.loadTexture("textures", "fire_particle.png");
         particleSystem.placeOnLattice();
         arrow.addChild(particleSystem);
-    }
-    
-
-    @Override
-    public void keyUp(int key, int mods) {
-        super.keyUp(key, mods);
-        switch (key) {
-            case GLFW_KEY_J:
-                fireEmitter.enabled = true;
-                break;
-            default:
-                break;
-        }
     }
 
     @Override
