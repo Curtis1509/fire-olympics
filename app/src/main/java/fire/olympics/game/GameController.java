@@ -48,6 +48,7 @@ public class GameController extends Controller {
     private Node sky;
 
     private final SoftCampFireEmitter brazierFire = new SoftCampFireEmitter(500);
+    private final SoftCampFireEmitter arrowFire = new SoftCampFireEmitter(200);
     private final GUIText fireOlympicsText;
     private final GUIText scoreText;
     private final GUIText pressSpaceToPlayText;
@@ -176,6 +177,13 @@ public class GameController extends Controller {
         followCamera.target = arrow;
         add(arrow);
 
+        arrowFire.texture = loader.loadTexture("textures", "fire_particle.png");
+        arrowFire.position.z = 3.5f;
+        arrowFire.rotation.x = -90.0f;
+        arrowFire.startRadius = 0.5f;
+        arrowFire.endRadius = 2.5f;
+        arrow.addChild(arrowFire);
+
         brazier = loader.loadModel("models", "Brazier v2 Textured.obj");
         brazier.name = "brazier";
         brazier.position.set(0, -3, -10);
@@ -183,7 +191,6 @@ public class GameController extends Controller {
         add(brazier);
 
         brazierFire.texture = loader.loadTexture("textures", "fire_particle.png");
-        brazierFire.placeOnLattice();
         brazierFire.position.y = 2.0f;
         brazier.addChild(brazierFire);
 
@@ -275,6 +282,7 @@ public class GameController extends Controller {
         checkCollision();
         renderer.camera.update(timeDelta);
         brazierFire.update(timeDelta);
+        arrowFire.update(timeDelta);
     }
 
     double currentTime = 0;
