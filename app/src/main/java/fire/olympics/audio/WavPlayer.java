@@ -29,7 +29,7 @@ public class WavPlayer {
             0f, // theme
             -20f, // crowd
             -20f, // fire
-            0f, // boost
+            -2f, // boost
             0f // crash
     };
     public boolean enabled = true;

@@ -33,6 +33,7 @@ public class GameController extends Controller {
     private Node arrow;
     private final Vector3f arrowInitPosition = new Vector3f(-300, 35, 0);
     private final Vector3f arrowInitRotation = new Vector3f(0, 90, 0);
+    private final Vector3f skyInitPosition = new Vector3f(-300, -25, 0);
     private final float boostFOVFactor = 1.12f; // TODO: smooth boost FOV shift
 
     private WavPlayer wavPlayer;
@@ -43,6 +44,7 @@ public class GameController extends Controller {
     private Node ring;
     private Node ringWithPole;
     private Node brazier;
+    private Node sky;
 
     private final SoftCampFireEmitter brazierFire = new SoftCampFireEmitter(500);
     private final GUIText fireOlympicsText;
@@ -159,10 +161,10 @@ public class GameController extends Controller {
         stadium.position.y -= 10;
         add(stadium);
 
-        Node sky = loader.loadModel("models", "sky_dome.obj");
+        sky = loader.loadModel("models", "sky_dome.obj");
         sky.name = "sky";
         sky.scale = 10.0f;
-        sky.position.y = -25;
+        sky.position.set(skyInitPosition);
         sky.rotation.y = 180;
         add(sky);
         followCamera.setSky(sky);
@@ -449,10 +451,11 @@ public class GameController extends Controller {
 
     public void checkCollision() {
 
-        if (arrow.getPosition().y < -6.8) {
+        if (arrow.position.y < -6.8) {
             System.out.println("Crashed into the ground!");
-            arrow.setPosition(arrowInitPosition);
-            arrow.setRotation(arrowInitRotation);
+            arrow.position.set(arrowInitPosition);
+            arrow.rotation.set(arrowInitRotation);
+            sky.position.set(skyInitPosition);
             wavPlayer.playSound(6, false);
         }
 
