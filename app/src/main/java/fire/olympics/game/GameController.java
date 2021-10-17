@@ -32,6 +32,7 @@ public class GameController extends Controller {
     private Node arrow;
     private final Vector3f arrowInitPosition = new Vector3f(-300, 35, 0);
     private final Vector3f arrowInitRotation = new Vector3f(0, 90, 0);
+    private final float boostFOVFactor = 1.12f; // TODO: smooth boost FOV shift
 
     private WavPlayer wavPlayer;
     private int score = 0;
@@ -163,11 +164,17 @@ public class GameController extends Controller {
 
         // sky4 has the smoothest sky that fits in github. export sky5 from blender for the smoothest sky
         // Index 2
-        Node stadium = loader.loadModel("models", "stadium_sky4.obj");
+        Node stadium = loader.loadModel("models", "stadium_nosky.obj");
         stadium.name = "stadium";
         stadium.scale = 7.0f;
         stadium.position.y -= 10;
         add(stadium);
+
+        Node sky = loader.loadModel("models", "sky_dome.obj");
+        sky.name = "sky";
+        sky.scale = 10.0f;
+        sky.position.y -= 0;
+        add(sky);
 
         // Index 3
         ring = loader.loadModel("models", "ring.obj");
@@ -274,6 +281,7 @@ public class GameController extends Controller {
                 if (isPlaying() && !wavPlayer.isPlaying(5)) {
                     wavPlayer.playSound(5);
                     followCamera.arrowSpeed *= 2;
+                    renderer.setFieldOfView(renderer.getFieldOfView()*boostFOVFactor);
                 }
                 break;
             default:
@@ -301,6 +309,7 @@ public class GameController extends Controller {
                 if (isPlaying()) {
                     followCamera.arrowSpeed /= 2;
                     wavPlayer.stopSound(5);
+                    renderer.setFieldOfView(renderer.getFieldOfView()/boostFOVFactor);
                 }
                 break;
             case GLFW_KEY_P:

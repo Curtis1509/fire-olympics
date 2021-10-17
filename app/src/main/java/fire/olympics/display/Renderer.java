@@ -19,7 +19,7 @@ import java.util.ArrayList;
 public class Renderer {
     private float FOV = (float) Math.toRadians(60.0f);
     private float z_near = 0.01f;
-    private float z_far = 2000f;
+    private float z_far = 3000f;
     private final ArrayList<Node> gameItems = new ArrayList<>();
     private final ArrayList<TextMesh> textMeshes = new ArrayList<>();
 
@@ -62,6 +62,10 @@ public class Renderer {
     public void setFieldOfView(float fov) {
         FOV = (float) Math.toRadians(fov);
         recalculateProjectionMatrix();
+    }
+
+    public float getFieldOfView() {
+        return (float) Math.toDegrees(FOV);
     }
     
     public void setZClipping(float near, float far) {
