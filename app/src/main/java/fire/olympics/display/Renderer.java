@@ -158,6 +158,7 @@ public class Renderer {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDisable(GL_DEPTH_TEST);
         glDepthMask(false);
+        
         particleShader.setUniform("projectionMatrix", projectionMatrix);
         particleShader.setUniform("particleSystemMatrix", particleSystem.getMatrix());
         particleShader.setUniform("hotColor", particleSystem.hotColor);

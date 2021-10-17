@@ -12,6 +12,7 @@ import fire.olympics.fontMeshCreator.FontType;
 import fire.olympics.fontMeshCreator.GUIText;
 
 import java.util.ArrayList;
+
 import org.joml.Random;
 
 import org.joml.Vector2f;
@@ -141,12 +142,12 @@ public class GameController extends Controller {
         loader.loadTexture("textures", "stadium_wood.jpeg").repeat(36000f / 474f, 9000f / 235f);
         loader.loadTexture("textures", "stadium_sky.jpg");
         loader.loadTexture("textures", "ring+pole_brushed_metal.jpg");
-        loader.loadTexture("textures", "ring_black.jpg").repeat(3f,1f);
-        loader.loadTexture("textures", "ring_blue.jpg").repeat(3f,1f);
-        loader.loadTexture("textures", "ring_green.jpg").repeat(3f,1f);
-        loader.loadTexture("textures", "ring_red.jpg").repeat(3f,1f);
-        loader.loadTexture("textures", "ring_yellow.jpg").repeat(3f,1f);
-        loader.loadTexture("textures", "pole_metal.jpg").repeat(1f,9f);
+        loader.loadTexture("textures", "ring_black.jpg").repeat(3f, 1f);
+        loader.loadTexture("textures", "ring_blue.jpg").repeat(3f, 1f);
+        loader.loadTexture("textures", "ring_green.jpg").repeat(3f, 1f);
+        loader.loadTexture("textures", "ring_red.jpg").repeat(3f, 1f);
+        loader.loadTexture("textures", "ring_yellow.jpg").repeat(3f, 1f);
+        loader.loadTexture("textures", "pole_metal.jpg").repeat(1f, 9f);
 
         arrow = loader.loadModel("models", "proto_arrow_textured.obj");
         arrow.name = "arrow";
@@ -266,14 +267,73 @@ public class GameController extends Controller {
         particleSystem.update(timeDelta);
     }
 
+    double currentTime = 0;
+    double coolDownStartTime = 0;
+    boolean boosting = false;
+
+    public synchronized void boost() {
+        new Thread(new Runnable() {
+            public void run() {
+                while (true) {
+                    if (!wavPlayer.isPlaying(5)) {
+                        System.out.println("boosting");
+                        boostText.value = "BOOSTING";
+                        wavPlayer.playSound(5);
+                        currentTime = glfwGetTime();
+                        FollowCamera.arrowSpeed+=0.5;
+                    }
+                    else if (glfwGetTime() >= currentTime + 0.4 && wavPlayer.isPlaying(5)){
+                        FollowCamera.arrowSpeed+=10;
+                        currentTime = glfwGetTime();
+                        boostText.value="."+boostText.value+".";
+                    }
+                    else if (!wavPlayer.isPlaying(5)){
+                        System.out.println("boosting stopped");
+                        boostText.value = "BACKING OFF";
+                        wavPlayer.stopSound(5);
+                        break;
+                    }
+                }
+
+                currentTime = glfwGetTime();
+                while (true){
+                    if (FollowCamera.arrowSpeed>40f){
+                        if (glfwGetTime() > currentTime+0.4) {
+                            FollowCamera.arrowSpeed -= 20;
+                            currentTime = glfwGetTime();
+                            boostText.value="."+boostText.value+".";
+                        }
+                    }
+                    else {
+                        break;
+                    }
+                }
+                FollowCamera.arrowSpeed=40f;
+                boosting = false;
+                coolDownStartTime = glfwGetTime();
+                int timer = 5;
+                while (timer >= 0){
+                    if (glfwGetTime() > currentTime+1) {
+                        currentTime = glfwGetTime();
+                        boostText.value = "" + timer;
+                        timer--;
+                    }
+                }
+                boostText.value = "Press Shift to Booooooost!";
+            }
+        }).start();
+    }
+
     @Override
     public void keyDown(int key, int mods) {
         super.keyDown(key, mods);
         switch (key) {
             case GLFW_KEY_LEFT_SHIFT:
-                if (isPlaying() && !wavPlayer.isPlaying(5)) {
-                    wavPlayer.playSound(5);
-                    followCamera.arrowSpeed *= 2;
+                if ((coolDownStartTime==0 || coolDownStartTime < glfwGetTime() - 6) && !boosting) {
+                    boosting = true;
+                    boost();
+                } else {
+                    System.out.println("Too soon to boost again");
                 }
                 break;
             default:
@@ -298,10 +358,6 @@ public class GameController extends Controller {
                 }
                 break;
             case GLFW_KEY_LEFT_SHIFT:
-                if (isPlaying()) {
-                    followCamera.arrowSpeed /= 2;
-                    wavPlayer.stopSound(5);
-                }
                 break;
             case GLFW_KEY_P:
                 System.out.println(renderer.camera.position);
@@ -314,8 +370,10 @@ public class GameController extends Controller {
         setIsPlaying(!isPlaying());
         if (isPlaying()) {
             renderer.camera = followCamera;
+            window.disableCursor();
         } else {
             renderer.camera = panningCamera;
+            window.restoreCursor();
         }
     }
 
