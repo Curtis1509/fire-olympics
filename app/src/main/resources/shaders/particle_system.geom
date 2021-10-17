@@ -54,10 +54,10 @@ void main()
     vec4 v3 = p + width * w/2 + height * u/2;
 
     // Render two triangles with coordinates v0, v1, v2, and v1, v2, v3.
-    emitAt(v0, vec2(0.0, 0.0));
-    emitAt(v1, vec2(0.0, 1.0));
-    emitAt(v2, vec2(1.0, 0.0));
-    emitAt(v3, vec2(1.0, 1.0));
+    emitAt(v0, vec2(0.0, 1.0));
+    emitAt(v1, vec2(0.0, 0.0));
+    emitAt(v2, vec2(1.0, 1.0));
+    emitAt(v3, vec2(1.0, 0.0));
 
     EndPrimitive();
 }
