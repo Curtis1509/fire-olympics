@@ -98,7 +98,7 @@ public class Renderer {
             render(child);
         }
 
-        if (sky != null) render(sky);
+        if (sky != null) render(sky, true);
 
         if (textShaderProgram != null) {
             renderText();
@@ -116,9 +116,7 @@ public class Renderer {
             if (isSky) {
                 skyShader.bind();
                 skyShader.setUniform("projectionMatrix", viewProjectionMatrix);
-                skyShader.setUniform("sun", sunDirection);
                 skyShader.setUniform("worldMatrix", worldMatrix);
-                skyShader.setUniform("lightSpace", mapper.getLightSpaceMatrix());
             }
             else if (gameItem.mesh.hasTexture()) {
                 programWithTexture.bind();
@@ -134,7 +132,9 @@ public class Renderer {
                 program.setUniform("lightSpace", mapper.getLightSpaceMatrix());
             }
             gameItem.mesh.render();
-            if (gameItem.mesh.hasTexture()) {
+            if (isSky) {
+                skyShader.unbind();
+            } else if (gameItem.mesh.hasTexture()) {
                 programWithTexture.unbind();
             } else {
                 program.unbind();
@@ -145,7 +145,7 @@ public class Renderer {
         }
 
         for (Node child : node.children) {
-            render(child);
+            render(child, isSky);
         }
     }
 

@@ -54,14 +54,10 @@ public class ShaderLoader {
         programWithTexture.link();
         programWithTexture.createUniform("projectionMatrix");
         programWithTexture.createUniform("worldMatrix");
-        programWithTexture.createUniform("sun");
-        programWithTexture.createUniform("lightSpace");
         programWithTexture.createUniform("texture_sampler");
-        programWithTexture.createUniform("depthMap");
         programWithTexture.validate();
         programWithTexture.bind();
         programWithTexture.setUniform("texture_sampler", 0);
-        programWithTexture.setUniform("depthMap", 1);
         programWithTexture.unbind();
         return programWithTexture;
     }
