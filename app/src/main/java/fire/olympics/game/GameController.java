@@ -7,7 +7,7 @@ import fire.olympics.display.Node;
 import fire.olympics.display.Renderer;
 import fire.olympics.display.Window;
 import fire.olympics.graphics.ModelLoader;
-import fire.olympics.particles.ParticleSystem;
+import fire.olympics.particles.SoftCampFireEmitter;
 import fire.olympics.fontMeshCreator.FontType;
 import fire.olympics.fontMeshCreator.GUIText;
 
@@ -42,7 +42,7 @@ public class GameController extends Controller {
     private Node ring;
     private Node ringWithPole;
 
-    private final ParticleSystem particleSystem = new ParticleSystem(10);
+    private final SoftCampFireEmitter brazierFire = new SoftCampFireEmitter(10);
     private final GUIText fireOlympicsText;
     private final GUIText scoreText;
     private final GUIText pressSpaceToPlayText;
@@ -189,10 +189,9 @@ public class GameController extends Controller {
         addRings(5, ringLocations);
 
         // Particle effects are disabled at the moment because they are buggy.
-        particleSystem.texture = loader.loadTexture("textures", "fire_particle.png");
-        particleSystem.randomGenerator = new Random(123);
-        particleSystem.placeOnLattice();
-        brazier.addChild(particleSystem);
+        brazierFire.texture = loader.loadTexture("textures", "fire_particle.png");
+        brazierFire.placeOnLattice();
+        brazier.addChild(brazierFire);
 
         wavPlayer.playSound(2);
         wavPlayer.playSound(3);
@@ -270,7 +269,7 @@ public class GameController extends Controller {
     public void update(double timeDelta) {
         checkCollision();
         renderer.camera.update(timeDelta);
-        particleSystem.update(timeDelta);
+        // particleSystem.update(timeDelta);
     }
 
     double currentTime = 0;

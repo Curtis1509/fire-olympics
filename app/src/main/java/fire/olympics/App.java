@@ -42,8 +42,8 @@ public class App implements AutoCloseable {
 
         try (App app = new App()) {
             // You can technically create two windows by calling this twice.
-            // app.createMainWindow();
-            app.addParticleController();
+            app.createMainWindow();
+            // app.addParticleController();
             // app.addPhysicsCollisionController();
             MemoryUsage.print(Texture.class);
             app.mainLoop();

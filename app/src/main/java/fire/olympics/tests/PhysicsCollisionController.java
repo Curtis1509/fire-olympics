@@ -13,7 +13,6 @@ import fire.olympics.fontMeshCreator.FontType;
 import fire.olympics.fontMeshCreator.GUIText;
 
 import java.util.ArrayList;
-import org.joml.Random;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -36,7 +35,6 @@ public class PhysicsCollisionController extends Controller {
     private Node ring;
     private Node ringWithPole;
 
-    private final ParticleSystem particleSystem = new ParticleSystem(10);
     private final GUIText boostText;
 
     private final ArrayList<Node> children = new ArrayList<>();
@@ -138,12 +136,6 @@ public class PhysicsCollisionController extends Controller {
         ringWithPole.rotation.y = -90;
 
         add(ringWithPole);
-
-        // Particle effects are disabled at the moment because they are buggy.
-        particleSystem.texture = loader.loadTexture("textures", "fire_particle.png");
-        particleSystem.randomGenerator = new Random(123);
-        particleSystem.placeOnLattice();
-        brazier.addChild(particleSystem);
     }
 
 
@@ -162,7 +154,6 @@ public class PhysicsCollisionController extends Controller {
             freeCamera.position.y += timeDelta * 10;
         }
         renderer.camera.update(timeDelta);
-        particleSystem.update(timeDelta);
     }
 
     @Override

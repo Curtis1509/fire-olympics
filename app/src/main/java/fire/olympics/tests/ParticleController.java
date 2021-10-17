@@ -12,7 +12,6 @@ import fire.olympics.particles.ParticleSystem;
 
 import static org.lwjgl.glfw.GLFW.*;
 import org.joml.Vector2f;
-import org.joml.Random;
 
 public class ParticleController extends Controller {
 
@@ -50,6 +49,7 @@ public class ParticleController extends Controller {
         arrow.position.z -= 10;
         arrow.rotation.y = 90;
         renderer.add(arrow);
+
         Node stadium = loader.loadModel("models", "stadium_sky4.obj");
         stadium.name = "stadium";
         stadium.scale = 7.0f;
@@ -57,8 +57,6 @@ public class ParticleController extends Controller {
         renderer.add(stadium);
 
         particleSystem.texture = loader.loadTexture("textures", "fire_particle.png");
-        particleSystem.randomGenerator = new Random(123);
-        // particleSystem.position.set(0, 0, -10);
         particleSystem.placeOnLattice();
         arrow.addChild(particleSystem);
     }
@@ -66,7 +64,7 @@ public class ParticleController extends Controller {
 
     @Override
     public void update(double timeDelta) {
-        // particleSystem.update(timeDelta);
+        particleSystem.update(timeDelta);
         renderer.camera.update(timeDelta);
     }
 
