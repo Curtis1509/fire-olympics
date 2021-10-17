@@ -269,7 +269,7 @@ public class GameController extends Controller {
     public void update(double timeDelta) {
         checkCollision();
         renderer.camera.update(timeDelta);
-        // particleSystem.update(timeDelta);
+        brazierFire.update(timeDelta);
     }
 
     double currentTime = 0;

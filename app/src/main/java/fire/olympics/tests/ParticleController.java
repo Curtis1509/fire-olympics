@@ -9,6 +9,7 @@ import fire.olympics.game.FreeCamera;
 import fire.olympics.graphics.ModelLoader;
 
 import fire.olympics.particles.ParticleSystem;
+import fire.olympics.particles.SoftCampFireEmitter;
 
 import static org.lwjgl.glfw.GLFW.*;
 import org.joml.Vector2f;
@@ -16,6 +17,7 @@ import org.joml.Vector2f;
 public class ParticleController extends Controller {
 
     private ParticleSystem particleSystem = new ParticleSystem(100);
+    private SoftCampFireEmitter fireEmitter = new SoftCampFireEmitter(100);
     private boolean mouseEnabled = true;
 
     public ParticleController(App app, Window window, Renderer renderer, ModelLoader loader) {
@@ -28,33 +30,44 @@ public class ParticleController extends Controller {
     public void load() throws Exception {
         loader.loadTexture("textures", "metal_test.png");
         loader.loadTexture("textures", "wood_test_2.png");
-        loader.loadTexture("textures", "stadium_aluminium.jpg").repeat(12000f/1024f, 5000f/1024f);
-        loader.loadTexture("textures", "stadium_crowd.jpg");
-        loader.loadTexture("textures", "stadium_grass.jpg").repeat(7000f/550f, 7000f/550f);
+        loader.loadTexture("textures", "stadium_aluminium.jpg").repeat(12000f / 1024f, 5000f / 1024f);
+        loader.loadTexture("textures", "stadium_crowd.jpg").repeat(14000f / 1920f * 6f, 3500f / 1080f * 6f);
+        loader.loadTexture("textures", "stadium_grass.jpg").repeat(8000f / 550f, 8000f / 550f);
         loader.loadTexture("textures", "stadium_sky.jpg");
-        loader.loadTexture("textures", "stadium_track.jpg").repeat(7000f/800f, 7000f/557f);
-        loader.loadTexture("textures", "stadium_lane.jpg");
-        loader.loadTexture("textures", "stadium_wood.jpeg").repeat(12000f/474f, 4500f/235f);
+        loader.loadTexture("textures", "stadium_track.jpg").repeat(28000f / 800f, 28000f / 557f);
+        loader.loadTexture("textures", "stadium_lane.jpg").repeat(3000f / 800f, 7000f / 557f);
+        loader.loadTexture("textures", "stadium_wood.jpeg").repeat(36000f / 474f, 9000f / 235f);
         loader.loadTexture("textures", "stadium_sky.jpg");
         loader.loadTexture("textures", "ring+pole_brushed_metal.jpg");
-        loader.loadTexture("textures", "ring_black.jpg");
-        loader.loadTexture("textures", "ring_blue.jpg");
-        loader.loadTexture("textures", "ring_green.jpg");
-        loader.loadTexture("textures", "ring_red.jpg");
-        loader.loadTexture("textures", "ring_yellow.jpg");
+        loader.loadTexture("textures", "ring_black.jpg").repeat(3f,1f);
+        loader.loadTexture("textures", "ring_blue.jpg").repeat(3f,1f);
+        loader.loadTexture("textures", "ring_green.jpg").repeat(3f,1f);
+        loader.loadTexture("textures", "ring_red.jpg").repeat(3f,1f);
+        loader.loadTexture("textures", "ring_yellow.jpg").repeat(3f,1f);
+        loader.loadTexture("textures", "pole_metal.jpg").repeat(1f,9f);
 
 
         Node arrow = loader.loadModel("models", "proto_arrow_textured.obj");
         arrow.name = "arrow";
         arrow.position.z -= 10;
         arrow.rotation.y = 90;
-        renderer.add(arrow);
+        // renderer.add(arrow);
 
         Node stadium = loader.loadModel("models", "stadium_sky4.obj");
         stadium.name = "stadium";
         stadium.scale = 7.0f;
         stadium.position.y -= 10;
         renderer.add(stadium);
+
+        Node brazier = loader.loadModel("models", "Brazier v2 Textured.obj");
+        brazier.name = "brazier";
+        brazier.position.set(0, -2, -10);
+        brazier.scale = 5.0f;
+        renderer.add(brazier);
+
+        fireEmitter.enabled = false;
+        fireEmitter.texture = loader.loadTexture("textures", "fire_particle.png");
+        brazier.addChild(fireEmitter);
 
         particleSystem.texture = loader.loadTexture("textures", "fire_particle.png");
         particleSystem.placeOnLattice();
@@ -63,8 +76,21 @@ public class ParticleController extends Controller {
     
 
     @Override
+    public void keyUp(int key, int mods) {
+        super.keyUp(key, mods);
+        switch (key) {
+            case GLFW_KEY_J:
+                fireEmitter.enabled = true;
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
     public void update(double timeDelta) {
         particleSystem.update(timeDelta);
+        fireEmitter.update(timeDelta);
         renderer.camera.update(timeDelta);
     }
 

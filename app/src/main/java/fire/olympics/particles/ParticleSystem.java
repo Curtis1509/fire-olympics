@@ -15,7 +15,12 @@ public class ParticleSystem extends Node {
     /**
      * The speed of the simulation.
      */
-    public float speed;
+    public float speed = 1.0f;
+
+    /**
+     * Controls whether particle updates actually happen or not.
+     */
+    public boolean enabled = true;
 
     /**
      * The maximum number of particles in the particle system. Note that you can
@@ -81,13 +86,7 @@ public class ParticleSystem extends Node {
     }
 
     public void update(double dt) {
-        // Rules:
-        // 1. A dead fire particle has a 45% chance of spawning.
-        // 2. A fire partcile is dead if it's age is greater than its lifetime.
-        // 3. A fire particle's color ranges between hot and cold, where hot is red and
-        // cold is blue.
-        // 4. A fire particle is located inside of a force field which moves the
-        // particles.
+        if (!enabled) return;
 
         Vector3f position = new Vector3f();
         Vector4f color = new Vector4f();
@@ -142,7 +141,7 @@ public class ParticleSystem extends Node {
         vao.updateBuffer(2, sizeBuffer);
     }
 
-    private void setParticleParameters(int index, Vector3f position, Vector4f color, Vector2f size) {
+    protected void setParticleParameters(int index, Vector3f position, Vector4f color, Vector2f size) {
         positionBuffer[3 * index + 0] = position.x;
         positionBuffer[3 * index + 1] = position.y;
         positionBuffer[3 * index + 2] = position.z;
@@ -154,7 +153,7 @@ public class ParticleSystem extends Node {
         colorBuffer[4 * index + 3] = color.w;
     }
 
-    private void getParticleParameters(int index, Vector3f position, Vector4f color, Vector2f size) {
+    protected void getParticleParameters(int index, Vector3f position, Vector4f color, Vector2f size) {
         position.x = positionBuffer[3 * index + 0];
         position.y = positionBuffer[3 * index + 1];
         position.z = positionBuffer[3 * index + 2];
