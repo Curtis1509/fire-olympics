@@ -31,7 +31,7 @@ public class WavPlayer {
         }
     }
 
-    public synchronized void playSound(int index) {
+    public synchronized void playSound(int index, boolean loop) {
         if (!enabled) return;
         playing.set(index,true);
         new Thread(new Runnable() {
@@ -47,6 +47,8 @@ public class WavPlayer {
                     // Open audio clip and load samples from the audio input stream.
                     clip.open(audioIn);
                     clip.start();
+                    if (loop)
+                    clip.loop(1000000000);
                     while(playing.get(index))
                     {
                         if (clip.getMicrosecondLength() == clip.getMicrosecondPosition()){

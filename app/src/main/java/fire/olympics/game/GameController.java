@@ -193,8 +193,8 @@ public class GameController extends Controller {
         brazierFire.placeOnLattice();
         brazier.addChild(brazierFire);
 
-        wavPlayer.playSound(2);
-        wavPlayer.playSound(3);
+        wavPlayer.playSound(2, true);
+        wavPlayer.playSound(3, true);
     }
 
 
@@ -284,7 +284,7 @@ public class GameController extends Controller {
                     if (!wavPlayer.isPlaying(5)) {
                         System.out.println("boosting");
                         boostText.value = "BOOSTING";
-                        wavPlayer.playSound(5);
+                        wavPlayer.playSound(5, false);
                         currentTime = glfwGetTime();
                         followCamera.arrowSpeed+=5;
                         renderer.setFieldOfView(renderer.getFieldOfView()+0.25f);
@@ -446,7 +446,7 @@ public class GameController extends Controller {
             System.out.println("Crashed into the ground!");
             arrow.setPosition(arrowInitPosition);
             arrow.setRotation(arrowInitRotation);
-            wavPlayer.playSound(6);
+            wavPlayer.playSound(6, false);
         }
 
         for (Node child : children) {
@@ -477,7 +477,7 @@ public class GameController extends Controller {
             collidedObject = null;
             score++;
             scoreText.value = "" + score;
-            wavPlayer.playSound(0);
+            wavPlayer.playSound(0, false);
         }
     }
 
