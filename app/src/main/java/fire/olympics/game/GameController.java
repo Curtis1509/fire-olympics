@@ -42,7 +42,7 @@ public class GameController extends Controller {
     private Node ring;
     private Node ringWithPole;
 
-    private final SoftCampFireEmitter brazierFire = new SoftCampFireEmitter(100);
+    private final SoftCampFireEmitter brazierFire = new SoftCampFireEmitter(500);
     private final GUIText fireOlympicsText;
     private final GUIText scoreText;
     private final GUIText pressSpaceToPlayText;
@@ -149,6 +149,19 @@ public class GameController extends Controller {
         loader.loadTexture("textures", "ring_yellow.jpg").repeat(3f,1f);
         loader.loadTexture("textures", "pole_metal.jpg").repeat(1f,9f);
 
+        // sky4 has the smoothest sky that fits in github. export sky5 from blender for the smoothest sky
+        Node stadium = loader.loadModel("models", "stadium_nosky.obj");
+        stadium.name = "stadium";
+        stadium.scale = 7.0f;
+        stadium.position.y -= 10;
+        add(stadium);
+
+        Node sky = loader.loadModel("models", "sky_dome.obj");
+        sky.name = "sky";
+        sky.scale = 10.0f;
+        sky.position.y -= 0;
+        add(sky);
+
         arrow = loader.loadModel("models", "proto_arrow_textured.obj");
         arrow.name = "arrow";
         arrow.position.set(arrowInitPosition);
@@ -167,26 +180,10 @@ public class GameController extends Controller {
         brazierFire.position.y = 2.0f;
         brazier.addChild(brazierFire);
 
-        // sky4 has the smoothest sky that fits in github. export sky5 from blender for the smoothest sky
-        // Index 2
-        Node stadium = loader.loadModel("models", "stadium_nosky.obj");
-        stadium.name = "stadium";
-        stadium.scale = 7.0f;
-        stadium.position.y -= 10;
-        add(stadium);
-
-        Node sky = loader.loadModel("models", "sky_dome.obj");
-        sky.name = "sky";
-        sky.scale = 10.0f;
-        sky.position.y -= 0;
-        add(sky);
-
-        // Index 3
         ring = loader.loadModel("models", "ring.obj");
         ring.name = "ringt";
         ring.position.set(0, 2, -10);
 
-        // Index 4
         ringWithPole = loader.loadModel("models", "ring+pole.obj");
         ringWithPole.name = "ringtp";
         ringWithPole.position.set(0, -5, -45);

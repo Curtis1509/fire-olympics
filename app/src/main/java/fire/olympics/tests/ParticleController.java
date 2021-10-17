@@ -17,7 +17,7 @@ import org.joml.Vector2f;
 public class ParticleController extends Controller {
 
     private ParticleSystem particleSystem = new ParticleSystem(100);
-    private SoftCampFireEmitter fireEmitter = new SoftCampFireEmitter(100);
+    private SoftCampFireEmitter fireEmitter = new SoftCampFireEmitter(500);
     private boolean mouseEnabled = true;
 
     public ParticleController(App app, Window window, Renderer renderer, ModelLoader loader) {
@@ -51,7 +51,6 @@ public class ParticleController extends Controller {
         arrow.name = "arrow";
         arrow.position.z = 20;
         arrow.rotation.y = 90;
-        renderer.add(arrow);
 
         Node stadium = loader.loadModel("models", "stadium_sky4.obj");
         stadium.name = "stadium";
@@ -65,6 +64,7 @@ public class ParticleController extends Controller {
         brazier.scale = 5.0f;
         renderer.add(brazier);
 
+        // Particles are added after opaque objects because they are transparent.
         fireEmitter.position.y = 2;
         fireEmitter.texture = loader.loadTexture("textures", "fire_particle.png");
         brazier.addChild(fireEmitter);
@@ -72,6 +72,7 @@ public class ParticleController extends Controller {
         particleSystem.texture = loader.loadTexture("textures", "fire_particle.png");
         particleSystem.placeOnLattice();
         arrow.addChild(particleSystem);
+        renderer.add(arrow);
     }
 
     @Override
