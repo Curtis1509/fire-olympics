@@ -12,6 +12,7 @@ import fire.olympics.graphics.ShaderLoader;
 
 import fire.olympics.tests.TextController;
 import fire.olympics.tests.ParticleController;
+import fire.olympics.tests.PhysicsCollisionController;
 
 import static org.lwjgl.opengl.GL33C.*;
 
@@ -43,6 +44,7 @@ public class App implements AutoCloseable {
             // You can technically create two windows by calling this twice.
             app.createMainWindow();
             // app.addParticleController();
+            // app.addPhysicsCollisionController();
             MemoryUsage.print(Texture.class);
             app.mainLoop();
         } catch (Exception e) {
@@ -191,6 +193,27 @@ public class App implements AutoCloseable {
             ShaderLoader shaderLoader = new ShaderLoader(resourcePath);
             Renderer renderer = new Renderer(shaderLoader);
             ParticleController controller = new ParticleController(this, window, renderer, loader);
+            controllers.add(controller);
+            setupController(controller);
+        } catch (Exception e) {
+            System.out.println("Error occured while initailasing Particle Controller.");
+            e.printStackTrace();
+        } finally {
+            window.done();
+        }
+    }
+
+    public void addPhysicsCollisionController() {
+        Window window = new Window("Physics Collsision", 800, 600);
+        window.init();
+        window.use();
+        try {
+            ModelLoader loader = new ModelLoader(resourcePath);
+            Texture texture = Texture.loadPngTexture(resource("fonts", "fontfile.png"));
+            FontType fontType = new FontType(resource("fonts", "fontfile.fnt"), texture);
+            ShaderLoader shaderLoader = new ShaderLoader(resourcePath);
+            Renderer renderer = new Renderer(shaderLoader);
+            PhysicsCollisionController controller = new PhysicsCollisionController(this, window, renderer, loader, fontType);
             controllers.add(controller);
             setupController(controller);
         } catch (Exception e) {
