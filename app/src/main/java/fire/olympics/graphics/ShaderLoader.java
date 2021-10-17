@@ -65,12 +65,8 @@ public class ShaderLoader {
         particleShader.load(GL_GEOMETRY_SHADER, resource("shaders", "particle_system.geom"));
         particleShader.load(GL_FRAGMENT_SHADER, resource("shaders", "particle_system.frag"));
         particleShader.link();
-        particleShader.createUniform("projectionMatrix");
-        particleShader.createUniform("particleSystemMatrix");
-        particleShader.createUniform("hotColor");
-        particleShader.createUniform("coldColor");
+        particleShader.createUniform("viewProjectionMatrix");
         particleShader.createUniform("cameraLocation");
-        particleShader.createUniform("cameraMatrix");
         return particleShader;
     }
 

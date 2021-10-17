@@ -158,22 +158,17 @@ public class Renderer {
     private void renderParticleSystem(ParticleSystem particleSystem) {
         particleShader.bind();
         glDisable(GL_CULL_FACE);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glDisable(GL_DEPTH_TEST);
-        glDepthMask(false);
-        
-        particleShader.setUniform("projectionMatrix", projectionMatrix);
-        particleShader.setUniform("particleSystemMatrix", particleSystem.getMatrix());
-        particleShader.setUniform("hotColor", particleSystem.hotColor);
-        particleShader.setUniform("coldColor", particleSystem.coldColor);
-        particleShader.setUniform("cameraMatrix", camera.getMatrix().invertAffine());
-        particleShader.setUniform("cameraLocation", camera.position);
+        Matrix4f viewProjectionMatrix = new Matrix4f();
+        viewProjectionMatrix.identity();
+        viewProjectionMatrix.mul(projectionMatrix);
+        viewProjectionMatrix.mul(camera.getMatrix().invertAffine());
+        viewProjectionMatrix.mul(particleSystem.getMatrix());
+        particleShader.setUniform("viewProjectionMatrix", viewProjectionMatrix);
+        Vector3f position = new Vector3f();
+        particleSystem.getMatrix().invertAffine().transformPosition(camera.position, position);
+        particleShader.setUniform("cameraLocation", position);
         particleSystem.render();
         particleShader.unbind();
-        glDepthMask(true);
-        glEnable(GL_DEPTH_TEST);
-        glDisable(GL_BLEND);
         glEnable(GL_CULL_FACE);
     }
 }

@@ -12,9 +12,6 @@ import static org.lwjgl.opengl.GL33C.*;
 public class ParticleSystem extends Node {
     public Random randomGenerator = new Random();
     private final VertexArrayObject vao = new VertexArrayObject();
-    
-    public final Vector4f hotColor = new Vector4f(1.0f, 0, 0, 1.0f);
-    public final Vector4f coldColor = new Vector4f(0, 0, 1, 1);
 
     public final int maximumNumberOfParticles;
     private final float[] positionBuffer;
