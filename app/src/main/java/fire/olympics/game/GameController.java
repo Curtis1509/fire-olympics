@@ -182,6 +182,8 @@ public class GameController extends Controller {
         arrowFire.rotation.x = -90.0f;
         arrowFire.startRadius = 0.5f;
         arrowFire.endRadius = 2.5f;
+        arrowFire.fanPosition.y = 3.5f;
+        arrowFire.lookAtFan = true;
         arrow.addChild(arrowFire);
 
         brazier = loader.loadModel("models", "Brazier v2 Textured.obj");

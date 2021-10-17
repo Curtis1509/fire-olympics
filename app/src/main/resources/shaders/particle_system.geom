@@ -8,6 +8,7 @@ in VertexData
     vec3 position;
     vec4 color;
     vec2 size;
+    vec3 upDirection;
 } gs_in[1];
 
 out GeometryOutput
@@ -40,6 +41,7 @@ void main()
     vec4 p = vec4(gs_in[0].position, 1);
     // Vector u points in the direction of up in the particle system's local coordinate space.
     vec4 u = vec4(0, 1, 0, 0);
+    u.xyz = gs_in[0].upDirection;
     // Vector w points in the direction perpendicular to the camera and vector u.
     vec4 w = vec4(normalize(cross(u.xyz, cameraLocation.xyz - p.xyz)), 0);
 

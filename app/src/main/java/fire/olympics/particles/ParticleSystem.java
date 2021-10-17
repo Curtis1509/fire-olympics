@@ -52,6 +52,13 @@ public class ParticleSystem extends Node {
      */
     private final float[] colorBuffer;
 
+    /**
+     * Determines the direction of up for each particle. Each vector corresponds to a particle
+     * and points in the direction of up that the top of the texture should be aligned too. Each
+     * vector must be a unit vector.
+     */
+    private final float[] upDirectionBuffer;
+
     private final VertexArrayObject vao = new VertexArrayObject();
 
     public ParticleSystem(int maxNumberOfParicles) {
@@ -60,10 +67,12 @@ public class ParticleSystem extends Node {
         positionBuffer = new float[3 * maximumNumberOfParticles];
         sizeBuffer = new float[2 * maximumNumberOfParticles];
         colorBuffer = new float[4 * maximumNumberOfParticles];
+        upDirectionBuffer = new float[3 * maximumNumberOfParticles];
 
         vao.bindFloats(positionBuffer, 0, GL_DYNAMIC_DRAW, 3, GL_FLOAT);
         vao.bindFloats(colorBuffer, 1, GL_DYNAMIC_DRAW, 4, GL_FLOAT);
         vao.bindFloats(sizeBuffer, 2, GL_DYNAMIC_DRAW, 2, GL_FLOAT);
+        vao.bindFloats(upDirectionBuffer, 3, GL_DYNAMIC_DRAW, 3, GL_FLOAT);
     }
 
     /**
@@ -80,8 +89,9 @@ public class ParticleSystem extends Node {
      * @param position  The current position of the particle.
      * @param color     The current color of the particle.
      * @param size      The current size of the particle.
+     * @param upDirection The direction of up the top of the particle's billboard should be aligned to.
      */
-    protected void updateParticle(int index, float deltaTime, Vector3f position, Vector4f color, Vector2f size) {
+    protected void updateParticle(int index, float deltaTime, Vector3f position, Vector4f color, Vector2f size, Vector3f upDirection) {
 
     }
 
@@ -91,16 +101,17 @@ public class ParticleSystem extends Node {
         Vector3f position = new Vector3f();
         Vector4f color = new Vector4f();
         Vector2f size = new Vector2f();
+        Vector3f upDirection = new Vector3f();
 
         for (int index = 0; index < maximumNumberOfParticles; index += 1) {
             // Read the particle data from the buffer.
-            getParticleParameters(index, position, color, size);
+            getParticleParameters(index, position, color, size, upDirection);
 
             // Update the paricle data.
-            updateParticle(index, (float) dt, position, color, size);
+            updateParticle(index, (float) dt, position, color, size, upDirection);
 
             // Write the particle data to the buffer.
-            setParticleParameters(index, position, color, size);
+            setParticleParameters(index, position, color, size, upDirection);
         }
 
         // Tell OpenGL to use the updated data.
@@ -115,19 +126,20 @@ public class ParticleSystem extends Node {
         Vector3f position = new Vector3f();
         Vector2f size = new Vector2f(0.5f, 0.5f);
         Vector4f color = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+        Vector3f upDirection = new Vector3f(0.0f, 1.0f, 0.0f);
         int y = 0;
         for (int index = 0; index < maximumNumberOfParticles;) {
             position.set(y, y, y);
-            setParticleParameters(index, position, color, size);
+            setParticleParameters(index, position, color, size, upDirection);
             index += 1;
             for (int x = y; x > 0 && index < maximumNumberOfParticles; x -= 1) {
                 position.set(x - 1, y, y);
-                setParticleParameters(index, position, color, size);
+                setParticleParameters(index, position, color, size, upDirection);
                 index += 1;
             }
             for (int z = y; z > 0 && index < maximumNumberOfParticles; z -= 1) {
                 position.set(y, y, z - 1);
-                setParticleParameters(index, position, color, size);
+                setParticleParameters(index, position, color, size, upDirection);
                 index += 1;
             }
             y += 1;
@@ -139,9 +151,10 @@ public class ParticleSystem extends Node {
         vao.updateBuffer(0, positionBuffer);
         vao.updateBuffer(1, colorBuffer);
         vao.updateBuffer(2, sizeBuffer);
+        vao.updateBuffer(3, upDirectionBuffer);
     }
 
-    protected void setParticleParameters(int index, Vector3f position, Vector4f color, Vector2f size) {
+    protected void setParticleParameters(int index, Vector3f position, Vector4f color, Vector2f size, Vector3f upDirection) {
         positionBuffer[3 * index + 0] = position.x;
         positionBuffer[3 * index + 1] = position.y;
         positionBuffer[3 * index + 2] = position.z;
@@ -151,9 +164,12 @@ public class ParticleSystem extends Node {
         colorBuffer[4 * index + 1] = color.y;
         colorBuffer[4 * index + 2] = color.z;
         colorBuffer[4 * index + 3] = color.w;
+        upDirectionBuffer[3 * index + 0] = upDirection.x;
+        upDirectionBuffer[3 * index + 1] = upDirection.y;
+        upDirectionBuffer[3 * index + 2] = upDirection.z;
     }
 
-    protected void getParticleParameters(int index, Vector3f position, Vector4f color, Vector2f size) {
+    protected void getParticleParameters(int index, Vector3f position, Vector4f color, Vector2f size, Vector3f upDirection) {
         position.x = positionBuffer[3 * index + 0];
         position.y = positionBuffer[3 * index + 1];
         position.z = positionBuffer[3 * index + 2];
@@ -163,6 +179,9 @@ public class ParticleSystem extends Node {
         color.w = colorBuffer[4 * index + 3];
         size.x = sizeBuffer[2 * index + 0];
         size.y = sizeBuffer[2 * index + 1];
+        upDirection.x = upDirectionBuffer[3 * index + 0];
+        upDirection.y = upDirectionBuffer[3 * index + 1];
+        upDirection.z = upDirectionBuffer[3 * index + 2];
     }
 
     public void render() {
