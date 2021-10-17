@@ -17,6 +17,7 @@ import org.joml.Random;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
+import static org.joml.Vector3f.distance;
 import static org.lwjgl.glfw.GLFW.*;
 
 /**
@@ -41,6 +42,7 @@ public class GameController extends Controller {
     private Node collidedObject;
     private Node ring;
     private Node ringWithPole;
+    private Node brazier;
 
     private final SoftCampFireEmitter brazierFire = new SoftCampFireEmitter(500);
     private final GUIText fireOlympicsText;
@@ -83,8 +85,9 @@ public class GameController extends Controller {
         wavPlayer = new WavPlayer(app);
         wavPlayer.enabled = true;
 
-        followCamera = new FollowCamera(window);
+        followCamera = new FollowCamera(window, this);
         freeCamera = new FreeCamera(window);
+        panningCamera.setGameController(this);
         renderer.camera = panningCamera;
 
         add(followCamera);
@@ -159,8 +162,11 @@ public class GameController extends Controller {
         Node sky = loader.loadModel("models", "sky_dome.obj");
         sky.name = "sky";
         sky.scale = 10.0f;
-        sky.position.y -= 0;
+        sky.position.y = -25;
+        sky.rotation.y = 180;
         add(sky);
+        followCamera.setSky(sky);
+        // TODO: new shader for sky
 
         arrow = loader.loadModel("models", "proto_arrow_textured.obj");
         arrow.name = "arrow";
@@ -169,7 +175,7 @@ public class GameController extends Controller {
         followCamera.target = arrow;
         add(arrow);
 
-        Node brazier = loader.loadModel("models", "Brazier v2 Textured.obj");
+        brazier = loader.loadModel("models", "Brazier v2 Textured.obj");
         brazier.name = "brazier";
         brazier.position.set(0, -3, -10);
         brazier.scale = 5.0f;
@@ -345,6 +351,11 @@ public class GameController extends Controller {
                     boost();
                 }
                 break;
+            case GLFW_KEY_P:
+                if (isInFreeCameraMode()) {
+                    freeCamera.positionToConsole();
+                }
+                break;
             default:
                 break;
         }
@@ -475,6 +486,39 @@ public class GameController extends Controller {
             scoreText.value = "" + score;
             wavPlayer.playSound(0, false);
         }
+    }
+
+    public float arrowToBrazierDistance() { // used for calculating sound
+        return pointToBrazierDistance(arrow.position);
+    }
+
+    public float pointToBrazierDistance(Vector3f point) { // used for calculating sound
+        return vectorPointDistance(point, brazier.position);
+    }
+
+    public float arrowToCrowdDistance() {
+        return pointToCrowdDistance(arrow.position);
+    }
+
+    public float pointToCrowdDistance(Vector3f point) { // used for calculating sound
+        // TODO: use distance between point and line formulas instead
+        return Math.min(vectorPointDistance(point,435f, 25f, 280f),
+                Math.min(vectorPointDistance(point,350f, 25f, -280f),
+                Math.min(vectorPointDistance(point,-350f, 25f, 280f),
+                Math.min(vectorPointDistance(point, -350f, 25f, -280f),
+                Math.min(vectorPointDistance(point, 0f, 25f, 300f),
+                vectorPointDistance(point, 0f, 25f, -300f
+                ))))));
+    }
+
+    private float vectorPointDistance(Vector3f p0, Vector3f p1) {
+        // this exists because the vector3f distance formula takes coordinates not vectors
+        return distance(p0.x, p0.y, p0.z, p1.x, p1.y, p1.z);
+    }
+
+    private float vectorPointDistance(Vector3f p0, float x, float y, float z) {
+        // this exists because the vector3f distance formula takes coordinates not vectors
+        return distance(p0.x, p0.y, p0.z, x, y, z);
     }
 
     // Adjust angle of camera to match mouse movement

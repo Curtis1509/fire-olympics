@@ -61,7 +61,7 @@ public class PhysicsCollisionController extends Controller {
     public PhysicsCollisionController(App app, Window window, Renderer renderer, ModelLoader loader, FontType fontType) {
         super(app, window, renderer, loader);
 
-        followCamera = new FollowCamera(window);
+        followCamera = new FollowCamera(window, null);
         followCamera.arrowSpeed = 10.0f;
         freeCamera = new FreeCamera(window);
         renderer.camera = followCamera;

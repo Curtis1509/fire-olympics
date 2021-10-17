@@ -1,6 +1,7 @@
 package fire.olympics.display;
 
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 public class Camera extends Node {
     public void update(double timeDelta) { }
@@ -10,4 +11,5 @@ public class Camera extends Node {
     public void mouseMoved(Vector2f delta) { }
 
     public void mouseUp(Vector2f position, int button) { }
+
 }

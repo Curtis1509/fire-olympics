@@ -1,5 +1,6 @@
 package fire.olympics.game;
 
+import fire.olympics.audio.WavPlayer;
 import fire.olympics.display.Camera;
 
 public class PanningCamera extends Camera {
@@ -9,6 +10,8 @@ public class PanningCamera extends Camera {
     private float displacement = 0.0f;
     // Tracks which quadrant the camera is currently located in.
     private int stage = 0;
+
+    private GameController gameController; // used for audio volume calculations only
 
     /**
      * The speed of the camera measured in units (meters?) per second.
@@ -85,9 +88,18 @@ public class PanningCamera extends Camera {
                 break;
         }
         stage = stage % 4;
+
+        if (gameController != null) {
+            WavPlayer.setVolume(4,6f - ((float)Math.sqrt(gameController.pointToBrazierDistance(position)) * 1.5f));
+            WavPlayer.setVolume(3,0f - ((float)Math.sqrt(gameController.pointToCrowdDistance(position)) * 0.5f));
+        }
     }
 
     private void log(String format, Object... args) {
         System.out.printf(format, args);
+    }
+
+    public void setGameController(GameController gameController) {
+        this.gameController = gameController;
     }
 }

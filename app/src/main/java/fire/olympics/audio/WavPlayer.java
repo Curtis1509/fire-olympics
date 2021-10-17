@@ -23,12 +23,12 @@ public class WavPlayer {
 
     private final ArrayList<Path> soundURL = new ArrayList<>();
     private final ArrayList<Boolean> playing = new ArrayList<>();
-    private Float[] volume = new Float[]{
+    private static Float[] volume = new Float[]{
             0f, // score
             0f, // miss
             0f, // theme
-            0f, // crowd
-            -100f, // fire
+            -20f, // crowd
+            -20f, // fire
             0f, // boost
             0f // crash
     };
@@ -92,4 +92,6 @@ public class WavPlayer {
             playing.set(i, false);
         }
     }
+
+    public static void setVolume(int index, float dB) { volume[index] = dB;}
 }

@@ -3,12 +3,14 @@ package fire.olympics.game;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_D;
 
+import fire.olympics.audio.WavPlayer;
 import fire.olympics.display.Camera;
 import fire.olympics.display.Node;
 import fire.olympics.display.Window;
 
 public class FollowCamera extends Camera {
     private final Window window;
+    private final GameController gameController; // only needed for audio volume updates
     private final float distanceFromTarget = 15;
 
     public Node target;
@@ -24,8 +26,9 @@ public class FollowCamera extends Camera {
      * @param window Window this camera is in
      * @param target The object to focus the camera on
      */
-    public FollowCamera(Window window) {
+    public FollowCamera(Window window, GameController gameController) {
         this.window = window;
+        this.gameController = gameController;
     }
 
     /**
@@ -61,10 +64,21 @@ public class FollowCamera extends Camera {
         float dy = (float) ((arrowSpeed * timeDelta) * Math.sin(Math.toRadians(target.getRotation().x)));
         float dz = (float) ((arrowSpeed * timeDelta) * Math.cos(Math.toRadians(target.getRotation().y)));
         target.position.add(dx, -dy, dz);
+
+        // update sky position to make it look further away
         if (sky != null) {
-            sky.position.add(dx,0,dz);
+            sky.position.x = sky.position.x + dx;
+            sky.position.z = sky.position.z + dz;
         }
+
         moveCamera();
+
+        if (gameController != null) {
+            // update crowd, fire volumes based on distance
+            // TODO: fix the 'lag', perhaps calculate distances from the tip of the arrow?
+            WavPlayer.setVolume(4,6f - ((float)Math.sqrt(gameController.arrowToBrazierDistance()) * 1.5f));
+            WavPlayer.setVolume(3,0f - ((float)Math.sqrt(gameController.arrowToCrowdDistance()) * 0.5f));
+        }
     }
 
     private void processKeyBindings(double timeDelta) {
@@ -143,7 +157,7 @@ public class FollowCamera extends Camera {
         }
     }
 
-    private void setSky(Node sky) {
+    public void setSky(Node sky) {
         this.sky = sky;
     }
 }

@@ -5,6 +5,8 @@ import org.joml.Vector2f;
 import fire.olympics.display.Camera;
 import fire.olympics.display.Window;
 
+import java.io.Console;
+
 import static org.lwjgl.glfw.GLFW.*;
 
 public class FreeCamera extends Camera {
@@ -84,5 +86,9 @@ public class FreeCamera extends Camera {
 
             mouseEnabled = !mouseEnabled;
         }
+    }
+
+    public void positionToConsole() {
+        System.out.println(position.x + "," + position.y + "," + position.z);
     }
 }
