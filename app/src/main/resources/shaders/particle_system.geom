@@ -6,15 +6,13 @@ layout (triangle_strip, max_vertices = 4) out;
 in VertexData
 {
     vec3 position;
-    float age;
-    float lifetime;
+    vec4 color;
     vec2 size;
 } gs_in[1];
 
 out GeometryOutput
 {
-    flat float age;
-    flat float lifetime;
+    flat vec4 color;
     vec2 textureCoordinate;
 } gs_out;
 
@@ -24,9 +22,8 @@ uniform vec3 cameraLocation;
 uniform mat4 cameraMatrix;
 
 void emitAt(vec4 point, vec2 textureCoordinate) {
-    gs_out.age = gs_in[0].age;
-    gs_out.lifetime = gs_in[0].lifetime;
     gs_out.textureCoordinate = textureCoordinate;
+    gs_out.color = gs_in[0].color;
     gl_Position = projectionMatrix * cameraMatrix * particleSystemMatrix * point;
     EmitVertex();
 }
