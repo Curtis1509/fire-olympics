@@ -11,6 +11,7 @@ public class FreeCamera extends Camera {
     public float mouseSensitivity = 5;
     public Window window;
     public float movementSpeed = 35f;
+    private boolean mouseEnabled = true;
 
     public FreeCamera(Window window) {
         this.window = window;
@@ -66,7 +67,22 @@ public class FreeCamera extends Camera {
 
     @Override
     public void mouseMoved(Vector2f delta) {
-        rotation.y -= delta.x / mouseSensitivity;
-        rotation.x -= delta.y / mouseSensitivity;
+        if (!mouseEnabled) {
+            rotation.y -= delta.x / mouseSensitivity;
+            rotation.x -= delta.y / mouseSensitivity;
+        }
+    }
+
+    @Override
+    public void mouseUp(Vector2f position, int button) {
+        if (button == GLFW_MOUSE_BUTTON_LEFT) {
+            if (mouseEnabled) {
+                window.disableCursor();
+            } else {
+                window.restoreCursor();
+            }
+
+            mouseEnabled = !mouseEnabled;
+        }
     }
 }

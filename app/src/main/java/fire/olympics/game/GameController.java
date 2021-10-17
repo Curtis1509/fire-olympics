@@ -395,13 +395,11 @@ public class GameController extends Controller {
         this.scoreText.isHidden = true;
         this.pressSpaceToPlayText.isHidden = true;
         this.helpText.isHidden = true;
-        window.disableCursor();
     }
 
     private void leaveFreeRoamMode() {
         setIsPlaying(false);
         renderer.camera = panningCamera;
-        window.restoreCursor();
     }
 
     public boolean isInside(float yRot, double width, double height, double objectx, double objecty, double objectz, double playerx, double playery, double playerz) {
@@ -484,6 +482,14 @@ public class GameController extends Controller {
     public void mouseMoved(Vector2f delta) {
         if (isInFreeCameraMode()) {
             freeCamera.mouseMoved(delta);
+        }
+    }
+
+    @Override
+    public void mouseUp(Vector2f position, int button) {
+        super.mouseUp(position, button);
+        if (isInFreeCameraMode()) {
+            freeCamera.mouseUp(position, button);
         }
     }
 
