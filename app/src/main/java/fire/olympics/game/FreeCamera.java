@@ -62,8 +62,6 @@ public class FreeCamera extends Camera {
         position.y += offsetY;
         position.x += (float) Math.sin(Math.toRadians(rotation.y - 90)) * offsetX;
         position.z += (float) Math.cos(Math.toRadians(rotation.y - 90)) * offsetX;
-
-        System.out.println("x " + position.x + " y " + position.y + " z"  + position.z + " a" + rotation.y);
     }
 
     @Override

@@ -12,7 +12,7 @@ public class FollowCamera extends Camera {
     private final float distanceFromTarget = 15;
 
     public Node target;
-    public static float arrowSpeed = 40f;
+    public float arrowSpeed = 40f;
 
     private float angleAboveArrow = 0;
     private float angleAroundArrow = 0;

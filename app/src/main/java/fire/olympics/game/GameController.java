@@ -286,12 +286,12 @@ public class GameController extends Controller {
                         boostText.value = "BOOSTING";
                         wavPlayer.playSound(5);
                         currentTime = glfwGetTime();
-                        FollowCamera.arrowSpeed+=5;
+                        followCamera.arrowSpeed+=5;
                         renderer.setFieldOfView(renderer.getFieldOfView()+0.25f);
 
                     }
                     else if (glfwGetTime() >= currentTime + 0.2 && wavPlayer.isPlaying(5)){
-                        FollowCamera.arrowSpeed+=5;
+                        followCamera.arrowSpeed+=5;
                         currentTime = glfwGetTime();
                         boostText.value="|"+boostText.value+"|";
                         renderer.setFieldOfView(renderer.getFieldOfView()+0.25f);
@@ -306,9 +306,9 @@ public class GameController extends Controller {
 
                 currentTime = glfwGetTime();
                 while (true){
-                    if (FollowCamera.arrowSpeed>40f){
+                    if (followCamera.arrowSpeed>40f){
                         if (glfwGetTime() > currentTime+0.2) {
-                            FollowCamera.arrowSpeed -= 5;
+                            followCamera.arrowSpeed -= 5;
                             currentTime = glfwGetTime();
                             boostText.value="|"+boostText.value+"|";
                             if (renderer.getFieldOfView() > oldFOV)
@@ -319,7 +319,7 @@ public class GameController extends Controller {
                         break;
                     }
                 }
-                FollowCamera.arrowSpeed=40f;
+                followCamera.arrowSpeed=40f;
                 boosting = false;
                 coolDownStartTime = glfwGetTime();
                 renderer.setFieldOfView(oldFOV);
