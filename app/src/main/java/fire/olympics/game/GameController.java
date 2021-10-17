@@ -273,15 +273,79 @@ public class GameController extends Controller {
         particleSystem.update(timeDelta);
     }
 
+    double currentTime = 0;
+    double coolDownStartTime = 0;
+    boolean boosting = false;
+    float oldFOV;
+
+    public synchronized void boost() {
+        new Thread(new Runnable() {
+            public void run() {
+                while (true) {
+                    if (!wavPlayer.isPlaying(5)) {
+                        System.out.println("boosting");
+                        boostText.value = "BOOSTING";
+                        wavPlayer.playSound(5);
+                        currentTime = glfwGetTime();
+                        FollowCamera.arrowSpeed+=5;
+                        renderer.setFieldOfView(renderer.getFieldOfView()+0.25f);
+
+                    }
+                    else if (glfwGetTime() >= currentTime + 0.2 && wavPlayer.isPlaying(5)){
+                        FollowCamera.arrowSpeed+=5;
+                        currentTime = glfwGetTime();
+                        boostText.value="."+boostText.value+".";
+                        renderer.setFieldOfView(renderer.getFieldOfView()+0.25f);
+                    }
+                    else if (!wavPlayer.isPlaying(5)){
+                        System.out.println("boosting stopped");
+                        boostText.value = "BACKING OFF";
+                        wavPlayer.stopSound(5);
+                        break;
+                    }
+                }
+
+                currentTime = glfwGetTime();
+                while (true){
+                    if (FollowCamera.arrowSpeed>40f){
+                        if (glfwGetTime() > currentTime+0.2) {
+                            FollowCamera.arrowSpeed -= 5;
+                            currentTime = glfwGetTime();
+                            boostText.value="."+boostText.value+".";
+                            if (renderer.getFieldOfView() > oldFOV)
+                            renderer.setFieldOfView(renderer.getFieldOfView()-0.25f);
+                        }
+                    }
+                    else {
+                        break;
+                    }
+                }
+                FollowCamera.arrowSpeed=40f;
+                boosting = false;
+                coolDownStartTime = glfwGetTime();
+                renderer.setFieldOfView(oldFOV);
+                int timer = 5;
+                while (timer >= 0){
+                    if (glfwGetTime() > currentTime+1) {
+                        currentTime = glfwGetTime();
+                        boostText.value = "" + timer;
+                        timer--;
+                    }
+                }
+                boostText.value = "Press Shift to Booooooost!";
+            }
+        }).start();
+    }
+
     @Override
     public void keyDown(int key, int mods) {
         super.keyDown(key, mods);
         switch (key) {
             case GLFW_KEY_LEFT_SHIFT:
-                if (isPlaying() && !wavPlayer.isPlaying(5)) {
-                    wavPlayer.playSound(5);
-                    followCamera.arrowSpeed *= 2;
-                    renderer.setFieldOfView(renderer.getFieldOfView()*boostFOVFactor);
+                if ((coolDownStartTime==0 || coolDownStartTime < glfwGetTime() - 6) && !boosting) {
+                    boosting = true;
+                    oldFOV = renderer.getFieldOfView();
+                    boost();
                 }
                 break;
             default:
@@ -306,11 +370,6 @@ public class GameController extends Controller {
                 }
                 break;
             case GLFW_KEY_LEFT_SHIFT:
-                if (isPlaying()) {
-                    followCamera.arrowSpeed /= 2;
-                    wavPlayer.stopSound(5);
-                    renderer.setFieldOfView(renderer.getFieldOfView()/boostFOVFactor);
-                }
                 break;
             case GLFW_KEY_P:
                 System.out.println(renderer.camera.position);
