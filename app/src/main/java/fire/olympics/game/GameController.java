@@ -278,6 +278,7 @@ public class GameController extends Controller {
     }
 
     double currentTime = 0;
+    double boostStartTime = 0;
     double coolDownStartTime = 0;
     boolean boosting = false;
     float oldFOV;
@@ -291,6 +292,7 @@ public class GameController extends Controller {
                         boostText.value = "BOOSTING";
                         wavPlayer.playSound(5, false);
                         currentTime = glfwGetTime();
+                        boostStartTime = glfwGetTime();
                         followCamera.arrowSpeed+=5;
                         renderer.setFieldOfView(renderer.getFieldOfView()+0.25f);
 
@@ -301,10 +303,9 @@ public class GameController extends Controller {
                         boostText.value="|"+boostText.value+"|";
                         renderer.setFieldOfView(renderer.getFieldOfView()+0.25f);
                     }
-                    else if (!wavPlayer.isPlaying(5)){
+                    else if (currentTime > boostStartTime + 3.0){
                         System.out.println("boosting stopped");
                         boostText.value = "BACKING OFF";
-                        wavPlayer.stopSound(5);
                         break;
                     }
                 }
