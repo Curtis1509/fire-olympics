@@ -195,6 +195,7 @@ public class GameController extends Controller {
 
         wavPlayer.playSound(2, true);
         wavPlayer.playSound(3, true);
+        wavPlayer.playSound(4, true);
     }
 
 

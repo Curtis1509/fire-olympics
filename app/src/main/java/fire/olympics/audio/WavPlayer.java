@@ -5,6 +5,7 @@ import fire.olympics.App;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -22,6 +23,15 @@ public class WavPlayer {
 
     private final ArrayList<Path> soundURL = new ArrayList<>();
     private final ArrayList<Boolean> playing = new ArrayList<>();
+    private Float[] volume = new Float[]{
+            0f, // score
+            0f, // miss
+            0f, // theme
+            0f, // crowd
+            -100f, // fire
+            0f, // boost
+            0f // crash
+    };
     public boolean enabled = true;
 
     public WavPlayer(App app) {
@@ -46,14 +56,17 @@ public class WavPlayer {
                     Clip clip = AudioSystem.getClip();
                     // Open audio clip and load samples from the audio input stream.
                     clip.open(audioIn);
+                    FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                    volumeControl.setValue(volume[index]);
                     clip.start();
                     if (loop)
-                    clip.loop(1000000000);
+                    clip.loop(Clip.LOOP_CONTINUOUSLY);
                     while(playing.get(index))
                     {
-                        if (clip.getMicrosecondLength() == clip.getMicrosecondPosition()){
+                        if (clip.getFrameLength() == clip.getFramePosition()){
                             playing.set(index, false);
                         }
+                        volumeControl.setValue(volume[index]);
                     }
                     playing.set(index,false);
                     clip.stop();
