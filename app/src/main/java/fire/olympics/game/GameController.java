@@ -345,7 +345,7 @@ public class GameController extends Controller {
         super.keyDown(key, mods);
         switch (key) {
             case GLFW_KEY_LEFT_SHIFT:
-                if ((coolDownStartTime==0 || coolDownStartTime < glfwGetTime() - 6) && !boosting) {
+                if ((coolDownStartTime==0 || coolDownStartTime < glfwGetTime() - 6) && !boosting && isPlaying()) {
                     boosting = true;
                     oldFOV = renderer.getFieldOfView();
                     boost();
