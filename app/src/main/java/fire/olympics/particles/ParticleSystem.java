@@ -194,8 +194,9 @@ public class ParticleSystem extends Node {
 
     public void reset() {
         enabled = false;
-        for (float f : positionBuffer) f = 0f;
+        for (int i = 0; i < positionBuffer.length; i++) positionBuffer[i] = 0f;
         for (int i = 0; i < colorBuffer.length; i++)
             if (i%4 == 3) colorBuffer[i] = 0f;
+        updateBuffers();
     }
 }

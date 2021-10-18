@@ -351,7 +351,7 @@ public class GameController extends Controller {
                         currentTime = glfwGetTime();
                         boostText.value = "|" + boostText.value + "|";
                         renderer.setFieldOfView(renderer.getFieldOfView() + 0.25f);
-                    } else if (currentTime > boostStartTime + 3.0 && boosting) {
+                    } else if (currentTime > boostStartTime + 2.0 && boosting) {
                         System.out.println("boosting stopped");
                         boostText.value = "BACKING OFF";
                         break;

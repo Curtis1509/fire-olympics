@@ -17,7 +17,7 @@ public class WavPlayer {
         "theme.wav",        // 2
         "crowd.wav",        // 3
         "fire.wav",         // 4
-        "boost.wav",        // 5
+        "boost_2s.wav",        // 5
         "crash.wav",        // 6
         "miss.wav"          // 7
     };
