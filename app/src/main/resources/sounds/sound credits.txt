@@ -1,4 +1,4 @@
-fire sound from Zapsplat.com
-crowd sound from freesound.org
+main fire sound from Zapsplat.com
+fire lighting sound, crowd sound from freesound.org
 
 remaining audio by Mitchell Wallace

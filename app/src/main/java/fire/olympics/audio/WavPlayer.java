@@ -13,24 +13,26 @@ import java.util.ArrayList;
 public class WavPlayer {
     private static String[] sounds = new String[] {
         "score.wav",        // 0
-        "miss.wav",         // 1
+        "fire_start.wav",   // 1
         "theme.wav",        // 2
         "crowd.wav",        // 3
         "fire.wav",         // 4
         "boost.wav",        // 5
         "crash.wav",        // 6
+        "miss.wav"          // 7
     };
 
     private final ArrayList<Path> soundURL = new ArrayList<>();
     private final ArrayList<Boolean> playing = new ArrayList<>();
     private static Float[] volume = new Float[]{
             0f, // score
-            0f, // miss
+            -3f, // fire_start
             0f, // theme
             -20f, // crowd
             -20f, // fire
             -2f, // boost
-            0f // crash
+            0f, // crash
+            0f // miss
     };
     public boolean enabled = true;
 

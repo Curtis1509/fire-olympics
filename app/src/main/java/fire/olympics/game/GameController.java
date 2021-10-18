@@ -220,7 +220,6 @@ public class GameController extends Controller {
 
         wavPlayer.playSound(2, true);
         wavPlayer.playSound(3, true);
-        wavPlayer.playSound(4, true);
     }
 
 
@@ -316,6 +315,10 @@ public class GameController extends Controller {
         // arrowFire.position is meaningful in the arrow's local coordinate space.
         Vector3f fireSource = brazier.convertPointFromCoordinateSpace(arrow, arrowFire.position);
         if (brazier.physicsBody.isPointInsideBody(fireSource)) {
+            if (!brazierFire.enabled)
+                wavPlayer.playSound(1, false);
+            if (!wavPlayer.isPlaying(4))
+                wavPlayer.playSound(4, true);
             brazierFire.enabled = true;
         }
     }
@@ -503,6 +506,15 @@ public class GameController extends Controller {
             wavPlayer.playSound(6, false);
             score = 0;
             scoreText.value = "" + score;
+            brazierFire.enabled = false;
+            // TODO andrew how do we turn off fire on the rings?
+            for (Node child : children) {
+                Optional<Node> emitter = child.findNodeNamed("fire-emitter");
+                if (emitter.isPresent() && emitter.get() instanceof SoftCampFireEmitter) {
+                    SoftCampFireEmitter fireEmitter = (SoftCampFireEmitter) emitter.get();
+                    fireEmitter.enabled = false;
+                }
+            }
         }
 
         for (Node child : children) {
