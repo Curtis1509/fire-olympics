@@ -18,6 +18,7 @@ import fire.olympics.fontMeshCreator.GUIText;
 
 import java.util.Optional;
 import java.util.ArrayList;
+
 import org.joml.Random;
 
 import org.joml.Vector2f;
@@ -153,12 +154,12 @@ public class GameController extends Controller {
         loader.loadTexture("textures", "stadium_wood.jpeg").repeat(36000f / 474f, 9000f / 235f);
         loader.loadTexture("textures", "stadium_sky.jpg");
         loader.loadTexture("textures", "ring+pole_brushed_metal.jpg");
-        loader.loadTexture("textures", "ring_black.jpg").repeat(3f,1f);
-        loader.loadTexture("textures", "ring_blue.jpg").repeat(3f,1f);
-        loader.loadTexture("textures", "ring_green.jpg").repeat(3f,1f);
-        loader.loadTexture("textures", "ring_red.jpg").repeat(3f,1f);
-        loader.loadTexture("textures", "ring_yellow.jpg").repeat(3f,1f);
-        loader.loadTexture("textures", "pole_metal.jpg").repeat(1f,9f);
+        loader.loadTexture("textures", "ring_black.jpg").repeat(3f, 1f);
+        loader.loadTexture("textures", "ring_blue.jpg").repeat(3f, 1f);
+        loader.loadTexture("textures", "ring_green.jpg").repeat(3f, 1f);
+        loader.loadTexture("textures", "ring_red.jpg").repeat(3f, 1f);
+        loader.loadTexture("textures", "ring_yellow.jpg").repeat(3f, 1f);
+        loader.loadTexture("textures", "pole_metal.jpg").repeat(1f, 9f);
 
         Node stadium = loader.loadModel("models", "stadium_nosky.obj");
         stadium.name = "stadium";
@@ -288,7 +289,7 @@ public class GameController extends Controller {
                 SoftCampFireEmitter emitter = new SoftCampFireEmitter(100);
                 emitter.enabled = false;
                 GameItem actualRing = (GameItem) ring.children.get(1);
-                emitter.position.y = actualRing.mesh.vertexLessThanEveryOtherVertex.y + actualRing.mesh.getHeight()/2;
+                emitter.position.y = actualRing.mesh.vertexLessThanEveryOtherVertex.y + actualRing.mesh.getHeight() / 2;
                 emitter.name = "fire-emitter";
                 emitter.texture = loader.loadTexture("textures", "fire_particle.png");
                 ring.addChild(emitter);
@@ -336,17 +337,15 @@ public class GameController extends Controller {
                         wavPlayer.playSound(5, false);
                         currentTime = glfwGetTime();
                         boostStartTime = glfwGetTime();
-                        followCamera.arrowSpeed+=5;
-                        renderer.setFieldOfView(renderer.getFieldOfView()+0.25f);
+                        followCamera.arrowSpeed += 5;
+                        renderer.setFieldOfView(renderer.getFieldOfView() + 0.25f);
 
-                    }
-                    else if (glfwGetTime() >= currentTime + 0.2 && wavPlayer.isPlaying(5)){
-                        followCamera.arrowSpeed+=5;
+                    } else if (glfwGetTime() >= currentTime + 0.2 && wavPlayer.isPlaying(5)) {
+                        followCamera.arrowSpeed += 5;
                         currentTime = glfwGetTime();
-                        boostText.value="|"+boostText.value+"|";
-                        renderer.setFieldOfView(renderer.getFieldOfView()+0.25f);
-                    }
-                    else if (currentTime > boostStartTime + 3.0){
+                        boostText.value = "|" + boostText.value + "|";
+                        renderer.setFieldOfView(renderer.getFieldOfView() + 0.25f);
+                    } else if (currentTime > boostStartTime + 3.0) {
                         System.out.println("boosting stopped");
                         boostText.value = "BACKING OFF";
                         break;
@@ -354,27 +353,26 @@ public class GameController extends Controller {
                 }
 
                 currentTime = glfwGetTime();
-                while (true){
-                    if (followCamera.arrowSpeed>40f){
-                        if (glfwGetTime() > currentTime+0.2) {
+                while (true) {
+                    if (followCamera.arrowSpeed > 40f) {
+                        if (glfwGetTime() > currentTime + 0.2) {
                             followCamera.arrowSpeed -= 5;
                             currentTime = glfwGetTime();
-                            boostText.value="|"+boostText.value+"|";
+                            boostText.value = "|" + boostText.value + "|";
                             if (renderer.getFieldOfView() > oldFOV)
-                            renderer.setFieldOfView(renderer.getFieldOfView()-0.25f);
+                                renderer.setFieldOfView(renderer.getFieldOfView() - 0.25f);
                         }
-                    }
-                    else {
+                    } else {
                         break;
                     }
                 }
-                followCamera.arrowSpeed=40f;
+                followCamera.arrowSpeed = 40f;
                 boosting = false;
                 coolDownStartTime = glfwGetTime();
                 renderer.setFieldOfView(oldFOV);
                 int timer = 5;
-                while (timer >= 0){
-                    if (glfwGetTime() > currentTime+1) {
+                while (timer >= 0) {
+                    if (glfwGetTime() > currentTime + 1) {
                         currentTime = glfwGetTime();
                         boostText.value = "" + timer;
                         timer--;
@@ -390,7 +388,7 @@ public class GameController extends Controller {
         super.keyDown(key, mods);
         switch (key) {
             case GLFW_KEY_LEFT_SHIFT:
-                if ((coolDownStartTime==0 || coolDownStartTime < glfwGetTime() - 6) && !boosting && isPlaying()) {
+                if ((coolDownStartTime == 0 || coolDownStartTime < glfwGetTime() - 6) && !boosting && isPlaying()) {
                     boosting = true;
                     oldFOV = renderer.getFieldOfView();
                     boost();
@@ -493,16 +491,34 @@ public class GameController extends Controller {
         return false;
     }
 
+    public void resetArrow() {
+        System.out.println("Crashed into the stadium");
+        arrow.position.set(arrowInitPosition);
+        arrow.rotation.set(arrowInitRotation);
+        sky.position.set(skyInitPosition);
+        wavPlayer.playSound(6, false);
+        score = 0;
+        scoreText.value = "" + score;
+    }
+
     public void checkCollision() {
 
-        if (arrow.position.y < -6.8) {
-            System.out.println("Crashed into the ground!");
-            arrow.position.set(arrowInitPosition);
-            arrow.rotation.set(arrowInitRotation);
-            sky.position.set(skyInitPosition);
-            wavPlayer.playSound(6, false);
-            score = 0;
-            scoreText.value = "" + score;
+        if ((arrow.position.x < -450 || arrow.position.x > 450) && arrow.position.y < 30) {
+            resetArrow();
+        } else if ((arrow.position.x < -550 || arrow.position.x > 550) && arrow.position.y < 80) {
+            resetArrow();
+        } else if ((arrow.position.x < -420 || arrow.position.x > 420) && arrow.position.y < 4) {
+            resetArrow();
+        }
+        if ((arrow.position.z < -257 || arrow.position.z > 257) && arrow.position.y < 30) {
+            resetArrow();
+        } else if ((arrow.position.z < -310 || arrow.position.z > 310) && arrow.position.y < 80) {
+            resetArrow();
+        } else if ((arrow.position.z < -230 || arrow.position.z > 230) && arrow.position.y < 4) {
+            resetArrow();
+        }
+        if (arrow.position.y < -6.8 || arrow.position.y > 80) {
+            resetArrow();
         }
 
         for (Node child : children) {
@@ -556,11 +572,11 @@ public class GameController extends Controller {
 
     public float pointToCrowdDistance(Vector3f point) { // used for calculating sound
         // TODO: use distance between point and line formulas instead
-        return Math.min(distance(point.x,point.y,380f,25f),
+        return Math.min(distance(point.x, point.y, 380f, 25f),
                 Math.min(distance(point.x, point.y, -380f, 25f),
-                 Math.min(distance(point.y,point.z,25f,240f),
-                  Math.min(distance(point.y,point.z,25f,-240f),
-                   100f))));
+                        Math.min(distance(point.y, point.z, 25f, 240f),
+                                Math.min(distance(point.y, point.z, 25f, -240f),
+                                        100f))));
     }
 
     private float vectorPointDistance(Vector3f p0, Vector3f p1) {
