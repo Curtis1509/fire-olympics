@@ -30,7 +30,7 @@ public class Renderer {
     private final ShaderProgram textShaderProgram;
     private final ShaderProgram particleShader;
     private final ShaderProgram skyShader;
-    private final Vector3f sunDirection = new Vector3f(0, 300, 10); // sun is behind and above camera
+    private final Vector3f sunDirection = new Vector3f(0, 1000, -300); // sun is behind and above camera
     private final Matrix4f projectionMatrix = new Matrix4f();
     private final DepthMapper mapper;
 
