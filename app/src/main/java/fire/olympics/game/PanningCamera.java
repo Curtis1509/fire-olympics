@@ -13,7 +13,7 @@ public class PanningCamera extends Camera {
     /**
      * The speed of the camera measured in units (meters?) per second.
      */
-    private float speed = 30.0f;
+    public float speed = 30.0f;
 
     /**
      * The radius of a half-circle in the stadium.

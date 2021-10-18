@@ -36,6 +36,7 @@ public class GameController extends Controller {
     private final FollowCamera followCamera;
     private final FreeCamera freeCamera;
     private final PanningCamera panningCamera = new PanningCamera();
+    private final PanningCamera endCamera = new PanningCamera();
 
     private Node arrow;
     private final Vector3f arrowInitPosition = new Vector3f(-300, 35, 0);
@@ -106,10 +107,15 @@ public class GameController extends Controller {
         followCamera = new FollowCamera(window);
         freeCamera = new FreeCamera(window);
         renderer.setCamera(panningCamera);
+        endCamera.length = 0;
+        endCamera.radius = 30.0f;
+        endCamera.viewingAngleOffset = 90.0f;
+        endCamera.speed = 5.0f;
 
         add(followCamera);
         add(freeCamera);
         add(panningCamera);
+        add(endCamera);
 
         fireOlympicsText = new GUIText(fontType, "FIRE OLYMPICS");
         fireOlympicsText.fontSize = 8.0f;
@@ -209,9 +215,8 @@ public class GameController extends Controller {
 
         brazier = loader.loadModel("models", "Brazier v2 Textured.obj");
         brazier.name = "brazier";
-        brazier.position.set(0, -3, -10);
+        brazier.position.set(0, -3, 0);
         brazier.scale = 7f;
-        children.add(brazier);
 
         brazier.physicsBody = new PhysicsBody();
         PlaneConstraint plane = new PlaneConstraint();
@@ -220,8 +225,8 @@ public class GameController extends Controller {
         EllipsoidConstraint ellipsoid = new EllipsoidConstraint();
         ellipsoid.origin.y = 1.0f;
         ellipsoid.scale.y = 4.0f;
-        ellipsoid.scale.x = 2.0f;
-        ellipsoid.scale.z = 2.0f;
+        ellipsoid.scale.x = 1.5f;
+        ellipsoid.scale.z = 1.5f;
         brazier.physicsBody.constraints.add(ellipsoid);
 
         brazierFire.texture = loader.loadTexture("textures", "fire3.png");
@@ -373,6 +378,7 @@ public class GameController extends Controller {
             brazierText.fontSize = 3f;
             if (!wavPlayer.isPlaying(7))
                 wavPlayer.playSound(7, false);
+            renderer.setCamera(endCamera);
         }
     }
 
@@ -566,7 +572,6 @@ public class GameController extends Controller {
         polesLit = 0;
         brazierFire.enabled = false;
         brazierFire.reset();
-        // TODO andrew how do we turn off fire on the rings?
         for (Node child : children) {
             Optional<Node> emitter = child.findNodeNamed("fire-emitter");
             Optional<Node> emitter2 = child.findNodeNamed("fire-emitter2");
@@ -648,7 +653,7 @@ public class GameController extends Controller {
             polesLit++;
             if (polesLit == numOfPoles) {
                 brazierText.isHidden = false;
-                renderer.add(brazier);
+                add(brazier);
             }
             wavPlayer.playSound(0, false);
         }
@@ -663,7 +668,6 @@ public class GameController extends Controller {
     }
 
     public float pointToCrowdDistance(Vector3f point) { // used for calculating sound
-        // TODO: use distance between point and line formulas instead
         return Math.min(distance(point.x, point.y, 380f, 25f),
                 Math.min(distance(point.x, point.y, -380f, 25f),
                         Math.min(distance(point.y, point.z, 25f, 240f),
