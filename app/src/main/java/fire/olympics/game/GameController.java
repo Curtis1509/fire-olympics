@@ -516,7 +516,8 @@ public class GameController extends Controller {
                 Optional<Node> emitter = child.findNodeNamed("fire-emitter");
                 if (emitter.isPresent() && emitter.get() instanceof SoftCampFireEmitter) {
                     SoftCampFireEmitter fireEmitter = (SoftCampFireEmitter) emitter.get();
-                    fireEmitter.enabled = false;
+//                    fireEmitter.enabled = false;
+                    fireEmitter.reset();
                 }
             }
         }
