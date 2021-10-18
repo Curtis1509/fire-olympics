@@ -497,29 +497,45 @@ public class GameController extends Controller {
         }
         return false;
     }
+    public void resetArrow() {
+        arrow.position.set(arrowInitPosition);
+        arrow.rotation.set(arrowInitRotation);
+        sky.position.set(skyInitPosition);
+        wavPlayer.playSound(6, false);
+        score = 0;
+        scoreText.value = "" + score;
+        fireSources = new ArrayList<>();
+        wavPlayer.stopSound(4);
+        brazierFire.enabled = false;
+        // TODO andrew how do we turn off fire on the rings?
+        for (Node child : children) {
+            Optional<Node> emitter = child.findNodeNamed("fire-emitter");
+            if (emitter.isPresent() && emitter.get() instanceof SoftCampFireEmitter) {
+                SoftCampFireEmitter fireEmitter = (SoftCampFireEmitter) emitter.get();
+//                    fireEmitter.enabled = false;
+                fireEmitter.reset();
+            }
+        }
+    }
 
     public void checkCollision() {
 
-        if (arrow.position.y < -6.8) {
-            System.out.println("Crashed into the ground!");
-            arrow.position.set(arrowInitPosition);
-            arrow.rotation.set(arrowInitRotation);
-            sky.position.set(skyInitPosition);
-            wavPlayer.playSound(6, false);
-            score = 0;
-            scoreText.value = "" + score;
-            fireSources = new ArrayList<>();
-            wavPlayer.stopSound(4);
-            brazierFire.enabled = false;
-            // TODO andrew how do we turn off fire on the rings?
-            for (Node child : children) {
-                Optional<Node> emitter = child.findNodeNamed("fire-emitter");
-                if (emitter.isPresent() && emitter.get() instanceof SoftCampFireEmitter) {
-                    SoftCampFireEmitter fireEmitter = (SoftCampFireEmitter) emitter.get();
-//                    fireEmitter.enabled = false;
-                    fireEmitter.reset();
-                }
-            }
+        if ((arrow.position.x < -450 || arrow.position.x > 450) && arrow.position.y < 30) {
+            resetArrow();
+        } else if ((arrow.position.x < -550 || arrow.position.x > 550) && arrow.position.y < 80) {
+            resetArrow();
+        } else if ((arrow.position.x < -420 || arrow.position.x > 420) && arrow.position.y < 4) {
+            resetArrow();
+        }
+        if ((arrow.position.z < -257 || arrow.position.z > 257) && arrow.position.y < 30) {
+            resetArrow();
+        } else if ((arrow.position.z < -310 || arrow.position.z > 310) && arrow.position.y < 80) {
+            resetArrow();
+        } else if ((arrow.position.z < -230 || arrow.position.z > 230) && arrow.position.y < 4) {
+            resetArrow();
+        }
+        if (arrow.position.y < -6.8 || arrow.position.y > 80) {
+            resetArrow();
         }
 
         for (Node child : children) {
