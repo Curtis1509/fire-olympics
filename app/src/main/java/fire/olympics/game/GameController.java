@@ -3,10 +3,12 @@ package fire.olympics.game;
 import fire.olympics.App;
 import fire.olympics.audio.WavPlayer;
 import fire.olympics.display.Controller;
+import fire.olympics.display.GameItem;
 import fire.olympics.display.Node;
 import fire.olympics.display.Renderer;
 import fire.olympics.display.Window;
 import fire.olympics.graphics.ModelLoader;
+import fire.olympics.particles.ParticleSystem;
 import fire.olympics.particles.SoftCampFireEmitter;
 import fire.olympics.physics.EllipsoidConstraint;
 import fire.olympics.physics.PhysicsBody;
@@ -14,6 +16,7 @@ import fire.olympics.physics.PlaneConstraint;
 import fire.olympics.fontMeshCreator.FontType;
 import fire.olympics.fontMeshCreator.GUIText;
 
+import java.util.Optional;
 import java.util.ArrayList;
 import org.joml.Random;
 
@@ -38,7 +41,6 @@ public class GameController extends Controller {
     private final Vector3f arrowInitPosition = new Vector3f(-300, 35, 0);
     private final Vector3f arrowInitRotation = new Vector3f(0, 90, 0);
     private final Vector3f skyInitPosition = new Vector3f(-300, -25, 0);
-    private final float boostFOVFactor = 1.12f; // TODO: smooth boost FOV shift
 
     private WavPlayer wavPlayer;
     private int score = 0;
@@ -46,7 +48,6 @@ public class GameController extends Controller {
     private int collisionTick = 0;
     private Node collidedObject;
     private Node ring;
-    private Node ringWithPole;
     private Node brazier;
     private Node sky;
 
@@ -95,7 +96,7 @@ public class GameController extends Controller {
         followCamera = new FollowCamera(window, this);
         freeCamera = new FreeCamera(window, this);
         panningCamera.setGameController(this);
-        renderer.camera = panningCamera;
+        renderer.setCamera(panningCamera);
 
         add(followCamera);
         add(freeCamera);
@@ -215,10 +216,6 @@ public class GameController extends Controller {
         ring.name = "ringt";
         ring.position.set(0, 2, -10);
 
-        ringWithPole = loader.loadModel("models", "ring+pole.obj");
-        ringWithPole.name = "ringtp";
-        ringWithPole.position.set(0, -5, -45);
-
         addRings(5, ringLocations);
 
         wavPlayer.playSound(2, true);
@@ -288,19 +285,25 @@ public class GameController extends Controller {
                 ring.position.set(x, y, z);
                 ring.rotation.set(0, a, 0);
                 ring.scale = 3.0f;
+                SoftCampFireEmitter emitter = new SoftCampFireEmitter(100);
+                emitter.enabled = false;
+                GameItem actualRing = (GameItem) ring.children.get(1);
+                emitter.position.y = actualRing.mesh.vertexLessThanEveryOtherVertex.y + actualRing.mesh.getHeight()/2;
+                emitter.name = "fire-emitter";
+                emitter.texture = loader.loadTexture("textures", "fire_particle.png");
+                ring.addChild(emitter);
                 add(ring);
             }
         }
     }
 
-
     @Override
     public void update(double timeDelta) {
         checkCollision();
         tryLightBrazierOnFire();
-        renderer.camera.update(timeDelta);
-        brazierFire.update(timeDelta);
-        arrowFire.update(timeDelta);
+        for (Node child : children) {
+            child.update(timeDelta);
+        }
     }
 
 
@@ -422,7 +425,8 @@ public class GameController extends Controller {
             case GLFW_KEY_LEFT_SHIFT:
                 break;
             case GLFW_KEY_P:
-                System.out.println(renderer.camera.position);
+                // System.out.println(renderer.camera.position);
+                break;
             default:
                 break;
         }
@@ -431,18 +435,18 @@ public class GameController extends Controller {
     private void togglePlayingMode() {
         setIsPlaying(!isPlaying());
         if (isPlaying()) {
-            renderer.camera = followCamera;
+            renderer.setCamera(followCamera);
         } else {
-            renderer.camera = panningCamera;
+            renderer.setCamera(panningCamera);
         }
     }
 
     private boolean isInFreeCameraMode() {
-        return renderer.camera == freeCamera;
+        return freeCamera.isActiveCamera;
     }
 
     private void enterFreeRoamMode() {
-        renderer.camera = freeCamera;
+        renderer.setCamera(freeCamera);
         setIsPlaying(false);
         this.fireOlympicsText.isHidden = true;
         this.scoreText.isHidden = true;
@@ -452,7 +456,7 @@ public class GameController extends Controller {
 
     private void leaveFreeRoamMode() {
         setIsPlaying(false);
-        renderer.camera = panningCamera;
+        renderer.setCamera(panningCamera);
     }
 
     public boolean isInside(float yRot, double width, double height, double objectx, double objecty, double objectz, double playerx, double playery, double playerz) {
@@ -514,6 +518,11 @@ public class GameController extends Controller {
                     collisionTick++;
                     collidedObject = child;
                     System.out.println("COLLIDE");
+                    Optional<Node> emitter = child.findNodeNamed("fire-emitter");
+                    if (emitter.isPresent() && emitter.get() instanceof SoftCampFireEmitter) {
+                        SoftCampFireEmitter fireEmitter = (SoftCampFireEmitter) emitter.get();
+                        fireEmitter.enabled = true;
+                    }
                 }
             }
         }

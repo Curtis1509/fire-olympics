@@ -25,7 +25,8 @@ public class FreeCamera extends Camera {
     }
 
     // Controls for free Camera
-    public void update(double timeDelta) {
+    @Override
+    public void updateIfActive(double timeDelta) {
         if (window.isKeyDown(GLFW_KEY_LEFT_SHIFT))
             movementSpeed = 60f;
         else if (window.isKeyDown(GLFW_KEY_LEFT_ALT))

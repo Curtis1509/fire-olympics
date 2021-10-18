@@ -34,7 +34,7 @@ public class Renderer {
     private final Matrix4f projectionMatrix = new Matrix4f();
     private final DepthMapper mapper;
 
-    public Camera camera = new Camera();
+    private Camera camera = new Camera();
     public final Vector4f backgroundColor = new Vector4f();
 
     public Renderer(ShaderLoader loader) throws Exception {
@@ -44,6 +44,12 @@ public class Renderer {
         this.particleShader = loader.createParticleShader();
         this.skyShader = loader.createSkyShader();
         this.mapper = new DepthMapper(loader.createDepthShader(), sunDirection, true);
+    }
+
+    public void setCamera(Camera camera) {
+        this.camera.isActiveCamera = false;
+        camera.isActiveCamera = true;
+        this.camera = camera;
     }
 
     public void add(Node tree) {

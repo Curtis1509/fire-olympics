@@ -32,7 +32,7 @@ public class PanningCamera extends Camera {
     public float viewingAngleOffset = 45.0f;
 
     @Override
-    public void update(double timeDelta) {
+    public void updateIfActive(double timeDelta) {
         switch (stage) {
             case 0:
                 theta += Math.toDegrees(timeDelta * speed / radius);

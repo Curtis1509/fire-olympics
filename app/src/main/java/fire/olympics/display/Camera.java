@@ -7,8 +7,18 @@ import org.joml.Vector3f;
 
 public class Camera extends Node {
     protected GameController gameController; // used for audio volume calculations only
+    public boolean isActiveCamera = false;
 
-    public void update(double timeDelta) { }
+    @Override
+    public void update(double timeDelta) {
+        if (isActiveCamera) {
+            updateIfActive(timeDelta);
+        }
+    }
+
+    public void updateIfActive(double timeDelta) {
+
+    }
 
     public void mouseDown(Vector2f position, int button) { }
 

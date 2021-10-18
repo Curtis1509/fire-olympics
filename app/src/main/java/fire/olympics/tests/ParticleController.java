@@ -1,6 +1,7 @@
 package fire.olympics.tests;
 
 import fire.olympics.App;
+import fire.olympics.display.Camera;
 import fire.olympics.display.Controller;
 import fire.olympics.display.Renderer;
 import fire.olympics.display.Node;
@@ -18,10 +19,12 @@ public class ParticleController extends Controller {
 
     private ParticleSystem particleSystem = new ParticleSystem(100);
     private SoftCampFireEmitter fireEmitter = new SoftCampFireEmitter(500);
+    private Camera camera;
 
     public ParticleController(App app, Window window, Renderer renderer, ModelLoader loader) {
         super(app, window, renderer, loader);
-        renderer.camera = new FreeCamera(window);
+        camera = new FreeCamera(window);
+        renderer.setCamera(camera);
         renderer.backgroundColor.set(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
@@ -78,19 +81,19 @@ public class ParticleController extends Controller {
     public void update(double timeDelta) {
         particleSystem.update(timeDelta);
         fireEmitter.update(timeDelta);
-        renderer.camera.update(timeDelta);
+        camera.update(timeDelta);
     }
 
     @Override
     public void mouseUp(Vector2f position, int button) {
         System.out.printf("mouse up: %s; position: %4.2f, %4.2f%n", button == GLFW_MOUSE_BUTTON_LEFT ? "left" : (button == GLFW_MOUSE_BUTTON_RIGHT ? "right" : "middle"), position.x, position.y);
-        renderer.camera.mouseUp(position, button);
+        camera.mouseUp(position, button);
     }
 
     // Adjust angle of camera to match mouse movement
     @Override
     public void mouseMoved(Vector2f delta) {
-        renderer.camera.mouseMoved(delta);
+        camera.mouseMoved(delta);
     }
 }
 

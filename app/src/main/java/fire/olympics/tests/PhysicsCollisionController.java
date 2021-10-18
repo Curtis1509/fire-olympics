@@ -64,7 +64,7 @@ public class PhysicsCollisionController extends Controller {
         followCamera = new FollowCamera(window, null);
         followCamera.arrowSpeed = 10.0f;
         freeCamera = new FreeCamera(window);
-        renderer.camera = followCamera;
+        renderer.setCamera(followCamera);
 
         add(followCamera);
         add(freeCamera);
@@ -153,7 +153,13 @@ public class PhysicsCollisionController extends Controller {
         } else if (window.isKeyDown(GLFW_KEY_E)) {
             freeCamera.position.y += timeDelta * 10;
         }
-        renderer.camera.update(timeDelta);
+
+        if (freeCamera.isActiveCamera) {
+            freeCamera.update(timeDelta);
+        }
+        if (followCamera.isActiveCamera) {
+            followCamera.update(timeDelta);
+        }
     }
 
     @Override
@@ -182,8 +188,8 @@ public class PhysicsCollisionController extends Controller {
                     followCamera.arrowSpeed /= 2;
                 }
                 break;
-            case GLFW_KEY_P:
-                System.out.println(renderer.camera.position);
+            // case GLFW_KEY_P:
+                // System.out.println(renderer.camera.position);
             case GLFW_KEY_R:
                 reset();
             default:
@@ -202,10 +208,10 @@ public class PhysicsCollisionController extends Controller {
     private void togglePlayingMode() {
         setIsPlaying(!isPlaying());
         if (isPlaying()) {
-            renderer.camera = followCamera;
+            renderer.setCamera(followCamera);
             window.restoreCursor();
         } else {
-            renderer.camera = freeCamera;
+            renderer.setCamera(freeCamera);
             freeCamera.position.set(followCamera.position);
             freeCamera.rotation.set(followCamera.rotation);
             window.disableCursor();

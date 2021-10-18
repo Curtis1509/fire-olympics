@@ -20,12 +20,12 @@ public class Mesh {
     /// represented by the mesh, but not anymore than they need to be.
     /// For example, if the mesh had vertices (1, 2, 3) and (3, 2, 1), this vertex would be 
     /// (1, 2, 1).
-    private final Vector3f vertexLessThanEveryOtherVertex = new Vector3f();
+    public final Vector3f vertexLessThanEveryOtherVertex = new Vector3f();
     /// The x, y, and z components are greater than or equal to any x, y, or z values on any vertex
     /// represented by the mesh, but not anymore than they need to be.
     /// For example, if the mesh had vertices (1, 2, 3) and (3, 2, 1), this vertex would be 
     /// (3, 2, 3).
-    private final Vector3f vertexGreaterThanEveryOtherVertex = new Vector3f();
+    public final Vector3f vertexGreaterThanEveryOtherVertex = new Vector3f();
 
 
     public Mesh(float[] positions, int[] indices, float[] normals) {

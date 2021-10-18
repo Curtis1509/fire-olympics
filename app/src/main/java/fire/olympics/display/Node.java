@@ -142,6 +142,26 @@ public class Node {
         addChild(this);
     }
 
+    public void update(double timeDelta) {
+        for (Node child : children) {
+            child.update(timeDelta);
+        }
+    }
+
+    public Optional<Node> findNodeNamed(String searchName) {
+        if (this.name != null && name.equals(searchName)) {
+            return Optional.of(this);
+        } else {
+            for (Node child : children) {
+                Optional<Node> result = child.findNodeNamed(searchName);
+                if (result.isPresent()) {
+                    return result;
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
     public void removeFromParent() {
         this.parent.ifPresent(p -> p.removeChild(this));
     }

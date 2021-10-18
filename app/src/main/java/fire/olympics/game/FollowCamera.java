@@ -57,7 +57,7 @@ public class FollowCamera extends Camera {
      * @param timeDelta normalised frame time difference
      */
     @Override
-    public void update(double timeDelta) {
+    public void updateIfActive(double timeDelta) {
         processKeyBindings(timeDelta);
         // Move player
         float dx = (float) ((arrowSpeed * timeDelta) * Math.sin(Math.toRadians(target.getRotation().y)));
