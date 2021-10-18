@@ -108,7 +108,7 @@ public class GameController extends Controller {
         freeCamera = new FreeCamera(window);
         renderer.setCamera(panningCamera);
         endCamera.length = 0;
-        endCamera.radius = 30.0f;
+        endCamera.radius = 50.0f;
         endCamera.viewingAngleOffset = 90.0f;
         endCamera.speed = 5.0f;
 
@@ -480,7 +480,15 @@ public class GameController extends Controller {
                 break;
             case GLFW_KEY_SPACE:
                 if (!isInFreeCameraMode()) {
-                    togglePlayingMode();
+                    if (endCamera.isActiveCamera) {
+                        // Detect when the panning at the end.
+                        resetArrow();
+                        renderer.setCamera(panningCamera);
+                        setIsPlaying(false);
+                        if (wavPlayer.isPlaying(7)) wavPlayer.stopSound(7);
+                    } else {
+                        togglePlayingMode();
+                    }
                 }
                 break;
             case GLFW_KEY_LEFT_SHIFT:
