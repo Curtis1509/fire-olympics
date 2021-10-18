@@ -336,6 +336,8 @@ public class GameController extends Controller {
             brazierFire.enabled = true;
             brazierText.value = "Welcome to the 2021 Olympics!";
             brazierText.fontSize = 3f;
+            if (!wavPlayer.isPlaying(7))
+                wavPlayer.playSound(7, false);
         }
     }
 

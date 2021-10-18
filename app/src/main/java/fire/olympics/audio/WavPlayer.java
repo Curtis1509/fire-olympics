@@ -17,9 +17,10 @@ public class WavPlayer {
         "theme.wav",        // 2
         "crowd.wav",        // 3
         "fire.wav",         // 4
-        "boost_2s.wav",        // 5
+        "boost_2s.wav",     // 5
         "crash.wav",        // 6
-        "miss.wav"          // 7
+        "cheer.wav",        // 7
+        "miss.wav"          // 8
     };
 
     private final ArrayList<Path> soundURL = new ArrayList<>();
@@ -32,6 +33,7 @@ public class WavPlayer {
             -20f, // fire
             -2f, // boost
             0f, // crash
+            -2f, // cheer
             0f // miss
     };
     public boolean enabled = true;
