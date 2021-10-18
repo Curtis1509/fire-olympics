@@ -1,6 +1,5 @@
 package fire.olympics.game;
 
-import fire.olympics.audio.WavPlayer;
 import fire.olympics.display.Camera;
 
 public class PanningCamera extends Camera {
@@ -86,14 +85,9 @@ public class PanningCamera extends Camera {
                 break;
         }
         stage = stage % 4;
-        volumeUpdate(position);
     }
 
     private void log(String format, Object... args) {
         System.out.printf(format, args);
-    }
-
-    public void setGameController(GameController gameController) {
-        this.gameController = gameController;
     }
 }

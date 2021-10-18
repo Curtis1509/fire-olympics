@@ -8,7 +8,6 @@ import fire.olympics.display.Node;
 import fire.olympics.display.Renderer;
 import fire.olympics.display.Window;
 import fire.olympics.graphics.ModelLoader;
-import fire.olympics.particles.ParticleSystem;
 import fire.olympics.particles.SoftCampFireEmitter;
 import fire.olympics.physics.EllipsoidConstraint;
 import fire.olympics.physics.PhysicsBody;
@@ -67,6 +66,12 @@ public class GameController extends Controller {
     private final ArrayList<Node> children = new ArrayList<>();
     private ArrayList<Vector3f> fireSources = new ArrayList<>();
 
+    private double currentTime = 0;
+    private double boostStartTime = 0;
+    private double coolDownStartTime = 0;
+    private boolean boosting = false;
+    private float oldFOV;
+
     /**
      * Prefer using isPlaying() and setIsPlaying(_) over reading and writing to this field directly
      * because of the side effects associated with setting isPlaying.
@@ -98,9 +103,8 @@ public class GameController extends Controller {
         wavPlayer = new WavPlayer(app);
         wavPlayer.enabled = true;
 
-        followCamera = new FollowCamera(window, this);
-        freeCamera = new FreeCamera(window, this);
-        panningCamera.setGameController(this);
+        followCamera = new FollowCamera(window);
+        freeCamera = new FreeCamera(window);
         renderer.setCamera(panningCamera);
 
         add(followCamera);
@@ -323,6 +327,30 @@ public class GameController extends Controller {
         for (Node child : children) {
             child.update(timeDelta);
         }
+        updateSound();
+    }
+
+    private void updateSound() {
+        // update crowd, fire volumes based on distance
+        Vector3f position;
+        if (freeCamera.isActiveCamera) {
+            position = freeCamera.position;
+        } else if (followCamera.isActiveCamera) {
+            Vector3f arrowTip = new Vector3f();
+            arrowTip.x = followCamera.position.x
+                    + (float) ((followCamera.arrowSpeed * 1.3) * Math.sin(Math.toRadians(arrow.getRotation().y)));
+            arrowTip.y = followCamera.position.y
+                    + (float) ((followCamera.arrowSpeed * 1.3) * Math.sin(Math.toRadians(arrow.getRotation().x)));
+            arrowTip.z = followCamera.position.z
+                    + (float) ((followCamera.arrowSpeed * 1.3) * Math.cos(Math.toRadians(arrow.getRotation().y)));
+            position = arrowTip;
+        } else if (panningCamera.isActiveCamera) {
+            position = panningCamera.position;
+        } else {
+            return;
+        }
+        WavPlayer.setVolume(4,6f - ((float)Math.sqrt(pointToFireDistance(position)) * 1.5f));
+        WavPlayer.setVolume(3,4f - ((float)Math.sqrt(pointToCrowdDistance(position)) * 0.9f));
     }
 
 
@@ -347,12 +375,6 @@ public class GameController extends Controller {
                 wavPlayer.playSound(7, false);
         }
     }
-
-    double currentTime = 0;
-    double boostStartTime = 0;
-    double coolDownStartTime = 0;
-    boolean boosting = false;
-    float oldFOV;
 
     public synchronized void boost() {
         new Thread(new Runnable() {

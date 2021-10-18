@@ -8,7 +8,6 @@ import fire.olympics.display.Node;
 import fire.olympics.display.Renderer;
 import fire.olympics.display.Window;
 import fire.olympics.graphics.ModelLoader;
-import fire.olympics.particles.ParticleSystem;
 import fire.olympics.fontMeshCreator.FontType;
 import fire.olympics.fontMeshCreator.GUIText;
 
@@ -61,7 +60,7 @@ public class PhysicsCollisionController extends Controller {
     public PhysicsCollisionController(App app, Window window, Renderer renderer, ModelLoader loader, FontType fontType) {
         super(app, window, renderer, loader);
 
-        followCamera = new FollowCamera(window, null);
+        followCamera = new FollowCamera(window);
         followCamera.arrowSpeed = 10.0f;
         freeCamera = new FreeCamera(window);
         renderer.setCamera(followCamera);

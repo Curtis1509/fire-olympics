@@ -3,11 +3,9 @@ package fire.olympics.game;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_D;
 
-import fire.olympics.audio.WavPlayer;
 import fire.olympics.display.Camera;
 import fire.olympics.display.Node;
 import fire.olympics.display.Window;
-import org.joml.Vector3f;
 
 public class FollowCamera extends Camera {
     private final Window window;
@@ -26,9 +24,8 @@ public class FollowCamera extends Camera {
      * @param window Window this camera is in
      * @param target The object to focus the camera on
      */
-    public FollowCamera(Window window, GameController gameController) {
+    public FollowCamera(Window window) {
         this.window = window;
-        this.gameController = gameController;
     }
 
     /**
@@ -72,13 +69,6 @@ public class FollowCamera extends Camera {
         }
 
         moveCamera();
-
-        // update crowd, fire volumes based on distance
-        Vector3f arrowTip = new Vector3f(position.x + (float) ((arrowSpeed * 1.3) * Math.sin(Math.toRadians(target.getRotation().y))),
-                position.y + (float) ((arrowSpeed * 1.3) * Math.sin(Math.toRadians(target.getRotation().x))),
-                position.z + (float) ((arrowSpeed * 1.3) * Math.cos(Math.toRadians(target.getRotation().y))));
-        volumeUpdate(arrowTip);
-
     }
 
     private void processKeyBindings(double timeDelta) {
