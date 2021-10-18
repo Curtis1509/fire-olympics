@@ -59,7 +59,10 @@ public class GameController extends Controller {
     private final GUIText pressSpaceToPlayText;
     private final GUIText helpText;
     private final GUIText boostText;
+    private final GUIText brazierText;
     private String ringLocations;
+    private int numOfPoles = 5;
+    private int polesLit = 0;
 
     private final ArrayList<Node> children = new ArrayList<>();
     private ArrayList<Vector3f> fireSources = new ArrayList<>();
@@ -132,6 +135,14 @@ public class GameController extends Controller {
         helpText.position.y = 0.75f;
         renderer.addText(helpText);
 
+        brazierText = new GUIText(fontType, "Light the brazier");
+        brazierText.fontSize = 2f;
+        brazierText.isCentered = true;
+        brazierText.color.set(1.0f, 1.0f, 1.0f);
+        brazierText.isHidden = true;
+        brazierText.position.y = 0.75f;
+        renderer.addText(brazierText);
+
         boostText = new GUIText(fontType, "Press Shift to Booooooost!");
         boostText.fontSize = 1.5f;
         boostText.isCentered = true;
@@ -196,7 +207,7 @@ public class GameController extends Controller {
         brazier.name = "brazier";
         brazier.position.set(0, -3, -10);
         brazier.scale = 5.0f;
-        add(brazier);
+        children.add(brazier);
 
         brazier.physicsBody = new PhysicsBody();
         PlaneConstraint plane = new PlaneConstraint();
@@ -218,7 +229,7 @@ public class GameController extends Controller {
         ring.name = "ringt";
         ring.position.set(0, 2, -10);
 
-        addRings(5, ringLocations);
+        addRings(numOfPoles, ringLocations);
 
         wavPlayer.playSound(2, true);
         wavPlayer.playSound(3, true);
@@ -323,6 +334,8 @@ public class GameController extends Controller {
                 wavPlayer.playSound(4, true);
             fireSources.add(brazier.position);
             brazierFire.enabled = true;
+            brazierText.value = "Welcome to the 2021 Olympics!";
+            brazierText.fontSize = 3f;
         }
     }
 
@@ -448,6 +461,7 @@ public class GameController extends Controller {
         if (isPlaying()) {
             renderer.setCamera(followCamera);
         } else {
+            brazierText.isHidden = true;
             renderer.setCamera(panningCamera);
         }
     }
@@ -457,6 +471,7 @@ public class GameController extends Controller {
     }
 
     private void enterFreeRoamMode() {
+        brazierText.isHidden = true;
         renderer.setCamera(freeCamera);
         setIsPlaying(false);
         this.fireOlympicsText.isHidden = true;
@@ -508,12 +523,16 @@ public class GameController extends Controller {
         arrow.position.set(arrowInitPosition);
         arrow.rotation.set(arrowInitRotation);
         sky.position.set(skyInitPosition);
+        if (renderer.exists(brazier))
+            renderer.remove(brazier);
+        brazierText.isHidden = true;
         wavPlayer.playSound(6, false);
         score = 0;
         boosting = false;
         scoreText.value = "" + score;
         fireSources = new ArrayList<>();
         wavPlayer.stopSound(4);
+        polesLit = 0;
         brazierFire.enabled = false;
         // TODO andrew how do we turn off fire on the rings?
         for (Node child : children) {
@@ -586,6 +605,11 @@ public class GameController extends Controller {
             collidedObject = null;
             score++;
             scoreText.value = "" + score;
+            polesLit++;
+            if (polesLit == numOfPoles) {
+                brazierText.isHidden = false;
+                renderer.add(brazier);
+            }
             wavPlayer.playSound(0, false);
         }
     }

@@ -56,11 +56,24 @@ public class Renderer {
         gameItems.add(tree);
     }
 
+    public boolean exists(Node tree) {
+        if (gameItems.contains(tree)){
+            return true;
+        }
+        return false;
+    }
+
+    public void remove(Node tree) {
+        gameItems.remove(tree);
+    }
+
     public void addText(GUIText text) {
         textMeshes.add(new TextMesh(text));
     }
 
-    public void addSky(Node sky) {this.sky = sky;}
+    public void addSky(Node sky) {
+        this.sky = sky;
+    }
 
     public void setAspectRatio(float ratio) {
         aspectRatio = ratio;
@@ -78,7 +91,7 @@ public class Renderer {
     public float getFieldOfView() {
         return (float) Math.toDegrees(FOV);
     }
-    
+
     public void setZClipping(float near, float far) {
         z_near = near;
         z_far = far;
@@ -111,7 +124,9 @@ public class Renderer {
         }
     }
 
-    private void render(Node node) {render(node, false);}
+    private void render(Node node) {
+        render(node, false);
+    }
 
     private void render(Node node, boolean isSky) {
         if (node instanceof GameItem gameItem) {
@@ -123,8 +138,7 @@ public class Renderer {
                 skyShader.bind();
                 skyShader.setUniform("projectionMatrix", viewProjectionMatrix);
                 skyShader.setUniform("worldMatrix", worldMatrix);
-            }
-            else if (gameItem.mesh.hasTexture()) {
+            } else if (gameItem.mesh.hasTexture()) {
                 programWithTexture.bind();
                 programWithTexture.setUniform("projectionMatrix", viewProjectionMatrix);
                 programWithTexture.setUniform("sun", sunDirection);
