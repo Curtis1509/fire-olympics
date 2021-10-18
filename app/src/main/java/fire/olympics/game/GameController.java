@@ -194,7 +194,7 @@ public class GameController extends Controller {
         followCamera.target = arrow;
         add(arrow);
 
-        arrowFire.texture = loader.loadTexture("textures", "fire_particle.png");
+        arrowFire.texture = loader.loadTexture("textures", "fire.png");
         arrowFire.position.z = 3.5f;
         arrowFire.rotation.x = -90.0f;
         arrowFire.startRadius = 0.5f;
@@ -206,7 +206,7 @@ public class GameController extends Controller {
         brazier = loader.loadModel("models", "Brazier v2 Textured.obj");
         brazier.name = "brazier";
         brazier.position.set(0, -3, -10);
-        brazier.scale = 5.0f;
+        brazier.scale = 7f;
         children.add(brazier);
 
         brazier.physicsBody = new PhysicsBody();
@@ -220,7 +220,7 @@ public class GameController extends Controller {
         ellipsoid.scale.z = 2.0f;
         brazier.physicsBody.constraints.add(ellipsoid);
 
-        brazierFire.texture = loader.loadTexture("textures", "fire_particle.png");
+        brazierFire.texture = loader.loadTexture("textures", "fire3.png");
         brazierFire.position.y = 2.0f;
         brazierFire.enabled = false;
         brazier.addChild(brazierFire);
@@ -302,8 +302,15 @@ public class GameController extends Controller {
                 GameItem actualRing = (GameItem) ring.children.get(1);
                 emitter.position.y = actualRing.mesh.vertexLessThanEveryOtherVertex.y + actualRing.mesh.getHeight() / 2;
                 emitter.name = "fire-emitter";
-                emitter.texture = loader.loadTexture("textures", "fire_particle.png");
+                emitter.texture = loader.loadTexture("textures", "fire3.png");
                 ring.addChild(emitter);
+
+                SoftCampFireEmitter emitter2 = new SoftCampFireEmitter(100);
+                emitter2.enabled = false;
+                emitter2.position.y = actualRing.mesh.vertexLessThanEveryOtherVertex.y + actualRing.mesh.getHeight()/2;
+                emitter2.name = "fire-emitter2";
+                emitter2.texture = loader.loadTexture("textures", "fire2.png");
+                ring.addChild(emitter2);
                 add(ring);
             }
         }
@@ -539,8 +546,12 @@ public class GameController extends Controller {
         // TODO andrew how do we turn off fire on the rings?
         for (Node child : children) {
             Optional<Node> emitter = child.findNodeNamed("fire-emitter");
-            if (emitter.isPresent() && emitter.get() instanceof SoftCampFireEmitter) {
+            Optional<Node> emitter2 = child.findNodeNamed("fire-emitter2");
+            if (emitter.isPresent() && emitter2.isPresent() && emitter.get() instanceof SoftCampFireEmitter) {
                 SoftCampFireEmitter fireEmitter = (SoftCampFireEmitter) emitter.get();
+//                    fireEmitter.enabled = false;
+                fireEmitter.reset();
+                fireEmitter = (SoftCampFireEmitter) emitter2.get();
 //                    fireEmitter.enabled = false;
                 fireEmitter.reset();
             }
@@ -581,8 +592,10 @@ public class GameController extends Controller {
                     collidedObject = child;
                     System.out.println("COLLIDE");
                     Optional<Node> emitter = child.findNodeNamed("fire-emitter");
-                    if (emitter.isPresent() && emitter.get() instanceof SoftCampFireEmitter) {
+                    Optional<Node> emitter2 = child.findNodeNamed("fire-emitter2");
+                    if (emitter.isPresent() && emitter2.isPresent() && emitter.get() instanceof SoftCampFireEmitter) {
                         SoftCampFireEmitter fireEmitter = (SoftCampFireEmitter) emitter.get();
+                        SoftCampFireEmitter fireEmitter2 = (SoftCampFireEmitter) emitter2.get();
                         if (!fireEmitter.enabled) {
                             wavPlayer.playSound(1, false);
                             Vector3f here = new Vector3f(arrow.position.x, arrow.position.y, arrow.position.z);
@@ -591,6 +604,8 @@ public class GameController extends Controller {
                         if (!wavPlayer.isPlaying(4))
                             wavPlayer.playSound(4, true);
                         fireEmitter.enabled = true;
+                        fireEmitter2.enabled = true;
+
                     }
                 }
             }
