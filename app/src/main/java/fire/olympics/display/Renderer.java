@@ -113,11 +113,11 @@ public class Renderer {
         glBindTexture(GL_TEXTURE_2D, mapper.getDepthMap());
         glActiveTexture(GL_TEXTURE0);
 
+        if (sky != null) render(sky, true);
+
         for (Node child : gameItems) {
             render(child);
         }
-
-        if (sky != null) render(sky, true);
 
         if (textShaderProgram != null) {
             renderText();
