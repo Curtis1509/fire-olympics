@@ -61,6 +61,7 @@ public class GameController extends Controller {
     private String ringLocations;
 
     private final ArrayList<Node> children = new ArrayList<>();
+    private ArrayList<Vector3f> fireSources = new ArrayList<>();
 
     /**
      * Prefer using isPlaying() and setIsPlaying(_) over reading and writing to this field directly
@@ -319,6 +320,7 @@ public class GameController extends Controller {
                 wavPlayer.playSound(1, false);
             if (!wavPlayer.isPlaying(4))
                 wavPlayer.playSound(4, true);
+            fireSources.add(brazier.position);
             brazierFire.enabled = true;
         }
     }
@@ -506,6 +508,8 @@ public class GameController extends Controller {
             wavPlayer.playSound(6, false);
             score = 0;
             scoreText.value = "" + score;
+            fireSources = new ArrayList<>();
+            wavPlayer.stopSound(4);
             brazierFire.enabled = false;
             // TODO andrew how do we turn off fire on the rings?
             for (Node child : children) {
@@ -533,6 +537,13 @@ public class GameController extends Controller {
                     Optional<Node> emitter = child.findNodeNamed("fire-emitter");
                     if (emitter.isPresent() && emitter.get() instanceof SoftCampFireEmitter) {
                         SoftCampFireEmitter fireEmitter = (SoftCampFireEmitter) emitter.get();
+                        if (!fireEmitter.enabled) {
+                            wavPlayer.playSound(1, false);
+                            Vector3f here = new Vector3f(arrow.position.x, arrow.position.y, arrow.position.z);
+                            fireSources.add(here);
+                        }
+                        if (!wavPlayer.isPlaying(4))
+                            wavPlayer.playSound(4, true);
                         fireEmitter.enabled = true;
                     }
                 }
@@ -554,16 +565,12 @@ public class GameController extends Controller {
         }
     }
 
-    public float arrowToBrazierDistance() { // used for calculating sound
-        return pointToBrazierDistance(arrow.position);
-    }
-
-    public float pointToBrazierDistance(Vector3f point) { // used for calculating sound
-        return vectorPointDistance(point, brazier.position);
-    }
-
-    public float arrowToCrowdDistance() {
-        return pointToCrowdDistance(arrow.position);
+    public float pointToFireDistance(Vector3f point) {
+        float dist = 1000f;
+        for (Vector3f source : fireSources) {
+            dist = Math.min(dist,vectorPointDistance(source, point));
+        }
+        return dist;
     }
 
     public float pointToCrowdDistance(Vector3f point) { // used for calculating sound
@@ -578,11 +585,6 @@ public class GameController extends Controller {
     private float vectorPointDistance(Vector3f p0, Vector3f p1) {
         // this exists because the vector3f distance formula takes coordinates not vectors
         return distance(p0.x, p0.y, p0.z, p1.x, p1.y, p1.z);
-    }
-
-    private float vectorPointDistance2D(Vector3f p0, float x, float y, float z) {
-        // this exists because the vector3f distance formula takes coordinates not vectors
-        return distance(p0.x, p0.y, p0.z, x, y, z);
     }
 
     // Adjust angle of camera to match mouse movement
