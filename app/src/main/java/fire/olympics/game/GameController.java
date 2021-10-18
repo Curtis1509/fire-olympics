@@ -543,16 +543,17 @@ public class GameController extends Controller {
         wavPlayer.stopSound(4);
         polesLit = 0;
         brazierFire.enabled = false;
+        brazierFire.reset();
         // TODO andrew how do we turn off fire on the rings?
         for (Node child : children) {
             Optional<Node> emitter = child.findNodeNamed("fire-emitter");
             Optional<Node> emitter2 = child.findNodeNamed("fire-emitter2");
             if (emitter.isPresent() && emitter2.isPresent() && emitter.get() instanceof SoftCampFireEmitter) {
                 SoftCampFireEmitter fireEmitter = (SoftCampFireEmitter) emitter.get();
-//                    fireEmitter.enabled = false;
+                fireEmitter.enabled = false;
                 fireEmitter.reset();
                 fireEmitter = (SoftCampFireEmitter) emitter2.get();
-//                    fireEmitter.enabled = false;
+                fireEmitter.enabled = false;
                 fireEmitter.reset();
             }
         }
