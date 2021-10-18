@@ -12,7 +12,7 @@ uniform sampler2D depthMap;
 
 vec3 lightColour = vec3(1, 1, 1);
 float ambientStrength = 0.2;
-float specularStrength = 0.5;
+float specularStrength = 2;
 float shadowBias = 0.0005;
 
 vec3 lightDir;
@@ -28,7 +28,7 @@ float diffuseCalc() {
 
 float specCalc() {
     float temp = max(dot(normalize(-fragPos), reflect(-lightDir, norm)), 0);
-    return specularStrength * (temp == 0 && fragShiny == 0 ? 0 : pow(temp, fragShiny));
+    return specularStrength * (fragShiny == 0 ? 0 : pow(temp, fragShiny));
 }
 
 float shadowCalc() {

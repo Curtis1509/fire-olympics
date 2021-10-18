@@ -28,7 +28,7 @@ public class Camera extends Node {
 
     public void volumeUpdate(Vector3f position) {
         if (gameController != null) {
-            WavPlayer.setVolume(4,6f - ((float)Math.sqrt(gameController.pointToBrazierDistance(position)) * 1.5f));
+            WavPlayer.setVolume(4,6f - ((float)Math.sqrt(gameController.pointToFireDistance(position)) * 1.5f));
             WavPlayer.setVolume(3,4f - ((float)Math.sqrt(gameController.pointToCrowdDistance(position)) * 0.9f));
         }
     }

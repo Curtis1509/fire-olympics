@@ -191,4 +191,11 @@ public class ParticleSystem extends Node {
         texture.unbind();
         vao.done();
     }
+
+    public void reset() {
+        enabled = false;
+        for (float f : positionBuffer) f = 0f;
+        for (int i = 0; i < colorBuffer.length; i++)
+            if (i%4 == 3) colorBuffer[i] = 0f;
+    }
 }
