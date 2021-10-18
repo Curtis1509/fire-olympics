@@ -8,6 +8,9 @@ import fire.olympics.display.Renderer;
 import fire.olympics.display.Window;
 import fire.olympics.graphics.ModelLoader;
 import fire.olympics.particles.SoftCampFireEmitter;
+import fire.olympics.physics.EllipsoidConstraint;
+import fire.olympics.physics.PhysicsBody;
+import fire.olympics.physics.PlaneConstraint;
 import fire.olympics.fontMeshCreator.FontType;
 import fire.olympics.fontMeshCreator.GUIText;
 
@@ -192,8 +195,20 @@ public class GameController extends Controller {
         brazier.scale = 5.0f;
         add(brazier);
 
+        brazier.physicsBody = new PhysicsBody();
+        PlaneConstraint plane = new PlaneConstraint();
+        plane.origin.y = 1.0f;
+        brazier.physicsBody.constraints.add(plane);
+        EllipsoidConstraint ellipsoid = new EllipsoidConstraint();
+        ellipsoid.origin.y = 1.0f;
+        ellipsoid.scale.y = 4.0f;
+        ellipsoid.scale.x = 2.0f;
+        ellipsoid.scale.z = 2.0f;
+        brazier.physicsBody.constraints.add(ellipsoid);
+
         brazierFire.texture = loader.loadTexture("textures", "fire_particle.png");
         brazierFire.position.y = 2.0f;
+        brazierFire.enabled = false;
         brazier.addChild(brazierFire);
 
         ring = loader.loadModel("models", "ring.obj");
@@ -282,9 +297,24 @@ public class GameController extends Controller {
     @Override
     public void update(double timeDelta) {
         checkCollision();
+        tryLightBrazierOnFire();
         renderer.camera.update(timeDelta);
         brazierFire.update(timeDelta);
         arrowFire.update(timeDelta);
+    }
+
+
+    private void tryLightBrazierOnFire() {
+        // Okay, so what we need to do is check whether the position of the arrow in the
+        // coordinate space of the brazier is inside of the brazier's physics body.
+        // In particular I think we're interested in the tip of the arrow which is
+        // located where the particle effect is positioned. Note that a node's position
+        // is relative to it's parent's coordinate space, which means that
+        // arrowFire.position is meaningful in the arrow's local coordinate space.
+        Vector3f fireSource = brazier.convertPointFromCoordinateSpace(arrow, arrowFire.position);
+        if (brazier.physicsBody.isPointInsideBody(fireSource)) {
+            brazierFire.enabled = true;
+        }
     }
 
     double currentTime = 0;

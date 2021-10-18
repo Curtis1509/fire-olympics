@@ -4,6 +4,9 @@ import java.util.Optional;
 import java.util.ArrayList;
 
 import org.joml.Vector3f;
+
+import fire.olympics.physics.PhysicsBody;
+
 import org.joml.Matrix4f;
 
 /**
@@ -21,6 +24,7 @@ public class Node {
     private final Matrix4f matrix = new Matrix4f();
     private Optional<Node> parent = Optional.empty();;
     public final ArrayList<Node> children = new ArrayList<>();
+    public PhysicsBody physicsBody;
 
     public String name;
  
@@ -63,6 +67,75 @@ public class Node {
         parent.ifPresent(p -> matrix.mulLocal(p.getMatrix()));
         return matrix;
     }
+
+    /**
+     * Given a point in the coordinate space of node, return the equivalent point in
+     * the local coordinate space.
+     */
+    public Vector3f convertPointFromCoordinateSpace(Node node, Vector3f point) {
+        Vector3f dest = new Vector3f();
+        // Point is in node's coordinate space.
+        Matrix4f nodeToWorld = node.getMatrix();
+        // So map it into world's coordinate space.
+        nodeToWorld.transformPosition(point, dest);
+        // Point is in world's coordinate space.
+        Matrix4f worldToThis = getMatrix().invertAffine();
+        // So map it into local coordinate space.
+        worldToThis.transformPosition(dest);
+        return dest;
+    }
+
+    /*
+     * Given a point in the local coordinate space, return the equivalent point in
+     * the coordinate space of the given node.
+     */
+    public Vector3f convertPointToCoordinateSpace(Node node, Vector3f point) {
+        Vector3f dest = new Vector3f();
+        // Point is in local coordinate space.
+        Matrix4f thisToWorld = getMatrix();
+        // So map it into world's coordinate space.
+        thisToWorld.transformPosition(point, dest);
+        // Point is in world's coordinate space.
+        Matrix4f worldToNode = node.getMatrix().invertAffine();
+        // So map it into node's coordinate space.
+        worldToNode.transformPosition(dest);
+        return dest;
+    }
+
+    /**
+     * Given a direction in the coordinate space of node, return the equivalent
+     * direction in the local coordinate space.
+     */
+    public Vector3f convertDirectionFromCoordinateSpace(Node node, Vector3f point) {
+        Vector3f dest = new Vector3f();
+        // Point is in node's coordinate space.
+        Matrix4f nodeToWorld = node.getMatrix();
+        // So map it into world's coordinate space.
+        nodeToWorld.transformDirection(point, dest);
+        // Point is in world's coordinate space.
+        Matrix4f worldToThis = getMatrix().invertAffine();
+        // So map it into local coordinate space.
+        worldToThis.transformPosition(dest);
+        return dest;
+    }
+
+    /*
+     * Given a direction in the local coordinate space, return the equivalent
+     * direction in the coordinate space of the given node.
+     */
+    public Vector3f convertDirectionToCoordinateSpace(Node node, Vector3f point) {
+        Vector3f dest = new Vector3f();
+        // Point is in local coordinate space.
+        Matrix4f thisToWorld = getMatrix();
+        // So map it into world's coordinate space.
+        thisToWorld.transformDirection(point, dest);
+        // Point is in world's coordinate space.
+        Matrix4f worldToNode = node.getMatrix().invertAffine();
+        // So map it into node's coordinate space.
+        worldToNode.transformPosition(dest);
+        return dest;
+    }
+
 
     public void setParent(Node parent) {
         removeFromParent();
